@@ -1,19 +1,12 @@
 {
-  "name": "Fit Denník",
-  "short_name": "Fit Denník",
-  "description": "Osobný fitness denník na kalórie, makrá, vodu, tréningy a progres.",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#07111d",
-  "theme_color": "#07111d",
-  "lang": "sk",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "name":"Fit Denník",
+  "short_name":"Fit Denník",
+  "description":"Fitness denník: strava, tréning, progres a regenerácia.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#07111d",
+  "theme_color":"#07111d",
+  "lang":"sk",
+  "icons":[{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
