@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
-<title>Fit Denník v3</title>
+<title>Fit Denník</title>
 <style>
 :root{--bg:#07111d;--card:#101d2c;--card2:#14263a;--line:#284057;--text:#f4f8fb;--muted:#97aabc;--blue:#3aa0ff;--green:#39d98a;--purple:#8b68ff;--orange:#ff8b3d;--red:#ff6868;--yellow:#ffd75b}
 *{box-sizing:border-box}html,body{margin:0;background:linear-gradient(180deg,#14314a 0,#07111d 28%,#07111d 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}body{min-height:100vh}
@@ -41,13 +41,59 @@ input,select,textarea{width:100%;background:#0d1928;color:#fff;border:1px solid 
 .bottomnav{position:fixed;left:0;right:0;bottom:0;background:#07111df2;backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom));z-index:10}.bottomnav .inner{max-width:820px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.navbtn{background:transparent;color:#9db0c2;padding:8px 4px;font-size:11px}.navbtn span{display:block;font-size:20px}.navbtn.active{color:#fff;background:#132235}
 .banner{border:1px solid #715d1d;background:#312b14;color:#ffe894;border-radius:14px;padding:12px;margin-top:12px;display:none}
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:540px){.macro,.recovery{grid-template-columns:1fr}.challenge{grid-template-columns:1fr}.setrow{grid-template-columns:45px 1fr 1fr auto;font-size:12px}.photo-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* Fit Denník v4 – prihlasovanie a cloud */
+body.locked .app,body.locked .bottomnav{display:none}
+.gate{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at top,#173b5c 0,#07111d 45%,#050b12 100%);overflow:auto;padding:calc(env(safe-area-inset-top) + 22px) 14px calc(env(safe-area-inset-bottom) + 22px)}
+.gate.hidden{display:none}.gate-card{max-width:520px;margin:5vh auto 0;background:linear-gradient(180deg,#14263a,#0e1a28);border:1px solid var(--line);border-radius:26px;padding:22px;box-shadow:0 22px 60px #0008}.gate-logo{text-align:center;font-size:48px}.gate h1{text-align:center;margin:6px 0 2px}.gate .lead{text-align:center;color:#b9c8d5;margin:0 0 18px}.gate-grid{display:grid;gap:10px}.gate-note{font-size:12px;color:var(--muted);line-height:1.45}.gate-msg{display:none;margin-top:12px;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:#0d1928;font-size:13px}.gate-msg.ok{display:block;border-color:#256b49;color:#aef0cd}.gate-msg.err{display:block;border-color:#7a3640;color:#ffd2d6}.gate-msg.info{display:block;border-color:#315f88;color:#cbe7ff}
+.auth-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.auth-link{background:transparent;color:#9dccff;padding:8px;text-decoration:underline}.cloudline{display:flex;align-items:center;gap:7px;margin-top:9px;font-size:12px;color:#c4d3df}.cloud-dot{width:8px;height:8px;border-radius:50%;background:#8998a5}.cloud-dot.ok{background:var(--green)}.cloud-dot.wait{background:var(--yellow)}.cloud-dot.err{background:var(--orange)}
+.calcbox{background:#0d1928;border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:10px}.calcbox b{font-size:17px}.privacy-check{display:flex;gap:9px;align-items:flex-start;color:#c7d4df;font-size:13px}.privacy-check input{width:auto;margin-top:3px}
+@media(max-width:520px){.auth-row{grid-template-columns:1fr}.gate-card{margin-top:1vh}}
 </style>
 </head>
-<body>
+<body class="locked">
+
+<div id="authGate" class="gate">
+  <div class="gate-card">
+    <div class="gate-logo">🏋️</div><h1>Fit Denník</h1><p class="lead">Tvoj účet, tvoje dáta, na každom zariadení.</p>
+    <div id="authNormal" class="gate-grid">
+      <input id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="E-mail">
+      <input id="authPassword" type="password" autocomplete="current-password" placeholder="Heslo (min. 8 znakov)">
+      <input id="authPassword2" type="password" autocomplete="new-password" placeholder="Zopakovať heslo – iba pri registrácii">
+      <div class="auth-row"><button id="loginBtn" class="btn-blue">Prihlásiť sa</button><button id="signupBtn" class="btn-green">Vytvoriť účet</button></div>
+      <button id="forgotBtn" class="auth-link">Zabudol som heslo</button>
+      <div class="gate-note">Heslo si vytváraš sám. Fit Denník ho neukladá ako čitateľný text. Po registrácii môže byť potrebné potvrdiť e-mail.</div>
+    </div>
+    <div id="recoveryBox" class="gate-grid" style="display:none">
+      <h3 style="margin:0">Nastaviť nové heslo</h3><input id="newPassword" type="password" autocomplete="new-password" placeholder="Nové heslo (min. 8 znakov)"><input id="newPassword2" type="password" autocomplete="new-password" placeholder="Zopakovať nové heslo"><button id="setPasswordBtn" class="btn-green">Uložiť nové heslo</button>
+    </div>
+    <div id="authMessage" class="gate-msg"></div>
+  </div>
+</div>
+
+<div id="onboardingGate" class="gate hidden">
+  <div class="gate-card">
+    <div class="gate-logo">🎯</div><h1 id="onboardingTitle">Nastav si svoj cieľ</h1><p class="lead">Z týchto údajov vypočítame štartovacie kalórie a makrá. Všetko si môžeš neskôr upraviť.</p>
+    <div class="gate-grid">
+      <input id="obName" autocomplete="name" placeholder="Meno alebo prezývka – voliteľné">
+      <div class="row"><select id="obSex"><option value="">Pohlavie pre výpočet</option><option value="male">Muž</option><option value="female">Žena</option></select><input id="obAge" type="number" min="18" max="100" placeholder="Vek"></div>
+      <div class="row"><input id="obHeight" type="number" min="120" max="230" step="1" placeholder="Výška cm"><input id="obWeight" type="number" min="35" max="350" step="0.1" placeholder="Hmotnosť kg"><input id="obTarget" type="number" min="35" max="350" step="0.1" placeholder="Cieľová hmotnosť kg"></div>
+      <select id="obActivity"><option value="">Bežná aktivita</option><option value="sedentary">Málo pohybu / sedavá práca</option><option value="light">Ľahko aktívny</option><option value="moderate">Stredne aktívny</option><option value="very_active">Veľmi aktívny</option><option value="extra_active">Extrémne aktívny</option></select>
+      <select id="obGoal"><option value="">Hlavný cieľ</option><option value="lose_fat">Schudnúť tuk</option><option value="recomposition">Rekompozícia – menej tuku, viac svalov</option><option value="maintain">Udržať hmotnosť</option><option value="gain_muscle">Nabrať svaly / hmotnosť</option></select>
+      <div id="goalCalcPreview" class="calcbox" style="display:none"></div>
+      <label class="privacy-check"><input id="obPrivacy" type="checkbox"><span>Rozumiem, že údaje o hmotnosti, meraniach, jedle a tréningu sa budú ukladať do môjho súkromného účtu v cloude.</span></label>
+      <button id="onboardingSaveBtn" class="btn-green">Vypočítať ciele a pokračovať</button>
+      <button id="onboardingCancelBtn" class="btn-soft" style="display:none">Zrušiť úpravu profilu</button>
+      <div id="onboardingMessage" class="gate-msg"></div>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <div class="hero">
     <div class="brand"><div class="logo">🏋️</div><div><h1>Fit Denník</h1><p>Strava, tréning, regenerácia a progres.</p></div></div>
     <div class="datebar"><button id="prevDay" class="btn-soft">‹</button><input id="dayInput" type="date"><button id="nextDay" class="btn-soft">›</button></div>
+    <div class="cloudline"><span id="cloudDot" class="cloud-dot"></span><span id="cloudStatus">Čakám na prihlásenie</span></div>
     <div id="backupBanner" class="banner">💾 Od poslednej zálohy ubehol viac než týždeň. V časti Ciele → Dáta sprav Export JSON.</div>
   </div>
 
@@ -137,6 +183,8 @@ input,select,textarea{width:100%;background:#0d1928;color:#fff;border:1px solid 
 
   <section class="section" id="settings">
     <div class="grid">
+
+      <div class="card full"><h3>👤 Účet a cloud</h3><div><b id="accountEmail">—</b></div><div class="cloudline"><span id="cloudDotSettings" class="cloud-dot"></span><span id="cloudSyncText">—</span></div><div class="row" style="margin-top:10px"><button id="editProfileBtn" class="btn-soft">Upraviť profil</button><button id="pullCloudBtn" class="btn-soft">Obnoviť z cloudu</button><button id="legacyImportBtn" class="btn-soft">Preniesť staré dáta</button><button id="logoutBtn" class="btn-red">Odhlásiť sa</button></div><div class="notice">Fotky progresu zostávajú lokálne na zariadení. Ostatné dáta sa synchronizujú s tvojím účtom.</div></div>
       <div class="card full"><h3>🎯 Denné ciele</h3><div class="row"><input id="goalKcal" type="number" placeholder="kcal"><input id="goalProtein" type="number" placeholder="bielkoviny g"><input id="goalCarbs" type="number" placeholder="sacharidy g"><input id="goalFat" type="number" placeholder="tuky g"><input id="goalWater" type="number" placeholder="voda ml"><input id="goalSteps" type="number" placeholder="kroky"></div><h3 style="margin-top:16px">🏆 Týždenný challenge</h3><div class="row"><input id="goalStrength" type="number" min="0" placeholder="silové tréningy"><input id="goalCardio" type="number" min="0" placeholder="kardio tréningy"></div><button class="btn-green" id="saveGoalsBtn" style="margin-top:8px;width:100%">Uložiť ciele</button></div>
       <div class="card full"><h3>💾 Dáta</h3><div class="row"><button class="btn-soft" id="exportBtn">Export JSON</button><label class="btn-soft" style="text-align:center;cursor:pointer">Import JSON<input id="importInput" type="file" accept="application/json" style="display:none"></label><button class="btn-red" id="resetDayBtn">Vymazať vybraný deň</button></div><div class="notice">Export zahŕňa jedlá, tréningy, merania, šablóny a nastavenia. Fotky nie.</div></div>
     </div>
@@ -146,6 +194,71 @@ input,select,textarea{width:100%;background:#0d1928;color:#fff;border:1px solid 
 <nav class="bottomnav"><div class="inner"><button class="navbtn active" data-tab="overview"><span>🏠</span>Dnes</button><button class="navbtn" data-tab="food"><span>🍽️</span>Jedlo</button><button class="navbtn" data-tab="training"><span>🏋️</span>Tréning</button><button class="navbtn" data-tab="progress"><span>📈</span>Progres</button><button class="navbtn" data-tab="settings"><span>⚙️</span>Ciele</button></div></nav>
 
 <script>
+
+const SUPABASE_URL="https://cqzvptnsdkkzjouptbdk.supabase.co";
+const SUPABASE_KEY="sb_publishable_5gvO4D6fIcc38_kVdSzeJQ_EWIAnKQV";
+const AUTH_KEY="fit-dennik-auth-v1";
+const LEGACY_KEY="fit-dennik-app-v1";
+const LEGACY_OWNER_KEY="fit-dennik-legacy-owner-v4";
+const CACHE_PREFIX="fit-dennik-app-v4:";
+let session=null,currentUser=null,currentProfile=null,recoveryMode=false,cloudTimer=null,cloudSaving=false,cloudDirty=false,lastCloudUpdatedAt=null,editingProfile=false;
+
+function blankStore(){return{goals:{kcal:2500,protein:190,carbs:255,fat:80,water:3000,steps:8000,strength:4,cardio:2},days:{},customFoods:[],favorites:[],templates:[],mealTemplates:[],shopping:[],lastExport:0}}
+function normalizeStore(x){const b=blankStore(),v=x&&typeof x==="object"?x:{};return{...b,...v,goals:{...b.goals,...(v.goals||{})},days:v.days||{},customFoods:v.customFoods||[],favorites:v.favorites||[],templates:v.templates||[],mealTemplates:v.mealTemplates||[],shopping:v.shopping||[],lastExport:v.lastExport||0}}
+function readJSON(k){try{return JSON.parse(localStorage.getItem(k)||"null")}catch(e){return null}}
+function writeJSON(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+let legacyStore=readJSON(LEGACY_KEY);legacyStore=legacyStore?normalizeStore(legacyStore):null;
+function userCacheKey(){return currentUser?CACHE_PREFIX+currentUser.id:null}
+function loadUserCache(){const k=userCacheKey(),v=k?readJSON(k):null;return v?normalizeStore(v):blankStore()}
+function saveLocalOnly(){const k=userCacheKey();if(k)writeJSON(k,store)}
+function hasMeaningfulData(x){if(!x)return false;return Object.keys(x.days||{}).length>0||(x.customFoods||[]).length>0||(x.favorites||[]).length>0||(x.templates||[]).length>0||(x.mealTemplates||[]).length>0||(x.shopping||[]).length>0}
+function setGateMessage(id,msg,type="info"){const el=document.getElementById(id);if(!el)return;el.textContent=msg||"";el.className="gate-msg"+(msg?" "+type:"")}
+function setCloudStatus(msg,state="wait"){for(const id of ["cloudStatus","cloudSyncText"]){const e=document.getElementById(id);if(e)e.textContent=msg}for(const id of ["cloudDot","cloudDotSettings"]){const e=document.getElementById(id);if(e)e.className="cloud-dot "+state}}
+function showAuth(msg="",type="info"){document.body.classList.add("locked");document.getElementById("authGate").classList.remove("hidden");document.getElementById("onboardingGate").classList.add("hidden");document.getElementById("authNormal").style.display=recoveryMode?"none":"grid";document.getElementById("recoveryBox").style.display=recoveryMode?"grid":"none";setGateMessage("authMessage",msg,type)}
+function showApp(){document.getElementById("authGate").classList.add("hidden");document.getElementById("onboardingGate").classList.add("hidden");document.body.classList.remove("locked");if(document.getElementById("accountEmail"))document.getElementById("accountEmail").textContent=currentUser?.email||"—";render()}
+function showOnboarding(profile=null,edit=false){editingProfile=edit;document.body.classList.add("locked");document.getElementById("authGate").classList.add("hidden");document.getElementById("onboardingGate").classList.remove("hidden");document.getElementById("onboardingTitle").textContent=edit?"Upraviť profil":"Nastav si svoj cieľ";document.getElementById("onboardingCancelBtn").style.display=edit?"block":"none";if(profile){document.getElementById("obName").value=profile.display_name||"";document.getElementById("obSex").value=profile.sex||"";document.getElementById("obAge").value=profile.age_years||"";document.getElementById("obHeight").value=profile.height_cm||"";document.getElementById("obWeight").value=latestWeightFromAny()||profile.starting_weight_kg||"";document.getElementById("obTarget").value=profile.target_weight_kg||"";document.getElementById("obActivity").value=profile.activity_level||"";document.getElementById("obGoal").value=profile.goal_type||"";document.getElementById("obPrivacy").checked=!!profile.privacy_accepted_at}previewCalculatedGoals();setGateMessage("onboardingMessage","")}
+function latestWeightFromAny(){const sources=[store];if(currentUser&&localStorage.getItem(LEGACY_OWNER_KEY)===currentUser.id&&legacyStore)sources.push(legacyStore);for(const source of sources){if(!source)continue;const dates=Object.keys(source.days||{}).sort().reverse();for(const d of dates){const w=Number(source.days[d]?.weight);if(w>0)return w}}return null}
+
+function currentRedirectUrl(){return location.origin+location.pathname}
+function saveSession(data){if(!data?.access_token||!data?.refresh_token)return null;session={access_token:data.access_token,refresh_token:data.refresh_token,token_type:data.token_type||"bearer",expires_at:Date.now()+((Number(data.expires_in)||3600)*1000)-30000,user:data.user||session?.user||null};writeJSON(AUTH_KEY,session);return session}
+function clearSession(){session=null;currentUser=null;currentProfile=null;localStorage.removeItem(AUTH_KEY)}
+async function authRequest(path,{method="GET",body=null,token=null}={}){const headers={apikey:SUPABASE_KEY,"Content-Type":"application/json"};if(token)headers.Authorization="Bearer "+token;const r=await fetch(SUPABASE_URL+"/auth/v1"+path,{method,headers,body:body?JSON.stringify(body):undefined});const text=await r.text();let data=null;try{data=text?JSON.parse(text):null}catch(e){data={message:text}}if(!r.ok){const err=new Error(data?.msg||data?.message||data?.error_description||data?.error||("HTTP "+r.status));err.status=r.status;throw err}return data}
+async function refreshSession(){const saved=session||readJSON(AUTH_KEY);if(!saved?.refresh_token)throw new Error("Nie si prihlásený.");const data=await authRequest("/token?grant_type=refresh_token",{method:"POST",body:{refresh_token:saved.refresh_token}});return saveSession(data)}
+async function ensureSession(){session=session||readJSON(AUTH_KEY);if(!session?.access_token)return null;if(!session.expires_at||Date.now()>session.expires_at){try{await refreshSession()}catch(e){clearSession();return null}}return session}
+async function getAuthUser(){const s=await ensureSession();if(!s)return null;try{return await authRequest("/user",{token:s.access_token})}catch(e){if(e.status===401){try{await refreshSession();return await authRequest("/user",{token:session.access_token})}catch(_){clearSession();return null}}throw e}}
+function friendlyAuthError(e){const m=String(e?.message||e||"");if(/invalid login credentials/i.test(m))return"Nesprávny e-mail alebo heslo.";if(/email not confirmed/i.test(m))return"E-mail ešte nie je potvrdený. Otvor potvrdzovací e-mail a potom sa prihlás.";if(/password/i.test(m)&&/least/i.test(m))return"Heslo je príliš krátke.";if(/rate limit/i.test(m))return"Príliš veľa pokusov. Skús to o chvíľu.";return m||"Nastala chyba."}
+async function restRequest(path,{method="GET",body=null,prefer=null,retry=true}={}){const s=await ensureSession();if(!s)throw new Error("Nie si prihlásený.");const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+s.access_token,"Content-Type":"application/json"};if(prefer)headers.Prefer=prefer;let r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{method,headers,body:body?JSON.stringify(body):undefined});if(r.status===401&&retry){await refreshSession();return restRequest(path,{method,body,prefer,retry:false})}const text=await r.text();let data=null;try{data=text?JSON.parse(text):null}catch(e){data=text}if(!r.ok)throw new Error(data?.message||data?.hint||("HTTP "+r.status));return data}
+async function loadProfile(){const a=await restRequest("profiles?id=eq."+encodeURIComponent(currentUser.id)+"&select=*");return Array.isArray(a)&&a.length?a[0]:null}
+async function saveProfileCloud(p){const data={id:currentUser.id,...p};const a=await restRequest("profiles?on_conflict=id",{method:"POST",body:data,prefer:"resolution=merge-duplicates,return=representation"});currentProfile=Array.isArray(a)?a[0]:p;return currentProfile}
+async function saveGoalsCloud(){if(!currentUser)return;const g=store.goals;await restRequest("goals?on_conflict=user_id",{method:"POST",body:{user_id:currentUser.id,calories:g.kcal,protein_g:g.protein,carbs_g:g.carbs,fat_g:g.fat,water_ml:g.water,steps:g.steps,strength_sessions_week:g.strength,cardio_sessions_week:g.cardio},prefer:"resolution=merge-duplicates,return=minimal"})}
+async function loadCloudState(){const a=await restRequest("app_state?user_id=eq."+encodeURIComponent(currentUser.id)+"&select=data,updated_at");return Array.isArray(a)&&a.length?a[0]:null}
+async function pushCloudState(){
+  if(!currentUser)return;
+  if(cloudSaving){cloudDirty=true;return}
+  cloudSaving=true;cloudDirty=false;
+  const snapshot=JSON.parse(JSON.stringify(store));
+  setCloudStatus("Synchronizujem…","wait");
+  try{
+    const a=await restRequest("app_state?on_conflict=user_id",{method:"POST",body:{user_id:currentUser.id,data:snapshot},prefer:"resolution=merge-duplicates,return=representation"});
+    lastCloudUpdatedAt=Array.isArray(a)&&a[0]?.updated_at?a[0].updated_at:new Date().toISOString();
+    setCloudStatus("Synchronizované","ok")
+  }catch(e){
+    cloudDirty=true;
+    setCloudStatus("Uložené v mobile – cloud čaká","err")
+  }finally{
+    cloudSaving=false;
+    if(cloudDirty&&navigator.onLine){clearTimeout(cloudTimer);cloudTimer=setTimeout(pushCloudState,150)}
+  }
+}
+function queueCloudSync(){if(!currentUser)return;cloudDirty=true;clearTimeout(cloudTimer);setCloudStatus(navigator.onLine?"Čaká na synchronizáciu":"Offline – uložené v mobile",navigator.onLine?"wait":"err");if(navigator.onLine)cloudTimer=setTimeout(pushCloudState,700)}
+async function pullCloudIntoApp(ask=false){const row=await loadCloudState();if(!row?.data)return false;if(ask&&!confirm("Načítať údaje z cloudu? Aktuálna lokálna kópia sa nahradí cloudovou."))return false;store=normalizeStore(row.data);lastCloudUpdatedAt=row.updated_at||null;saveLocalOnly();render();setCloudStatus("Načítané z cloudu","ok");return true}
+function claimLegacyForUser(){let owner=localStorage.getItem(LEGACY_OWNER_KEY);if(!owner){owner=currentUser.id;localStorage.setItem(LEGACY_OWNER_KEY,owner)}return owner===currentUser.id}
+async function importLegacyIfAvailable(interactive=true,preserveGoals=null){if(!legacyStore||!hasMeaningfulData(legacyStore)||!claimLegacyForUser())return false;if(localStorage.getItem("fit-dennik-legacy-imported:"+currentUser.id)==="1")return false;let yes=true;if(interactive)yes=confirm("Našli sme údaje zo staršej verzie Fit Denníka na tomto zariadení. Chceš ich preniesť do svojho účtu a cloudu?");if(!yes)return false;store=normalizeStore(legacyStore);if(preserveGoals)store.goals={...preserveGoals};saveLocalOnly();localStorage.setItem("fit-dennik-legacy-imported:"+currentUser.id,"1");await saveGoalsCloud().catch(()=>{});await pushCloudState();render();return true}
+async function bootstrapUser(){const u=await getAuthUser();if(!u){showAuth("Prihlás sa do svojho účtu.","info");return}currentUser=u;store=loadUserCache();document.getElementById("accountEmail").textContent=u.email||"—";setCloudStatus(navigator.onLine?"Pripájam cloud…":"Offline – lokálna kópia","wait");try{currentProfile=await loadProfile()}catch(e){currentProfile=null}if(!currentProfile?.onboarding_completed){showOnboarding(currentProfile||{},false);return}try{const cloud=await loadCloudState();if(cloud?.data){store=normalizeStore(cloud.data);lastCloudUpdatedAt=cloud.updated_at||null;saveLocalOnly();setCloudStatus("Synchronizované","ok")}else{const imported=await importLegacyIfAvailable(true);if(!imported)await pushCloudState()}}catch(e){setCloudStatus("Cloud nedostupný – lokálna kópia","err")}showApp()}
+function handleAuthHash(){const h=new URLSearchParams(location.hash.replace(/^#/,""));if(h.get("error_description")){setTimeout(()=>showAuth(decodeURIComponent(h.get("error_description")),"err"),0);history.replaceState({},document.title,location.pathname+location.search);return}const at=h.get("access_token"),rt=h.get("refresh_token");if(at&&rt){saveSession({access_token:at,refresh_token:rt,expires_in:Number(h.get("expires_in")||3600),token_type:h.get("token_type")||"bearer"});recoveryMode=h.get("type")==="recovery";history.replaceState({},document.title,location.pathname+location.search)}}
+function calculateTargets(){const sex=document.getElementById("obSex").value,age=Number(document.getElementById("obAge").value),h=Number(document.getElementById("obHeight").value),w=Number(document.getElementById("obWeight").value),activity=document.getElementById("obActivity").value,goal=document.getElementById("obGoal").value;if(!sex||!age||!h||!w||!activity||!goal)return null;const factor={sedentary:1.2,light:1.375,moderate:1.55,very_active:1.725,extra_active:1.9}[activity],adj={lose_fat:.85,recomposition:.95,maintain:1,gain_muscle:1.08}[goal];const bmr=10*w+6.25*h-5*age+(sex==="male"?5:-161),tdee=bmr*factor;let kcal=Math.round((tdee*adj)/50)*50;const floor=sex==="male"?1600:1300;kcal=Math.max(floor,kcal);const protein=Math.round(w*((goal==="lose_fat"||goal==="recomposition")?2:1.8)),fat=Math.round(w*.8),carbs=Math.max(0,Math.round((kcal-protein*4-fat*9)/4)),water=Math.round((w*35)/250)*250;return{bmr:Math.round(bmr),tdee:Math.round(tdee),kcal,protein,carbs,fat,water,steps:8000,strength:goal==="gain_muscle"?4:3,cardio:goal==="gain_muscle"?1:2}}
+function previewCalculatedGoals(){const x=calculateTargets(),el=document.getElementById("goalCalcPreview");if(!x){el.style.display="none";return}el.style.display="block";el.innerHTML=`<b>Odhad cieľov</b><div class="badges" style="margin-top:8px"><span class="badge">${x.kcal} kcal</span><span class="badge">B ${x.protein} g</span><span class="badge">S ${x.carbs} g</span><span class="badge">T ${x.fat} g</span><span class="badge">Voda ${x.water} ml</span></div><div class="gate-note" style="margin-top:8px">Odhad BMR ${x.bmr} kcal, udržiavací príjem približne ${x.tdee} kcal. Sú to štartovacie hodnoty, nie medicínske odporúčanie.</div>`}
+
 const baseFoods=[
 ["Kuracie prsia",165,31,0,3.6],["Morčacie prsia",135,29,0,1.5],["Hovädzie chudé",180,27,0,8],["Bravčová panenka",143,26,0,3.5],["Mleté hovädzie 10 %",176,20,0,10],
 ["Losos",208,20,0,13],["Tuniak vo vlastnej šťave",116,26,0,1],["Treska",82,18,0,0.7],["Krevety",99,24,0.2,0.3],
@@ -158,11 +271,9 @@ const baseFoods=[
 ["Whey proteín",400,80,8,6],["Whey isolate",370,86,4,2]
 ].map((x,i)=>({id:"b"+i,name:x[0],k:x[1],p:x[2],c:x[3],f:x[4],custom:false}));
 
-const KEY="fit-dennik-app-v1";
+const KEY=LEGACY_KEY;
 const defaults={kcal:2500,protein:190,carbs:255,fat:80,water:3000,steps:8000,strength:4,cardio:2};
-let store={goals:{...defaults},days:{},customFoods:[],favorites:[],templates:[],mealTemplates:[],shopping:[],lastExport:0};
-try{const raw=localStorage.getItem(KEY);if(raw)store=JSON.parse(raw)}catch(e){}
-store.goals={...defaults,...(store.goals||{})};store.days=store.days||{};store.customFoods=store.customFoods||[];store.favorites=store.favorites||[];store.templates=store.templates||[];store.mealTemplates=store.mealTemplates||[];store.shopping=store.shopping||[];store.lastExport=store.lastExport||0;
+let store=blankStore();
 
 const $=id=>document.getElementById(id);
 const localDate=()=>{const d=new Date(),o=d.getTimezoneOffset();return new Date(d.getTime()-o*60000).toISOString().slice(0,10)};
@@ -172,7 +283,7 @@ function dayData(date=selectedDay){
  if(!store.days[date])store.days[date]={water:0,foods:[],training:[],exercises:[],weight:null,waist:null,chest:null,arm:null,thigh:null,hips:null,steps:0,note:"",sleep:null,energy:null,soreness:null,stress:null};
  const d=store.days[date];d.foods=d.foods||[];d.training=d.training||[];d.exercises=d.exercises||[];return d
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}render()}
+function save(){saveLocalOnly();render();queueCloudSync()}
 function pct(v,g){return Math.max(0,Math.min(100,g?Math.round(v/g*100):0))}
 function allFoods(){return [...baseFoods,...store.customFoods]}
 function totals(date=selectedDay){return dayData(date).foods.reduce((a,x)=>({k:a.k+x.k,p:a.p+x.p,c:a.c+x.c,f:a.f+x.f}),{k:0,p:0,c:0,f:0})}
@@ -198,6 +309,13 @@ function renderCalendar(){const base=new Date(selectedDay+"T12:00:00"),y=base.ge
 function renderChart(id,field,klass=""){const points=Object.keys(store.days).sort().map(d=>({d,v:Number(store.days[d][field])})).filter(x=>x.v>0).slice(-30);const el=$(id);if(points.length<2){el.innerHTML='<div class="sub" style="padding:18px">Na graf treba aspoň 2 záznamy.</div>';return}const W=700,H=175,pad=28,min=Math.min(...points.map(x=>x.v)),max=Math.max(...points.map(x=>x.v)),span=max-min||1;const coords=points.map((x,i)=>({x:pad+i*(W-2*pad)/(points.length-1),y:H-pad-(x.v-min)/span*(H-2*pad),...x}));const path=coords.map((p,i)=>(i?"L":"M")+p.x.toFixed(1)+" "+p.y.toFixed(1)).join(" ");el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><text x="6" y="18" class="chart-label">${max.toFixed(1)}</text><text x="6" y="${H-8}" class="chart-label">${min.toFixed(1)}</text><path d="${path}" class="chart-line ${klass}"/>${coords.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-dot"/>`).join("")}</svg>`}
 function addFoodSnapshot(f,g,meal,time){const m=g/100;dayData().foods.push({meal,time:time||"",name:f.name,g,k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m})}
 function renderExercises(){const d=dayData();$("exerciseList").innerHTML=d.exercises.length?d.exercises.map((ex,ei)=>`<div class="exercise"><div class="row" style="align-items:center"><h4 style="flex:2">${ex.name}</h4><button class="btn-soft suggest-btn" data-ei="${ei}">Tip progresu</button><button class="btn-red remove-ex" data-ei="${ei}">Odstrániť</button></div><div class="setrow sethead"><span>Séria</span><span>kg</span><span>opak.</span><span></span></div>${(ex.sets||[]).map((s,si)=>`<div class="setrow"><span>${si+1}</span><span>${s.weight}</span><span>${s.reps}</span><button class="btn-soft del-set" data-ei="${ei}" data-si="${si}">×</button></div>`).join("")}<div class="row" style="margin-top:8px"><input class="set-weight" data-ei="${ei}" type="number" step=".5" placeholder="kg"><input class="set-reps" data-ei="${ei}" type="number" min="1" placeholder="opak."><button class="btn-green add-set" data-ei="${ei}">+ séria</button></div></div>`).join(""):'<div class="sub">Pridaj prvý cvik.</div>'}
+function shouldShowBackupBanner(){
+ const week=7*864e5,last=Number(store.lastExport)||0;
+ if(last)return Date.now()-last>week;
+ if(!hasMeaningfulData(store))return false;
+ const created=currentProfile?.created_at?Date.parse(currentProfile.created_at):NaN;
+ return Number.isFinite(created)?Date.now()-created>week:false
+}
 function render(){
  const d=dayData(),g=store.goals,t=totals(),burn=d.training.reduce((s,x)=>s+(Number(x.burn)||0),0),week=weeklyChallenge(),wv=workoutVolume();
  $("waterNow").textContent=d.water;$("waterGoalText").textContent=g.water;$("waterFill").style.width=pct(d.water,g.water)+"%";$("kcalNow").textContent=Math.round(t.k);$("kcalGoalText").textContent=g.kcal;$("kcalFill").style.width=pct(t.k,g.kcal)+"%";$("stepsNow").textContent=d.steps||0;$("stepsGoalText").textContent=g.steps;$("stepsFill").style.width=pct(d.steps||0,g.steps)+"%";
@@ -221,7 +339,7 @@ function render(){
  const wr=weeklyReport();$("weeklyReport").innerHTML=wr?`<span class="badge">kcal ${wr.kcal}/deň</span><span class="badge">B ${wr.prot} g/deň</span><span class="badge">voda ${wr.water} ml/deň</span><span class="badge">kroky ${wr.steps}/deň</span><span class="badge">tréningy ${wr.train}</span>`:'<span class="sub">Zatiaľ málo dát.</span>';
  const mr=monthlyReport();$("monthlyReport").innerHTML=mr?`<span class="badge">${mr.days} dní</span><span class="badge">kcal ${mr.kcal}/deň</span><span class="badge">voda ${mr.water} ml/deň</span><span class="badge">kroky ${mr.steps}/deň</span><span class="badge">tréningy ${mr.train}</span><span class="badge">zmena váhy ${mr.weightChange===null?"—":mr.weightChange.toFixed(1)+" kg"}</span>`:'<span class="sub">Zatiaľ málo dát.</span>';
  const dates=Object.keys(store.days).sort().reverse().slice(0,14);$("historyList").innerHTML=dates.length?dates.map(date=>{const x=store.days[date],k=(x.foods||[]).reduce((s,f)=>s+f.k,0);return`<div class="item"><div><b>${date}</b><br><small>${Math.round(k)} kcal · voda ${x.water||0} ml · kroky ${x.steps||0} · váha ${x.weight??"—"} kg · pás ${x.waist??"—"} cm</small></div></div>`}).join(""):'<div class="sub">História sa zobrazí po prvých záznamoch.</div>';
- renderChart("weightChart","weight");renderChart("waistChart","waist","waist");renderCalendar();fillFoodOptions();$("backupBanner").style.display=Date.now()-(store.lastExport||0)>7*864e5?"block":"none";renderPhotos()
+ renderChart("weightChart","weight");renderChart("waistChart","waist","waist");renderCalendar();fillFoodOptions();$("backupBanner").style.display=shouldShowBackupBanner()?"block":"none";renderPhotos()
 }
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
 document.querySelectorAll(".add-water").forEach(b=>b.addEventListener("click",()=>{const d=dayData();d.water=Math.max(0,(d.water||0)+Number(b.dataset.ml));save()}));
@@ -248,22 +366,38 @@ $("trainingList").addEventListener("click",e=>{const b=e.target.closest(".remove
 $("saveProgressBtn").addEventListener("click",()=>{const d=dayData();for(const f of ["weight","waist","chest","arm","thigh","hips"]){d[f]=$(f+"Input").value?Number($(f+"Input").value):null}d.steps=Number($("stepsInput").value)||0;save()});
 $("saveRecoveryBtn").addEventListener("click",()=>{const d=dayData();d.sleep=$("sleepInput").value?Number($("sleepInput").value):null;d.energy=$("energyInput").value?Number($("energyInput").value):null;d.soreness=$("sorenessInput").value?Number($("sorenessInput").value):null;d.stress=$("stressInput").value?Number($("stressInput").value):null;save()});
 $("saveNoteBtn").addEventListener("click",()=>{dayData().note=$("noteInput").value;save()});
-$("saveGoalsBtn").addEventListener("click",()=>{store.goals={kcal:Number($("goalKcal").value)||2500,protein:Number($("goalProtein").value)||190,carbs:Number($("goalCarbs").value)||255,fat:Number($("goalFat").value)||80,water:Number($("goalWater").value)||3000,steps:Number($("goalSteps").value)||8000,strength:Number($("goalStrength").value)||0,cardio:Number($("goalCardio").value)||0};save()});
+$("saveGoalsBtn").addEventListener("click",()=>{store.goals={kcal:Number($("goalKcal").value)||2500,protein:Number($("goalProtein").value)||190,carbs:Number($("goalCarbs").value)||255,fat:Number($("goalFat").value)||80,water:Number($("goalWater").value)||3000,steps:Number($("goalSteps").value)||8000,strength:Number($("goalStrength").value)||0,cardio:Number($("goalCardio").value)||0};save();saveGoalsCloud().catch(()=>{})});
 $("resetDayBtn").addEventListener("click",()=>{if(confirm("Naozaj vymazať údaje vybraného dňa?")){delete store.days[selectedDay];save()}});
-$("exportBtn").addEventListener("click",()=>{store.lastExport=Date.now();try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}const blob=new Blob([JSON.stringify(store,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="fit-dennik-data.json";a.click();URL.revokeObjectURL(url);render()});
+$("exportBtn").addEventListener("click",()=>{store.lastExport=Date.now();saveLocalOnly();queueCloudSync();const blob=new Blob([JSON.stringify(store,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="fit-dennik-data.json";a.click();URL.revokeObjectURL(url);render()});
 $("importInput").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!data.days)throw new Error();if(confirm("Import nahradí aktuálne údaje. Pokračovať?")){store=data;store.goals={...defaults,...(store.goals||{})};for(const k of ["customFoods","favorites","templates","mealTemplates","shopping"])store[k]=store[k]||[];save()}}catch(err){alert("Súbor nie je platný export Fit Denníka.")}e.target.value=""});
 
 function openPhotoDB(){return new Promise((res,rej)=>{const q=indexedDB.open("fit-dennik-photos",1);q.onupgradeneeded=()=>q.result.createObjectStore("photos",{keyPath:"id"});q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 async function compressImage(file){const url=URL.createObjectURL(file);try{const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=url});const max=900,scale=Math.min(1,max/img.naturalWidth),c=document.createElement("canvas");c.width=Math.round(img.naturalWidth*scale);c.height=Math.round(img.naturalHeight*scale);c.getContext("2d").drawImage(img,0,0,c.width,c.height);return await new Promise(r=>c.toBlob(r,"image/jpeg",.78))}finally{URL.revokeObjectURL(url)}}
 async function savePhotoRecord(rec){const db=await openPhotoDB();return new Promise((res,rej)=>{const tx=db.transaction("photos","readwrite");tx.objectStore("photos").put(rec);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
-async function getPhotos(){const db=await openPhotoDB();return new Promise((res,rej)=>{const q=db.transaction("photos").objectStore("photos").getAll();q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+async function getPhotos(){const db=await openPhotoDB();return new Promise((res,rej)=>{const q=db.transaction("photos").objectStore("photos").getAll();q.onsuccess=()=>{const owner=localStorage.getItem(LEGACY_OWNER_KEY);res(q.result.filter(x=>x.user_id===currentUser?.id||(!x.user_id&&owner===currentUser?.id)))};q.onerror=()=>rej(q.error)})}
 async function deletePhoto(id){const db=await openPhotoDB();return new Promise((res,rej)=>{const tx=db.transaction("photos","readwrite");tx.objectStore("photos").delete(id);tx.oncomplete=res;tx.onerror=()=>rej(tx.error)})}
 async function renderPhotos(){if(!("indexedDB" in window))return;const list=(await getPhotos().catch(()=>[])).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);$("photoGrid").innerHTML=list.length?list.map(x=>`<div class="photo-card"><img src="${URL.createObjectURL(x.blob)}"><div>${x.date} · ${x.pose}<br><button class="btn-soft del-photo" data-id="${x.id}" style="margin-top:5px">Vymazať</button></div></div>`).join(""):'<div class="sub">Zatiaľ žiadne fotky.</div>'}
-$("savePhotoBtn").addEventListener("click",async()=>{const file=$("photoInput").files[0];if(!file)return alert("Vyber fotku.");const blob=await compressImage(file);await savePhotoRecord({id:Date.now(),date:selectedDay,pose:$("photoPose").value,blob});$("photoInput").value="";renderPhotos()});
+$("savePhotoBtn").addEventListener("click",async()=>{const file=$("photoInput").files[0];if(!file)return alert("Vyber fotku.");const blob=await compressImage(file);await savePhotoRecord({id:Date.now(),user_id:currentUser?.id||null,date:selectedDay,pose:$("photoPose").value,blob});$("photoInput").value="";renderPhotos()});
 $("photoGrid").addEventListener("click",async e=>{const b=e.target.closest(".del-photo");if(b&&confirm("Vymazať túto fotku?")){await deletePhoto(Number(b.dataset.id));renderPhotos()}});
 
+// Produkčná verzia Fit Denník v4.
+$("dayInput").value=selectedDay;
+["obSex","obAge","obHeight","obWeight","obActivity","obGoal"].forEach(id=>$(id).addEventListener("input",previewCalculatedGoals));
+$("loginBtn").addEventListener("click",async()=>{const email=$("authEmail").value.trim(),password=$("authPassword").value;if(!email||!password)return setGateMessage("authMessage","Zadaj e-mail a heslo.","err");setGateMessage("authMessage","Prihlasujem…","info");try{const data=await authRequest("/token?grant_type=password",{method:"POST",body:{email,password}});saveSession(data);recoveryMode=false;await bootstrapUser()}catch(e){setGateMessage("authMessage",friendlyAuthError(e),"err")}});
+$("signupBtn").addEventListener("click",async()=>{const email=$("authEmail").value.trim(),p=$("authPassword").value,p2=$("authPassword2").value;if(!email||!p)return setGateMessage("authMessage","Zadaj e-mail a heslo.","err");if(p.length<8)return setGateMessage("authMessage","Heslo musí mať aspoň 8 znakov.","err");if(p!==p2)return setGateMessage("authMessage","Heslá sa nezhodujú.","err");setGateMessage("authMessage","Vytváram účet…","info");try{const data=await authRequest("/signup?redirect_to="+encodeURIComponent(currentRedirectUrl()),{method:"POST",body:{email,password:p}});if(data?.session||data?.access_token){saveSession(data.session||data);await bootstrapUser()}else setGateMessage("authMessage","Účet bol vytvorený. Skontroluj e-mail a potvrď registráciu. Potom sa vráť do Fit Denníka a prihlás sa.","ok")}catch(e){setGateMessage("authMessage",friendlyAuthError(e),"err")}});
+$("forgotBtn").addEventListener("click",async()=>{const email=$("authEmail").value.trim();if(!email)return setGateMessage("authMessage","Najprv zadaj svoj e-mail.","err");try{await authRequest("/recover?redirect_to="+encodeURIComponent(currentRedirectUrl()),{method:"POST",body:{email}});setGateMessage("authMessage","Ak účet existuje, poslali sme e-mail na obnovenie hesla.","ok")}catch(e){setGateMessage("authMessage",friendlyAuthError(e),"err")}});
+$("setPasswordBtn").addEventListener("click",async()=>{const p=$("newPassword").value,p2=$("newPassword2").value;if(p.length<8)return setGateMessage("authMessage","Heslo musí mať aspoň 8 znakov.","err");if(p!==p2)return setGateMessage("authMessage","Heslá sa nezhodujú.","err");try{await authRequest("/user",{method:"PUT",token:session.access_token,body:{password:p}});recoveryMode=false;setGateMessage("authMessage","Heslo bolo zmenené.","ok");await bootstrapUser()}catch(e){setGateMessage("authMessage",friendlyAuthError(e),"err")}});
+$("onboardingSaveBtn").addEventListener("click",async()=>{const calc=calculateTargets();if(!calc)return setGateMessage("onboardingMessage","Vyplň pohlavie, vek, výšku, hmotnosť, aktivitu a cieľ.","err");if(Number($("obAge").value)<18)return setGateMessage("onboardingMessage","Táto verzia je určená pre používateľov od 18 rokov.","err");if(!$("obPrivacy").checked)return setGateMessage("onboardingMessage","Potvrď, že rozumieš ukladaniu údajov do svojho účtu.","err");setGateMessage("onboardingMessage","Ukladám profil…","info");try{const profile=await saveProfileCloud({display_name:$("obName").value.trim()||null,sex:$("obSex").value,age_years:Number($("obAge").value),height_cm:Number($("obHeight").value),starting_weight_kg:Number($("obWeight").value),target_weight_kg:$("obTarget").value?Number($("obTarget").value):null,activity_level:$("obActivity").value,goal_type:$("obGoal").value,onboarding_completed:true,privacy_accepted_at:new Date().toISOString()});const calculatedGoals={kcal:calc.kcal,protein:calc.protein,carbs:calc.carbs,fat:calc.fat,water:calc.water,steps:calc.steps,strength:calc.strength,cardio:calc.cardio};store.goals={...calculatedGoals};const d=dayData();if(!d.weight)d.weight=Number($("obWeight").value);saveLocalOnly();await saveGoalsCloud();currentProfile=profile;if(!editingProfile){const cloud=await loadCloudState();if(cloud?.data){store=normalizeStore(cloud.data);saveLocalOnly()}else{const imported=await importLegacyIfAvailable(true,calculatedGoals);if(!imported)await pushCloudState()}}else await pushCloudState();showApp()}catch(e){setGateMessage("onboardingMessage","Profil sa nepodarilo uložiť: "+e.message,"err")}});
+$("onboardingCancelBtn").addEventListener("click",()=>{editingProfile=false;showApp()});
+$("logoutBtn").addEventListener("click",async()=>{try{if(session?.access_token)await authRequest("/logout",{method:"POST",token:session.access_token})}catch(e){}clearSession();store=blankStore();recoveryMode=false;setCloudStatus("Odhlásené","wait");showAuth("Bol si odhlásený.","info")});
+$("editProfileBtn").addEventListener("click",()=>showOnboarding(currentProfile||{},true));
+$("pullCloudBtn").addEventListener("click",async()=>{try{const ok=await pullCloudIntoApp(true);if(!ok)alert("V cloude zatiaľ nie sú údaje.")}catch(e){alert("Cloud sa nepodarilo načítať: "+e.message)}});
+$("legacyImportBtn").addEventListener("click",async()=>{try{const ok=await importLegacyIfAvailable(true);if(!ok)alert("Na tomto zariadení nie sú neprenesené staré dáta pre tento účet.")}catch(e){alert("Prenos sa nepodaril: "+e.message)}});
+window.addEventListener("online",()=>{if(currentUser)pushCloudState()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&currentUser&&cloudDirty)pushCloudState()});
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-$("dayInput").value=selectedDay;render();
+handleAuthHash();
+(async()=>{if(recoveryMode){session=readJSON(AUTH_KEY);showAuth("Zadaj nové heslo.","info");return}const s=await ensureSession();if(s)await bootstrapUser();else{store=blankStore();render();showAuth()}})();
 </script>
 </body>
 </html>

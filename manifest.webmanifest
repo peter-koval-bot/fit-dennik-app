@@ -1,7 +1,7 @@
 {
   "name":"Fit Denník",
   "short_name":"Fit Denník",
-  "description":"Fitness denník: strava, tréning, progres a regenerácia.",
+  "description":"Fitness denník s účtom a cloudovou synchronizáciou: strava, tréning, progres a regenerácia.",
   "start_url":"./",
   "scope":"./",
   "display":"standalone",
