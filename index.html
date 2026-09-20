@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111d">
+<title>Fit Denník</title>
+<style>
+:root{
+  --bg:#07111d;--card:#101d2c;--card2:#14263a;--line:#284057;
+  --text:#f4f8fb;--muted:#97aabc;--blue:#3aa0ff;--green:#39d98a;
+  --purple:#8b68ff;--orange:#ff8b3d;--red:#ff6868;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,#14314a 0,#07111d 28%,#07111d 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+body{min-height:100vh}
+.app{max-width:760px;margin:auto;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 92px)}
+.hero{border:1px solid var(--line);border-radius:24px;padding:18px;background:linear-gradient(135deg,#173b5c,#0b1928 60%,#19283b);box-shadow:0 12px 30px #0005}
+.brand{display:flex;align-items:center;gap:12px}.logo{font-size:36px}.brand h1{margin:0;font-size:31px}.hero p{margin:5px 0 0;color:#d2dfeb}
+.datebar{display:grid;grid-template-columns:auto 1fr auto;gap:8px;margin-top:15px}
+.datebar button,.datebar input{background:#0d1928;color:#fff;border:1px solid var(--line);border-radius:12px;padding:11px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:14px 0 2px;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;background:#0d1928;border:1px solid var(--line);color:#cad7e2;padding:10px 13px;border-radius:999px}.tab.active{background:var(--blue);color:#fff;border-color:transparent}
+.section{display:none}.section.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:15px;box-shadow:0 8px 20px #0003}
+.card.full{grid-column:1/-1}.card h3{margin:0 0 12px;font-size:17px}
+.metric{font-size:26px;font-weight:800}.sub{font-size:12px;color:var(--muted);margin-top:4px}
+.progress{height:9px;background:#223245;border-radius:999px;overflow:hidden;margin-top:10px}.fill{height:100%;border-radius:999px;background:var(--blue);width:0}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 120px}
+button,input,select,textarea{font:inherit}
+button{border:0;border-radius:12px;padding:11px 12px;font-weight:700;cursor:pointer}
+.btn-blue{background:var(--blue);color:white}.btn-green{background:var(--green);color:#042014}.btn-purple{background:var(--purple);color:white}.btn-soft{background:#1d2d3e;color:#e7eef5;border:1px solid var(--line)}.btn-red{background:#51272c;color:#ffd0d0;border:1px solid #74363d}
+input,select,textarea{width:100%;background:#0d1928;color:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+textarea{min-height:90px;resize:vertical}
+.list{margin-top:10px}.item{display:flex;justify-content:space-between;gap:10px;padding:11px 0;border-top:1px solid #203143}.item:first-child{border-top:0}.item small{color:var(--muted)}
+.macro{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.macro>div{background:#0d1928;border:1px solid var(--line);padding:10px;border-radius:12px}.macro b{display:block;font-size:18px}
+.badges{display:flex;gap:6px;flex-wrap:wrap}.badge{font-size:12px;padding:6px 8px;border-radius:999px;background:#18283a;color:#cbd8e4}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;background:#07111df2;backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom));z-index:10}
+.bottomnav .inner{max-width:760px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.navbtn{background:transparent;color:#9db0c2;padding:8px 4px;font-size:11px}.navbtn span{display:block;font-size:20px}.navbtn.active{color:#fff;background:#132235}
+.notice{font-size:12px;color:var(--muted);margin-top:8px}.quote{text-align:center;color:#b9c8d5;font-style:italic;margin:18px 0}
+@media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="brand"><div class="logo">🏋️</div><div><h1>Fit Denník</h1><p>Lepšia verzia teba, každý deň.</p></div></div>
+    <div class="datebar">
+      <button id="prevDay" class="btn-soft">‹</button>
+      <input id="dayInput" type="date">
+      <button id="nextDay" class="btn-soft">›</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Prehľad</button>
+    <button class="tab" data-tab="food">Strava</button>
+    <button class="tab" data-tab="training">Tréning</button>
+    <button class="tab" data-tab="progress">Progres</button>
+    <button class="tab" data-tab="settings">Ciele</button>
+  </div>
+
+  <section class="section active" id="overview">
+    <div class="grid">
+      <div class="card">
+        <h3>💧 Voda</h3>
+        <div class="metric"><span id="waterNow">0</span> ml</div>
+        <div class="sub">cieľ <span id="waterGoalText">3000</span> ml</div>
+        <div class="progress"><div class="fill" id="waterFill"></div></div>
+      </div>
+      <div class="card">
+        <h3>🔥 Kalórie</h3>
+        <div class="metric"><span id="kcalNow">0</span></div>
+        <div class="sub">z <span id="kcalGoalText">2500</span> kcal</div>
+        <div class="progress"><div class="fill" id="kcalFill" style="background:var(--orange)"></div></div>
+      </div>
+      <div class="card">
+        <h3>🏋️ Tréning</h3>
+        <div class="metric"><span id="trainingCount">0</span></div>
+        <div class="sub">záznamov dnes</div>
+      </div>
+
+      <div class="card full">
+        <h3>💧 Rýchlo pridať vodu</h3>
+        <div class="row">
+          <button class="btn-blue add-water" data-ml="250">+ 250 ml</button>
+          <button class="btn-blue add-water" data-ml="500">+ 500 ml</button>
+          <button class="btn-blue add-water" data-ml="1000">+ 1 000 ml</button>
+          <button class="btn-soft add-water" data-ml="-250">− 250 ml</button>
+        </div>
+      </div>
+
+      <div class="card full">
+        <h3>Makrá</h3>
+        <div class="macro">
+          <div><span class="sub">Bielkoviny</span><b><span id="proteinNow">0</span> / <span id="proteinGoalText">190</span> g</b></div>
+          <div><span class="sub">Sacharidy</span><b><span id="carbsNow">0</span> / <span id="carbsGoalText">255</span> g</b></div>
+          <div><span class="sub">Tuky</span><b><span id="fatNow">0</span> / <span id="fatGoalText">80</span> g</b></div>
+        </div>
+      </div>
+
+      <div class="card full">
+        <h3>⚡ Dnešný súhrn</h3>
+        <div class="badges">
+          <span class="badge">Kroky: <b id="stepsSummary">0</b></span>
+          <span class="badge">Spálené: <b id="burnedSummary">0</b> kcal</span>
+          <span class="badge">Čisté kcal: <b id="netKcal">0</b></span>
+        </div>
+      </div>
+    </div>
+    <div class="quote">„Malé kroky každý deň vedú k veľkým výsledkom.“</div>
+  </section>
+
+  <section class="section" id="food">
+    <div class="grid">
+      <div class="card full">
+        <h3>🍽️ Pridať jedlo</h3>
+        <div class="row">
+          <input id="foodSearch" placeholder="Hľadaj potravinu">
+          <select id="foodSelect"></select>
+          <input id="foodGrams" type="number" min="1" placeholder="gramy">
+        </div>
+        <div class="row" style="margin-top:8px">
+          <select id="mealType"><option>Raňajky</option><option>Obed</option><option>Večera</option><option>Snack</option></select>
+          <button class="btn-green" id="addFoodBtn">Pridať jedlo</button>
+        </div>
+        <div class="notice">Nutričné hodnoty sú orientačné na 100 g.</div>
+      </div>
+      <div class="card full"><h3>Dnešné jedlá</h3><div id="foodList" class="list"></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="training">
+    <div class="grid">
+      <div class="card full">
+        <h3>🏋️ Pridať tréning / kardio</h3>
+        <div class="row">
+          <select id="trainingType"><option>Silový tréning</option><option>Beh</option><option>Rýchla chôdza</option><option>Bicykel</option><option>Eliptický trenažér</option><option>Iné</option></select>
+          <input id="trainingMinutes" type="number" min="1" placeholder="minúty">
+          <input id="trainingBurn" type="number" min="0" placeholder="spálené kcal">
+        </div>
+        <button class="btn-purple" id="addTrainingBtn" style="margin-top:8px;width:100%">Pridať tréning</button>
+      </div>
+      <div class="card full"><h3>Dnešné tréningy</h3><div id="trainingList" class="list"></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="progress">
+    <div class="grid">
+      <div class="card full">
+        <h3>📈 Merania</h3>
+        <div class="row">
+          <input id="weightInput" type="number" step="0.1" placeholder="hmotnosť kg">
+          <input id="waistInput" type="number" step="0.1" placeholder="pás cm">
+          <input id="stepsInput" type="number" min="0" placeholder="kroky">
+        </div>
+        <button class="btn-blue" id="saveProgressBtn" style="margin-top:8px;width:100%">Uložiť</button>
+      </div>
+      <div class="card full">
+        <h3>📝 Poznámka</h3>
+        <textarea id="noteInput" placeholder="Ako sa dnes cítiš?"></textarea>
+        <button class="btn-soft" id="saveNoteBtn" style="margin-top:8px;width:100%">Uložiť poznámku</button>
+      </div>
+      <div class="card full"><h3>História posledných dní</h3><div id="historyList" class="list"></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="settings">
+    <div class="grid">
+      <div class="card full">
+        <h3>🎯 Denné ciele</h3>
+        <div class="row">
+          <input id="goalKcal" type="number" placeholder="kcal">
+          <input id="goalProtein" type="number" placeholder="bielkoviny g">
+          <input id="goalCarbs" type="number" placeholder="sacharidy g">
+          <input id="goalFat" type="number" placeholder="tuky g">
+          <input id="goalWater" type="number" placeholder="voda ml">
+        </div>
+        <button class="btn-green" id="saveGoalsBtn" style="margin-top:8px;width:100%">Uložiť ciele</button>
+      </div>
+      <div class="card full">
+        <h3>Dáta</h3>
+        <div class="row">
+          <button class="btn-soft" id="exportBtn">Export JSON</button>
+          <button class="btn-red" id="resetDayBtn">Vymazať vybraný deň</button>
+        </div>
+        <div class="notice">Dáta sa ukladajú lokálne v tomto prehliadači.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<nav class="bottomnav">
+  <div class="inner">
+    <button class="navbtn active" data-tab="overview"><span>🏠</span>Dnes</button>
+    <button class="navbtn" data-tab="food"><span>🍽️</span>Jedlo</button>
+    <button class="navbtn" data-tab="training"><span>🏋️</span>Tréning</button>
+    <button class="navbtn" data-tab="progress"><span>📈</span>Progres</button>
+    <button class="navbtn" data-tab="settings"><span>⚙️</span>Ciele</button>
+  </div>
+</nav>
+
+<script>
+const foods=[
+["Kuracie prsia",165,31,0,3.6],["Morčacie prsia",135,29,0,1.5],["Hovädzie chudé",180,27,0,8],["Bravčová panenka",143,26,0,3.5],
+["Losos",208,20,0,13],["Tuniak vo vlastnej šťave",116,26,0,1],["Treska",82,18,0,0.7],
+["Ryža biela varená",130,2.7,28.2,0.3],["Ryža basmati varená",121,3.5,25,0.4],["Zemiaky varené",87,1.9,20.1,0.1],["Bataty",86,1.6,20.1,0.1],
+["Cestoviny varené",157,5.8,30.9,0.9],["Ovsené vločky",379,13.2,67.7,6.5],["Celozrnný chlieb",247,13,41,3.4],["Biely rožok",286,9,57,2.5],
+["Vajce celé",143,12.6,0.7,9.5],["Skyr biely",63,11,4,0.2],["Grécky jogurt 0 %",59,10.3,3.6,0.4],["Cottage cheese",98,11.1,3.4,4.3],
+["Tvaroh nízkotučný",67,12,4,0.5],["Mlieko 1.5 %",46,3.4,4.9,1.5],["Mozzarella",250,18,2,19],
+["Banán",89,1.1,22.8,0.3],["Jablko",52,0.3,13.8,0.2],["Pomaranč",47,0.9,11.8,0.1],["Hrozno",69,0.7,18.1,0.2],
+["Jahody",32,0.7,7.7,0.3],["Čučoriedky",57,0.7,14.5,0.3],["Maliny",52,1.2,11.9,0.7],["Kiwi",61,1.1,14.7,0.5],["Ananás",50,0.5,13.1,0.1],
+["Brokolica",34,2.8,6.6,0.4],["Paradajka",18,0.9,3.9,0.2],["Uhorka",15,0.7,3.6,0.1],["Paprika",31,1,6,0.3],["Mrkva",41,0.9,9.6,0.2],
+["Avokádo",160,2,8.5,14.7],["Mandle",579,21.2,21.6,49.9],["Arašidové maslo",588,25,20,50],
+["Whey proteín",400,80,8,6],["Whey isolate",370,86,4,2]
+].map((x,i)=>({id:i,name:x[0],k:x[1],p:x[2],c:x[3],f:x[4]}));
+
+const KEY="fit-dennik-app-v1";
+const defaults={kcal:2500,protein:190,carbs:255,fat:80,water:3000};
+let store={goals:{...defaults},days:{}};
+try{const raw=localStorage.getItem(KEY);if(raw)store=JSON.parse(raw)}catch(e){}
+store.goals=store.goals||{...defaults};store.days=store.days||{};
+const $=id=>document.getElementById(id);
+const today=()=>new Date().toISOString().slice(0,10);
+let selectedDay=today();
+
+function dayData(date=selectedDay){
+  if(!store.days[date])store.days[date]={water:0,foods:[],training:[],weight:null,waist:null,steps:0,note:""};
+  return store.days[date];
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}render()}
+function pct(v,g){return Math.max(0,Math.min(100,g?Math.round(v/g*100):0))}
+function totals(){return dayData().foods.reduce((a,x)=>({k:a.k+x.k,p:a.p+x.p,c:a.c+x.c,f:a.f+x.f}),{k:0,p:0,c:0,f:0})}
+function setTab(id){
+  document.querySelectorAll(".section").forEach(x=>x.classList.toggle("active",x.id===id));
+  document.querySelectorAll("[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===id));
+  scrollTo({top:0,behavior:"smooth"});
+}
+function shiftDay(n){
+  const d=new Date(selectedDay+"T12:00:00");d.setDate(d.getDate()+n);
+  selectedDay=d.toISOString().slice(0,10);$("dayInput").value=selectedDay;render()
+}
+function fillFoodOptions(){
+  const q=$("foodSearch").value.toLowerCase();
+  $("foodSelect").innerHTML=foods.filter(f=>f.name.toLowerCase().includes(q)).map(f=>`<option value="${f.id}">${f.name}</option>`).join("")
+}
+function render(){
+  const d=dayData(),g=store.goals,t=totals(),burn=d.training.reduce((s,x)=>s+x.burn,0);
+  $("waterNow").textContent=d.water;$("waterGoalText").textContent=g.water;$("waterFill").style.width=pct(d.water,g.water)+"%";
+  $("kcalNow").textContent=Math.round(t.k);$("kcalGoalText").textContent=g.kcal;$("kcalFill").style.width=pct(t.k,g.kcal)+"%";
+  $("trainingCount").textContent=d.training.length;
+  $("proteinNow").textContent=t.p.toFixed(1);$("proteinGoalText").textContent=g.protein;
+  $("carbsNow").textContent=t.c.toFixed(1);$("carbsGoalText").textContent=g.carbs;
+  $("fatNow").textContent=t.f.toFixed(1);$("fatGoalText").textContent=g.fat;
+  $("stepsSummary").textContent=d.steps||0;$("burnedSummary").textContent=Math.round(burn);$("netKcal").textContent=Math.round(t.k-burn);
+
+  $("foodList").innerHTML=d.foods.length?d.foods.map((x,i)=>`<div class="item"><div><b>${x.meal}: ${x.name}</b><br><small>${x.g} g · ${Math.round(x.k)} kcal · B ${x.p.toFixed(1)} · S ${x.c.toFixed(1)} · T ${x.f.toFixed(1)}</small></div><button class="btn-soft remove-food" data-i="${i}">×</button></div>`).join(""):`<div class="sub">Zatiaľ žiadne jedlo.</div>`;
+  $("trainingList").innerHTML=d.training.length?d.training.map((x,i)=>`<div class="item"><div><b>${x.type}</b><br><small>${x.min} min · ${x.burn} kcal</small></div><button class="btn-soft remove-training" data-i="${i}">×</button></div>`).join(""):`<div class="sub">Zatiaľ žiadny tréning.</div>`;
+
+  $("weightInput").value=d.weight??"";$("waistInput").value=d.waist??"";$("stepsInput").value=d.steps||"";$("noteInput").value=d.note||"";
+  $("goalKcal").value=g.kcal;$("goalProtein").value=g.protein;$("goalCarbs").value=g.carbs;$("goalFat").value=g.fat;$("goalWater").value=g.water;
+  const dates=Object.keys(store.days).sort().reverse().slice(0,14);
+  $("historyList").innerHTML=dates.length?dates.map(date=>{
+    const x=store.days[date];const kcal=x.foods.reduce((s,f)=>s+f.k,0);
+    return `<div class="item"><div><b>${date}</b><br><small>${Math.round(kcal)} kcal · voda ${x.water||0} ml · váha ${x.weight??"—"} kg · pás ${x.waist??"—"} cm</small></div></div>`
+  }).join(""):`<div class="sub">História sa zobrazí po prvých záznamoch.</div>`
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>setTab(b.dataset.tab)));
+document.querySelectorAll(".add-water").forEach(b=>b.addEventListener("click",()=>{const d=dayData();d.water=Math.max(0,d.water+Number(b.dataset.ml));save()}));
+$("prevDay").addEventListener("click",()=>shiftDay(-1));$("nextDay").addEventListener("click",()=>shiftDay(1));
+$("dayInput").addEventListener("change",e=>{selectedDay=e.target.value||today();render()});
+$("foodSearch").addEventListener("input",fillFoodOptions);
+$("addFoodBtn").addEventListener("click",()=>{
+  const f=foods.find(x=>x.id===Number($("foodSelect").value)),g=Number($("foodGrams").value);
+  if(!f||!g)return alert("Vyber potravinu a zadaj gramy.");
+  const m=g/100;dayData().foods.push({meal:$("mealType").value,name:f.name,g,k:f.k*m,p:f.p*m,c:f.c*m,f:f.f*m});
+  $("foodGrams").value="";save()
+});
+$("foodList").addEventListener("click",e=>{const b=e.target.closest(".remove-food");if(b){dayData().foods.splice(Number(b.dataset.i),1);save()}});
+$("addTrainingBtn").addEventListener("click",()=>{
+  const min=Number($("trainingMinutes").value);if(!min)return alert("Zadaj dĺžku tréningu.");
+  dayData().training.push({type:$("trainingType").value,min,burn:Number($("trainingBurn").value)||0});
+  $("trainingMinutes").value="";$("trainingBurn").value="";save()
+});
+$("trainingList").addEventListener("click",e=>{const b=e.target.closest(".remove-training");if(b){dayData().training.splice(Number(b.dataset.i),1);save()}});
+$("saveProgressBtn").addEventListener("click",()=>{const d=dayData();d.weight=$("weightInput").value?Number($("weightInput").value):null;d.waist=$("waistInput").value?Number($("waistInput").value):null;d.steps=Number($("stepsInput").value)||0;save()});
+$("saveNoteBtn").addEventListener("click",()=>{dayData().note=$("noteInput").value;save()});
+$("saveGoalsBtn").addEventListener("click",()=>{store.goals={kcal:Number($("goalKcal").value)||2500,protein:Number($("goalProtein").value)||190,carbs:Number($("goalCarbs").value)||255,fat:Number($("goalFat").value)||80,water:Number($("goalWater").value)||3000};save()});
+$("resetDayBtn").addEventListener("click",()=>{if(confirm("Naozaj vymazať údaje vybraného dňa?")){delete store.days[selectedDay];save()}});
+$("exportBtn").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(store,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="fit-dennik-data.json";a.click();URL.revokeObjectURL(url)});
+$("dayInput").value=selectedDay;fillFoodOptions();render();
+</script>
+</body>
+</html>
