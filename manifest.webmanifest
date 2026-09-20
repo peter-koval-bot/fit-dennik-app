@@ -1,19 +1,10 @@
 {
   "name": "Fit Denník",
   "short_name": "Fit Denník",
-  "description": "Fitness denník s účtom, cloudovou synchronizáciou a rozhraním v slovenčine, nemčine a angličtine.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#07111d",
-  "theme_color": "#07111d",
-  "lang": "sk",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
