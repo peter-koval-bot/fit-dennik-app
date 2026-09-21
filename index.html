@@ -1314,5 +1314,168 @@ function run(){rows();detail()}new MutationObserver(()=>setTimeout(run,0)).obser
   ensureDetail();
 })();
 </script>
+
+<style id="v450-workout-close-style">
+#v450CompletedCard{display:none}
+#v450CompletedCard .v450-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+#v450CompletedCard .v450-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+#v450CompletedCard .v450-stats>div{background:#0d1928;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+#v450CompletedCard .v450-stats b{display:block;font-size:18px}
+#v450CompletedCard .v450-stats span{font-size:10px;color:var(--muted)}
+</style>
+<script id="v450-workout-close-script">
+(function(){
+ let viewingArchive=false;
+
+ function workoutCards(){
+   const ids=['workoutExerciseCount','recentExercises','templatesList','exerciseList','timerDisplay','trainingList','prList'];
+   const cards=[];
+   ids.forEach(id=>{
+     const el=document.getElementById(id);
+     const card=el?.closest('.card');
+     if(card && !cards.includes(card)) cards.push(card);
+   });
+   return cards;
+ }
+
+ function ensureCompletedCard(){
+   let box=document.getElementById('v450CompletedCard');
+   if(box)return box;
+   const anchor=document.getElementById('todayPlanCard');
+   if(!anchor)return null;
+   box=document.createElement('div');
+   box.id='v450CompletedCard';
+   box.className='card full';
+   anchor.insertAdjacentElement('afterend',box);
+   box.addEventListener('click',e=>{
+     if(e.target.closest('#v450ViewWorkout')){
+       viewingArchive=!viewingArchive;
+       applyClosedState();
+     }
+   });
+   return box;
+ }
+
+ function applyClosedState(){
+   const d=dayData();
+   const completed=!!d.workoutCompletedAt;
+   const box=ensureCompletedCard();
+   if(!box)return;
+
+   workoutCards().forEach(card=>{
+     card.style.display=(completed && !viewingArchive)?'none':'';
+   });
+
+   if(!completed){
+     viewingArchive=false;
+     box.style.display='none';
+     return;
+   }
+
+   const s=d.workoutSummary||{};
+   const when=new Date(d.workoutCompletedAt);
+   const time=Number.isNaN(when.getTime())?'':when.toLocaleTimeString('sk-SK',{hour:'2-digit',minute:'2-digit'});
+   box.style.display='block';
+   box.innerHTML=`
+     <h3>✅ Tréning dokončený</h3>
+     <div class="notice">Tréning je uložený v zázname pre ${selectedDay}${time?' · '+time:''}. Po otvorení aplikácie už nezostáva ako aktívny tréning.</div>
+     <div class="v450-stats">
+       <div><b>${s.sets||workoutVolume().sets||0}</b><span>Série</span></div>
+       <div><b>${Number(s.volume||workoutVolume().volume||0).toLocaleString('sk-SK')}</b><span>Objem kg</span></div>
+       <div><b>${s.minutes||'—'}</b><span>Minúty</span></div>
+     </div>
+     <div class="v450-actions">
+       <button type="button" class="btn-soft" id="v450ViewWorkout">${viewingArchive?'Zavrieť záznam':'📖 Pozrieť uložený tréning'}</button>
+     </div>`;
+ }
+
+ const oldRender=window.render;
+ window.render=function(){
+   const r=oldRender.apply(this,arguments);
+   setTimeout(applyClosedState,0);
+   return r;
+ };
+
+ document.addEventListener('click',e=>{
+   if(e.target.closest('#finishWorkoutV45')){
+     viewingArchive=false;
+     setTimeout(applyClosedState,30);
+     setTimeout(applyClosedState,150);
+   }
+ },true);
+
+ window.addEventListener('load',()=>setTimeout(applyClosedState,50));
+ setTimeout(applyClosedState,0);
+})();
+</script>
+
+<style id="v453-calendar-detail-style">
+#v453DayModal{position:fixed;inset:0;z-index:99;background:#000b;display:none;align-items:flex-end}
+#v453DayModal.open{display:flex}
+#v453DaySheet{width:100%;max-width:820px;max-height:86vh;overflow:auto;margin:auto;background:#0b1725;border:1px solid var(--line);border-radius:24px 24px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom))}
+#v453Head{display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:-18px;background:#0b1725;padding:12px 0;z-index:2}
+#v453Grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v453box{background:#0d1928;border:1px solid var(--line);border-radius:14px;padding:12px}.v453box span{color:var(--muted);font-size:12px}.v453box b{display:block;font-size:18px;margin-top:4px}.v453ex{border-top:1px solid var(--line);padding:12px 0}.v453sets{color:var(--muted);font-size:12px;line-height:1.6;margin-top:5px}
+#goalCalendar .calday{cursor:pointer}
+</style>
+<div id="v453DayModal"><div id="v453DaySheet"><div id="v453Head"><h3 id="v453Title"></h3><button type="button" class="btn-soft" id="v453Close">Zavrieť</button></div><div id="v453Body"></div></div></div>
+<script id="v453-calendar-detail-js">
+(function(){
+ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+ function getDay(date){
+   try{
+     /* IMPORTANT: Fit Denník stores data in lexical `store`, not window.store. */
+     if(typeof store!=='undefined' && store.days && store.days[date]) return store.days[date];
+   }catch(e){}
+   return null;
+ }
+ function totalsOf(d){
+   return (d?.foods||[]).reduce((a,x)=>({
+     k:a.k+(Number(x.k)||0),p:a.p+(Number(x.p)||0),
+     c:a.c+(Number(x.c)||0),f:a.f+(Number(x.f)||0)
+   }),{k:0,p:0,c:0,f:0});
+ }
+ function trainingHTML(d){
+   if(!d) return '<div class="notice" style="margin-top:14px">V tento deň nie sú uložené údaje.</div>';
+   const ex=d.exercises||[], cardio=d.training||[], s=d.workoutSummary||{};
+   if(!ex.length&&!cardio.length&&!d.workoutCompletedAt)
+     return '<div class="notice" style="margin-top:14px">V tento deň nie je uložený tréning.</div>';
+   let out=`<div style="margin-top:16px"><h3>🏋️ Tréning</h3>`;
+   if(s.sets||s.volume||s.minutes) out+=`<div class="sub">${s.sets||0} sérií · ${Number(s.volume||0).toLocaleString('sk-SK')} kg objem${s.minutes?' · '+s.minutes+' min':''}</div>`;
+   ex.forEach(x=>{
+     out+=`<div class="v453ex"><b>${esc(x.name||'Cvik')}</b><div class="v453sets">${
+       (x.sets||[]).map((q,i)=>`${i+1}. ${esc(q.weight??'—')} kg × ${esc(q.reps??'—')}`).join(' · ')||'Bez zapísaných sérií'
+     }</div></div>`;
+   });
+   cardio.forEach(x=>{
+     out+=`<div class="v453ex"><b>${esc(x.type||x.name||'Aktivita')}</b><div class="v453sets">${esc(x.minutes||'—')} min${x.burn?' · '+esc(x.burn)+' kcal':''}</div></div>`;
+   });
+   return out+'</div>';
+ }
+ function openDate(date){
+   const d=getDay(date), t=totalsOf(d);
+   document.getElementById('v453Title').textContent='📅 '+date;
+   document.getElementById('v453Body').innerHTML=`
+    <div id="v453Grid">
+      <div class="v453box"><span>Kalórie</span><b>${Math.round(t.k)} kcal</b></div>
+      <div class="v453box"><span>Makrá</span><b>${Math.round(t.p)}B · ${Math.round(t.c)}S · ${Math.round(t.f)}T</b></div>
+      <div class="v453box"><span>Voda</span><b>${Math.round(Number(d?.water)||0)} ml</b></div>
+      <div class="v453box"><span>Kroky</span><b>${Math.round(Number(d?.steps)||0)}</b></div>
+    </div>${trainingHTML(d)}`;
+   document.getElementById('v453DayModal').classList.add('open');
+ }
+ function calendarDate(cell){
+   const n=parseInt(cell.textContent,10); if(!n)return null;
+   /* renderCalendar itself uses selectedDay to decide which month is shown. */
+   const base=new Date(selectedDay+'T12:00:00');
+   return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(n).padStart(2,'0')}`;
+ }
+ document.addEventListener('click',e=>{
+   const cell=e.target.closest('#goalCalendar .calday');
+   if(cell){const date=calendarDate(cell);if(date){e.preventDefault();openDate(date)}}
+ });
+ document.getElementById('v453Close').onclick=()=>document.getElementById('v453DayModal').classList.remove('open');
+ document.getElementById('v453DayModal').addEventListener('click',e=>{if(e.target.id==='v453DayModal')e.currentTarget.classList.remove('open')});
+})();
+</script>
 </body>
 </html>
