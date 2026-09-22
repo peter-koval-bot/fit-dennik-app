@@ -11,7 +11,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
-<title>Fit Denník</title>
+<title>Fit Denník v4.67 GOALS CORRECT FIX</title>
 <style>
 :root{--bg:#07111d;--card:#101d2c;--card2:#14263a;--line:#284057;--text:#f4f8fb;--muted:#97aabc;--blue:#3aa0ff;--green:#39d98a;--purple:#8b68ff;--orange:#ff8b3d;--red:#ff6868;--yellow:#ffd75b}
 *{box-sizing:border-box}html,body{margin:0;background:linear-gradient(180deg,#14314a 0,#07111d 28%,#07111d 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}body{min-height:100vh}
@@ -452,7 +452,21 @@ const baseFoods=[
 ["Banán",89,1.1,22.8,0.3],["Jablko",52,0.3,13.8,0.2],["Pomaranč",47,0.9,11.8,0.1],["Hrozno",69,0.7,18.1,0.2],["Jahody",32,0.7,7.7,0.3],["Čučoriedky",57,0.7,14.5,0.3],["Maliny",52,1.2,11.9,0.7],["Kiwi",61,1.1,14.7,0.5],["Ananás",50,0.5,13.1,0.1],["Mango",60,0.8,15,0.4],
 ["Brokolica",34,2.8,6.6,0.4],["Paradajka",18,0.9,3.9,0.2],["Uhorka",15,0.7,3.6,0.1],["Paprika",31,1,6,0.3],["Mrkva",41,0.9,9.6,0.2],["Špenát",23,2.9,3.6,0.4],
 ["Avokádo",160,2,8.5,14.7],["Mandle",579,21.2,21.6,49.9],["Arašidové maslo",588,25,20,50],["Olivový olej",884,0,0,100],
-["Whey proteín",400,80,8,6],["Whey isolate",370,86,4,2]
+["Whey proteín",400,80,8,6],["Whey isolate",370,86,4,2],
+["Mrazené ovocie mix",50,0.8,11.5,0.3],["Mrazená zelenina mix",40,2.5,6.5,0.5],
+["Toast celozrnný",250,10,43,4],["Toastový chlieb biely",265,9,49,3.2],
+["Ryžové chlebíky",387,8,81,3],["Knäckebrot celozrnné",340,11,65,4],
+["Quinoa varená",120,4.4,21.3,1.9],["Bulgur varený",83,3.1,18.6,0.2],
+["Fazuľa červená varená",127,8.7,22.8,0.5],["Cícer varený",164,8.9,27.4,2.6],["Šošovica varená",116,9,20,0.4],
+["Kukurica",86,3.2,19,1.2],["Hrášok",81,5.4,14.5,0.4],
+["Mrazené lesné ovocie",45,0.8,10,0.4],["Mrazené jahody",35,0.7,8,0.3],["Mrazené čučoriedky",55,0.7,13.5,0.3],
+["Mix šalát",20,1.5,3,0.2],["Cuketa",17,1.2,3.1,0.3],["Karfiol",25,1.9,5,0.3],
+["Kuracia šunka",110,20,2,2.5],["Morčacia šunka",105,20,2,2],
+["Syr light",180,28,2,7],["Feta",265,14,4,21],["Parmezán",431,38,4,29],
+["Kefír",50,3.4,4.7,1.5],["Proteínový puding",75,10,5,1.5],
+["Med",304,0.3,82,0],["Džem",250,0.4,62,0.2],
+["Kešu",553,18,30,44],["Vlašské orechy",654,15,14,65],
+["Tekvicové semienka",559,30,11,49],["Chia semienka",486,17,42,31]
 ].map((x,i)=>({id:"b"+i,name:x[0],k:x[1],p:x[2],c:x[3],f:x[4],custom:false}));
 
 const KEY=LEGACY_KEY;
@@ -1475,6 +1489,795 @@ function run(){rows();detail()}new MutationObserver(()=>setTimeout(run,0)).obser
  });
  document.getElementById('v453Close').onclick=()=>document.getElementById('v453DayModal').classList.remove('open');
  document.getElementById('v453DayModal').addEventListener('click',e=>{if(e.target.id==='v453DayModal')e.currentTarget.classList.remove('open')});
+})();
+</script>
+
+<style id="v454-meal-groups-style">
+#v454MealGroups{display:grid;gap:10px;margin-top:10px}
+.v454meal{border:1px solid var(--line);background:#0d1928;border-radius:15px;overflow:hidden}
+.v454head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:transparent;color:inherit;border:0;padding:13px;text-align:left}
+.v454head strong{font-size:15px}.v454sum{color:var(--muted);font-size:12px;text-align:right}
+.v454body{display:none;padding:0 13px 12px}.v454meal.open .v454body{display:block}
+.v454row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.v454row small{color:var(--muted);display:block;margin-top:3px}.v454row button{flex:0 0 auto}
+</style>
+<script id="v454-meal-groups-js">
+(function(){
+ const MEALS=['Raňajky','Obed','Večera','Snack'];
+ let openMeal='Raňajky';
+ function sum(xs){return xs.reduce((a,x)=>({k:a.k+(+x.k||0),p:a.p+(+x.p||0),c:a.c+(+x.c||0),f:a.f+(+x.f||0)}),{k:0,p:0,c:0,f:0})}
+ function ensureHost(){
+   const old=document.getElementById('foodList'); if(!old)return null;
+   let h=document.getElementById('v454MealGroups');
+   if(!h){h=document.createElement('div');h.id='v454MealGroups';old.parentNode.insertBefore(h,old);old.style.display='none'}
+   return h;
+ }
+ function renderMeals(){
+   const h=ensureHost();if(!h)return;
+   const foods=dayData().foods||[];
+   h.innerHTML=MEALS.map(meal=>{
+     const xs=foods.map((x,i)=>({...x,_i:i})).filter(x=>(x.meal||'Snack')===meal),t=sum(xs);
+     return `<div class="v454meal ${openMeal===meal?'open':''}" data-meal="${meal}">
+       <button type="button" class="v454head"><strong>${meal}</strong><span class="v454sum">${Math.round(t.k)} kcal · B ${t.p.toFixed(1)} · S ${t.c.toFixed(1)} · T ${t.f.toFixed(1)}</span></button>
+       <div class="v454body">
+         ${xs.length?xs.map(x=>`<div class="v454row"><div><b>${x.name}</b><small>${x.g} g · ${Math.round(x.k)} kcal · B ${(+x.p).toFixed(1)} · S ${(+x.c).toFixed(1)} · T ${(+x.f).toFixed(1)}</small></div><button type="button" class="btn-soft v454del" data-i="${x._i}">×</button></div>`).join(''):'<div class="sub">Zatiaľ bez potravín.</div>'}
+       </div></div>`;
+   }).join('');
+ }
+ document.addEventListener('click',e=>{
+   const head=e.target.closest('.v454head');
+   if(head){openMeal=head.closest('.v454meal').dataset.meal;renderMeals();return}
+   const del=e.target.closest('.v454del');
+   if(del){dayData().foods.splice(+del.dataset.i,1);save();setTimeout(renderMeals,0)}
+ });
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(renderMeals,0);return r};
+ document.getElementById('mealType')?.addEventListener('change',e=>{openMeal=e.target.value});
+ document.getElementById('addFoodBtn')?.addEventListener('click',()=>{openMeal=document.getElementById('mealType')?.value||openMeal;setTimeout(renderMeals,30)},true);
+ window.addEventListener('load',()=>setTimeout(renderMeals,100));
+ setTimeout(renderMeals,0);
+})();
+</script>
+
+<style id="v455-meal-builder-style">
+#v455Builder{margin-top:12px;border-top:1px solid var(--line);padding-top:12px}
+#v455Draft{display:grid;gap:8px;margin-top:10px}
+.v455item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:#0d1928;border:1px solid var(--line);border-radius:12px;padding:10px}
+.v455item small{display:block;color:var(--muted);margin-top:3px}
+#v455Total{margin:10px 0;padding:11px;border-radius:12px;background:#10253a;font-weight:700}
+#v455Save{width:100%;margin-top:4px}
+</style>
+<script id="v455-meal-builder-js">
+(function(){
+ let draft=[];
+
+ function n(v){return Number(v)||0}
+ function selectedFood(){
+   const name=(document.getElementById('foodSearch')?.value||'').trim();
+   const grams=n(document.getElementById('foodGrams')?.value);
+   let f=null;
+   try{ f=(typeof allFoods==='function'?allFoods():[]).find(x=>x.name===name) }catch(e){}
+   if(!f){
+     const sel=document.getElementById('foodSelect');
+     const opt=sel?.options?.[sel.selectedIndex];
+     const nm=opt?.textContent?.trim();
+     try{f=(typeof allFoods==='function'?allFoods():[]).find(x=>x.name===nm)}catch(e){}
+   }
+   return f&&grams>0?{f,grams}:null;
+ }
+ function macros(f,g){
+   const q=g/100;
+   return {k:n(f.kcal??f.k)*q,p:n(f.p)*q,c:n(f.c)*q,f:n(f.f)*q};
+ }
+ function ensure(){
+   const btn=document.getElementById('addFoodBtn'); if(!btn)return;
+   if(document.getElementById('v455Builder'))return;
+   const box=document.createElement('div');box.id='v455Builder';
+   box.innerHTML=`<button type="button" class="btn-soft" id="v455AddIngredient">＋ Pridať potravinu do jedla</button>
+     <div id="v455Draft"></div><div id="v455Total">Spolu: 0 kcal · B 0 · S 0 · T 0</div>
+     <button type="button" class="btn-primary" id="v455Save">Uložiť celé jedlo</button>`;
+   btn.insertAdjacentElement('afterend',box);
+   btn.style.display='none';
+   document.getElementById('v455AddIngredient').onclick=addIngredient;
+   document.getElementById('v455Save').onclick=saveMeal;
+   renderDraft();
+ }
+ function renderDraft(){
+   const host=document.getElementById('v455Draft'),tot=document.getElementById('v455Total');if(!host||!tot)return;
+   host.innerHTML=draft.map((x,i)=>`<div class="v455item"><div><b>${x.name}</b><small>${x.g} g · ${Math.round(x.k)} kcal · B ${x.p.toFixed(1)} · S ${x.c.toFixed(1)} · T ${x.f.toFixed(1)}</small></div><button type="button" class="btn-soft v455rm" data-i="${i}">×</button></div>`).join('');
+   const s=draft.reduce((a,x)=>({k:a.k+x.k,p:a.p+x.p,c:a.c+x.c,f:a.f+x.f}),{k:0,p:0,c:0,f:0});
+   tot.textContent=`Spolu: ${Math.round(s.k)} kcal · B ${s.p.toFixed(1)} · S ${s.c.toFixed(1)} · T ${s.f.toFixed(1)}`;
+   host.querySelectorAll('.v455rm').forEach(b=>b.onclick=()=>{draft.splice(+b.dataset.i,1);renderDraft()});
+ }
+ function addIngredient(){
+   const x=selectedFood(); if(!x){alert('Vyber potravinu a zadaj gramáž.');return}
+   const m=macros(x.f,x.grams);
+   draft.push({name:x.f.name,g:x.grams,...m});
+   const g=document.getElementById('foodGrams');if(g)g.value='';
+   renderDraft();
+ }
+ function saveMeal(){
+   if(!draft.length){alert('Najprv pridaj aspoň jednu potravinu.');return}
+   const meal=document.getElementById('mealType')?.value||'Snack';
+   const d=dayData();
+   draft.forEach(x=>d.foods.push({name:x.name,g:x.g,k:x.k,p:x.p,c:x.c,f:x.f,meal}));
+   save();
+   draft=[];
+   if(typeof openMeal!=='undefined') openMeal=meal;
+   render();
+   setTimeout(()=>{ensure();renderDraft()},20);
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(ensure,0);return r};
+ window.addEventListener('load',()=>setTimeout(ensure,100));
+ setTimeout(ensure,0);
+})();
+</script>
+
+<style id="v456-energy-balance-style">
+#v456Energy{margin-top:12px}
+#v456EnergyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+.v456e{background:#0d1928;border:1px solid var(--line);border-radius:14px;padding:11px}
+.v456e span{font-size:11px;color:var(--muted);display:block}.v456e b{font-size:18px;display:block;margin-top:4px}
+#v456Balance{margin-top:10px;padding:13px;border-radius:14px;background:#10253a;font-weight:800}
+#v456Note{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
+</style>
+<script id="v456-energy-balance-js">
+(function(){
+ function num(v){return Number(v)||0}
+ function currentDay(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
+ function intake(d){return (d.foods||[]).reduce((s,x)=>s+num(x.k),0)}
+ function profileWeight(){
+   try{return num(store.profile?.weight||store.weight)||93}catch(e){return 93}
+ }
+ function baseBurn(){
+   /* Conservative baseline estimate for ordinary daily living, then steps/training are added separately. */
+   const w=profileWeight();
+   return Math.round(22*w*1.20);
+ }
+ function stepBurn(d){
+   const w=profileWeight(),steps=num(d.steps);
+   return Math.round(steps*w*0.0005);
+ }
+ function cardioBurn(d){
+   return Math.round((d.training||[]).reduce((s,x)=>{
+     if(num(x.burn)>0)return s+num(x.burn);
+     const min=num(x.minutes); if(!min)return s;
+     const type=String(x.type||x.name||'').toLowerCase();
+     let met=6;
+     if(type.includes('chôd')||type.includes('walk'))met=3.5;
+     else if(type.includes('beh')||type.includes('run'))met=8;
+     else if(type.includes('bicy')||type.includes('bike'))met=6.8;
+     else if(type.includes('vesl')||type.includes('row'))met=7;
+     return s+(met*3.5*profileWeight()/200)*min;
+   },0))
+ }
+ function strengthBurn(d){
+   if(!d.workoutCompletedAt && !(d.exercises||[]).length)return 0;
+   const mins=num(d.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d.exercises||[]).length*10));
+   return Math.round((5*3.5*profileWeight()/200)*mins);
+ }
+ function ensure(){
+   let host=document.getElementById('v456Energy');
+   if(!host){
+     const home=document.getElementById('home')||document.querySelector('main');
+     if(!home)return;
+     host=document.createElement('div');host.id='v456Energy';host.className='card full';
+     const first=home.querySelector('.card');
+     if(first)first.insertAdjacentElement('afterend',host);else home.appendChild(host);
+   }
+   const d=currentDay(),food=intake(d),base=baseBurn(),steps=stepBurn(d),cardio=cardioBurn(d),strength=strengthBurn(d);
+   const total=base+steps+cardio+strength,balance=food-total;
+   const abs=Math.abs(Math.round(balance));
+   let label='Približne udržiavanie';
+   if(balance<=-100)label=`Odhadovaný deficit −${abs} kcal`;
+   else if(balance>=100)label=`Odhadovaný nadbytok +${abs} kcal`;
+   host.innerHTML=`<h3>🔥 Energetická bilancia</h3>
+     <div id="v456EnergyGrid">
+       <div class="v456e"><span>Príjem</span><b>${Math.round(food)} kcal</b></div>
+       <div class="v456e"><span>Odhad výdaja</span><b>${total} kcal</b></div>
+       <div class="v456e"><span>Bežné fungovanie</span><b>${base} kcal</b></div>
+       <div class="v456e"><span>Kroky</span><b>${steps} kcal</b></div>
+       <div class="v456e"><span>Silový tréning</span><b>${strength} kcal</b></div>
+       <div class="v456e"><span>Kardio</span><b>${cardio} kcal</b></div>
+     </div>
+     <div id="v456Balance">${label}</div>
+     <div id="v456Note">Ide o orientačný výpočet, nie presné meranie. Výdaj pri bežnej aktivite aj tréningu sa medzi ľuďmi líši.</div>`;
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(ensure,0);return r};
+ window.addEventListener('load',()=>setTimeout(ensure,100));
+ setTimeout(ensure,0);
+})();
+</script>
+
+<style id="v457-calorie-tile-style">
+#v457CalorieLines{margin-top:8px;display:grid;gap:5px}
+.v457line{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.v457line span{color:var(--muted)}
+.v457line b{font-weight:800}
+</style>
+<script id="v457-calorie-tile-js">
+(function(){
+ function num(v){return Number(v)||0}
+ function getDay(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
+ function weight(){try{return num(store.profile?.weight||store.weight)||93}catch(e){return 93}}
+ function calc(){
+   const d=getDay(), w=weight();
+   const intake=(d.foods||[]).reduce((s,x)=>s+num(x.k),0);
+   const base=Math.round(22*w*1.20);
+   const steps=Math.round(num(d.steps)*w*0.0005);
+   const cardio=Math.round((d.training||[]).reduce((s,x)=>{
+     if(num(x.burn)>0)return s+num(x.burn);
+     const min=num(x.minutes); if(!min)return s;
+     const t=String(x.type||x.name||'').toLowerCase();
+     let met=6;
+     if(t.includes('chôd')||t.includes('walk'))met=3.5;
+     else if(t.includes('beh')||t.includes('run'))met=8;
+     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
+     else if(t.includes('vesl')||t.includes('row'))met=7;
+     return s+(met*3.5*w/200)*min;
+   },0));
+   let strength=0;
+   if(d.workoutCompletedAt||(d.exercises||[]).length){
+     const mins=num(d.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d.exercises||[]).length*10));
+     strength=Math.round((5*3.5*w/200)*mins);
+   }
+   const burn=base+steps+cardio+strength;
+   return {intake:Math.round(intake),burn,balance:Math.round(intake-burn)};
+ }
+ function update(){
+   const cards=[...document.querySelectorAll('.card')];
+   const card=cards.find(c=>/Kalórie/i.test(c.textContent||'') && !c.id.includes('v456'));
+   if(!card)return;
+   const x=calc();
+   let box=card.querySelector('#v457CalorieLines');
+   if(!box){box=document.createElement('div');box.id='v457CalorieLines';card.appendChild(box)}
+   const bal=x.balance===0?'0':(x.balance>0?'+'+x.balance:'−'+Math.abs(x.balance));
+   box.innerHTML=`<div class="v457line"><span>Príjem</span><b>${x.intake} kcal</b></div>
+   <div class="v457line"><span>Výdaj</span><b>${x.burn} kcal</b></div>
+   <div class="v457line"><span>Bilancia</span><b>${bal} kcal</b></div>`;
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,20);return r};
+ window.addEventListener('load',()=>setTimeout(update,150));
+ setTimeout(update,50);
+})();
+</script>
+
+<style id="v458-actual-burn-style">
+#v458BurnNote{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.35}
+</style>
+<script id="v458-actual-burn-js">
+(function(){
+ function n(v){return Number(v)||0}
+ function d(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
+ function w(){try{return n(store.profile?.weight||store.weight)||93}catch(e){return 93}}
+ function burn(){
+   const x=d(),kg=w();
+   /* Only entered/measured activity: no automatic BMR/TDEE. */
+   const steps=Math.round(n(x.steps)*kg*0.0005);
+   const cardio=Math.round((x.training||[]).reduce((s,a)=>{
+     if(n(a.burn)>0)return s+n(a.burn);
+     const min=n(a.minutes); if(!min)return s;
+     const t=String(a.type||a.name||'').toLowerCase();
+     let met=6;
+     if(t.includes('chôd')||t.includes('walk'))met=3.5;
+     else if(t.includes('beh')||t.includes('run'))met=8;
+     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
+     else if(t.includes('vesl')||t.includes('row'))met=7;
+     return s+(met*3.5*kg/200)*min;
+   },0));
+   let strength=0;
+   if(x.workoutCompletedAt||(x.exercises||[]).length){
+     const min=n(x.workoutSummary?.minutes)||Math.max(30,Math.min(90,(x.exercises||[]).length*10));
+     strength=Math.round(5*3.5*kg/200*min);
+   }
+   return {steps,cardio,strength,total:steps+cardio+strength};
+ }
+ function update(){
+   const x=d(), intake=Math.round((x.foods||[]).reduce((s,a)=>s+n(a.k),0)),b=burn();
+   const cards=[...document.querySelectorAll('.card')];
+   const card=cards.find(c=>/Kalórie/i.test(c.textContent||'')&&!c.id.includes('v456'));
+   if(card){
+     const box=card.querySelector('#v457CalorieLines');
+     if(box){
+       const bal=intake-b.total, bs=bal===0?'0':(bal>0?'+'+bal:'−'+Math.abs(bal));
+       box.innerHTML=`<div class="v457line"><span>Príjem</span><b>${intake} kcal</b></div>
+       <div class="v457line"><span>Výdaj z aktivity</span><b>${b.total} kcal</b></div>
+       <div class="v457line"><span>Rozdiel</span><b>${bs} kcal</b></div>
+       <div id="v458BurnNote">Výdaj sa pridá až zo zadaných krokov, kardia a silového tréningu.</div>`;
+     }
+   }
+   const e=document.getElementById('v456Energy');
+   if(e)e.innerHTML=`<h3>🔥 Spálené kalórie z aktivity</h3>
+   <div id="v456EnergyGrid">
+   <div class="v456e"><span>Kroky</span><b>${b.steps} kcal</b></div>
+   <div class="v456e"><span>Silový tréning</span><b>${b.strength} kcal</b></div>
+   <div class="v456e"><span>Kardio</span><b>${b.cardio} kcal</b></div>
+   <div class="v456e"><span>Spolu</span><b>${b.total} kcal</b></div>
+   </div><div id="v456Note">Bez zadaných krokov alebo tréningu sa tu nič automaticky nepripočítava. Hodnoty sú stále odhad podľa hmotnosti, času a typu aktivity.</div>`;
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,40);return r};
+ window.addEventListener('load',()=>setTimeout(update,180));
+ setTimeout(update,80);
+})();
+</script>
+
+<script id="v459-live-bmr-js">
+(function(){
+ function n(v){return Number(v)||0}
+ function day(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
+ function profile(){
+   try{
+     return {
+       weight:n(store.profile?.weight||store.weight)||93,
+       height:n(store.profile?.height||store.height)||183,
+       age:n(store.profile?.age||store.age)||34
+     };
+   }catch(e){return {weight:93,height:183,age:34}}
+ }
+ function values(){
+   const d=day(),p=profile();
+   // Mifflin–St Jeor, male. Basal burn accrues continuously through the day.
+   const bmr=Math.round(10*p.weight+6.25*p.height-5*p.age+5);
+   const now=new Date();
+   const mins=now.getHours()*60+now.getMinutes();
+   const basal=Math.round(bmr*(mins/1440));
+   const steps=Math.round(n(d.steps)*p.weight*0.0005);
+   const cardio=Math.round((d.training||[]).reduce((s,a)=>{
+     if(n(a.burn)>0)return s+n(a.burn);
+     const min=n(a.minutes); if(!min)return s;
+     const t=String(a.type||a.name||'').toLowerCase();
+     let met=6;
+     if(t.includes('chôd')||t.includes('walk'))met=3.5;
+     else if(t.includes('beh')||t.includes('run'))met=8;
+     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
+     else if(t.includes('vesl')||t.includes('row'))met=7;
+     return s+(met*3.5*p.weight/200)*min;
+   },0));
+   let strength=0;
+   if(d.workoutCompletedAt||(d.exercises||[]).length){
+     const min=n(d.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d.exercises||[]).length*10));
+     strength=Math.round(5*3.5*p.weight/200*min);
+   }
+   const intake=Math.round((d.foods||[]).reduce((s,a)=>s+n(a.k),0));
+   const total=basal+steps+cardio+strength;
+   return {bmr,basal,steps,cardio,strength,intake,total,balance:intake-total};
+ }
+ function update(){
+   const v=values();
+   const cards=[...document.querySelectorAll('.card')];
+   const card=cards.find(c=>/Kalórie/i.test(c.textContent||'')&&!c.id.includes('v456'));
+   if(card){
+     const box=card.querySelector('#v457CalorieLines');
+     if(box){
+       const bs=v.balance===0?'0':(v.balance>0?'+'+v.balance:'−'+Math.abs(v.balance));
+       box.innerHTML=`<div class="v457line"><span>Príjem</span><b>${v.intake} kcal</b></div>
+       <div class="v457line"><span>Výdaj doteraz</span><b>${v.total} kcal</b></div>
+       <div class="v457line"><span>Bilancia</span><b>${bs} kcal</b></div>
+       <div id="v458BurnNote">Základný metabolizmus sa počíta priebežne podľa času + zadané kroky a tréning.</div>`;
+     }
+   }
+   const e=document.getElementById('v456Energy');
+   if(e)e.innerHTML=`<h3>🔥 Výdaj energie doteraz</h3>
+   <div id="v456EnergyGrid">
+    <div class="v456e"><span>Bazálny metabolizmus</span><b>${v.basal} kcal</b></div>
+    <div class="v456e"><span>Kroky</span><b>${v.steps} kcal</b></div>
+    <div class="v456e"><span>Silový tréning</span><b>${v.strength} kcal</b></div>
+    <div class="v456e"><span>Kardio</span><b>${v.cardio} kcal</b></div>
+   </div>
+   <div id="v456Balance">Spolu doteraz: ${v.total} kcal</div>
+   <div id="v456Note">Denný BMR: približne ${v.bmr} kcal. BMR sa počas dňa načítava postupne; kroky a tréning sa pridajú po zadaní.</div>`;
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,50);return r};
+ window.addEventListener('load',()=>setTimeout(update,180));
+ setInterval(update,60000);
+ setTimeout(update,80);
+})();
+</script>
+
+<style id="v460-water-card-style">
+#v460WaterBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+#v460WaterBtns button{min-height:42px;border-radius:11px;font-weight:800}
+</style>
+<script id="v460-water-card-js">
+(function(){
+ function findWaterCard(){
+   return [...document.querySelectorAll('.card')].find(c=>{
+     const t=(c.textContent||'').trim();
+     return /Voda/i.test(t) && /ml/i.test(t) && !/Rýchlo pridať vodu/i.test(t);
+   });
+ }
+ function findQuickWater(){
+   return [...document.querySelectorAll('.card')].find(c=>/Rýchlo pridať vodu/i.test(c.textContent||''));
+ }
+ function clickOld(label){
+   const q=findQuickWater();
+   if(!q)return;
+   const b=[...q.querySelectorAll('button')].find(x=>(x.textContent||'').replace(/\s/g,'').includes(label.replace(/\s/g,'')));
+   if(b)b.click();
+ }
+ function update(){
+   const card=findWaterCard(),quick=findQuickWater();
+   if(!card)return;
+   let box=card.querySelector('#v460WaterBtns');
+   if(!box){
+     box=document.createElement('div');box.id='v460WaterBtns';
+     box.innerHTML=`<button type="button" class="btn-primary" data-w="+250ml">+ 250 ml</button>
+     <button type="button" class="btn-primary" data-w="+500ml">+ 500 ml</button>
+     <button type="button" class="btn-primary" data-w="+1000ml">+ 1000 ml</button>
+     <button type="button" class="btn-soft" data-w="−250ml">− 250 ml</button>`;
+     card.appendChild(box);
+     box.querySelectorAll('button').forEach(b=>b.onclick=()=>clickOld(b.dataset.w));
+   }
+   if(quick)quick.style.display='none';
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,60);return r};
+ window.addEventListener('load',()=>setTimeout(update,180));
+ setTimeout(update,80);
+})();
+</script>
+
+<style id="v461-water-fix-style">
+#v460WaterBtns{grid-template-columns:1fr 1fr!important;gap:6px!important;margin-top:9px!important}
+#v460WaterBtns button{min-height:31px!important;height:31px!important;padding:3px 5px!important;border-radius:8px!important;font-size:11px!important;line-height:1!important}
+</style>
+<script id="v461-water-fix-js">
+(function(){
+ function waterCard(){
+   return [...document.querySelectorAll('.card')].find(c=>{
+     const t=(c.textContent||'').trim();
+     return /^💧?\s*Voda/i.test(t) && /cieľ/i.test(t) && /ml/i.test(t);
+   });
+ }
+ function targetsCard(){
+   return [...document.querySelectorAll('.card')].find(c=>/Dnešné ciele/i.test(c.textContent||''));
+ }
+ function fix(){
+   const box=document.getElementById('v460WaterBtns'),wc=waterCard(),tc=targetsCard();
+   if(box&&wc&&box.parentElement!==wc) wc.appendChild(box);
+   if(tc) tc.querySelectorAll('#v460WaterBtns').forEach(x=>x.remove());
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(fix,80);return r};
+ window.addEventListener('load',()=>setTimeout(fix,220));
+ setTimeout(fix,100);
+})();
+</script>
+
+<script id="v462-water-duplicate-fix">
+(function(){
+ function waterCard(){
+   return [...document.querySelectorAll('.card')].find(c=>{
+     const t=(c.textContent||'').trim();
+     return /^💧?\s*Voda/i.test(t) && /cieľ/i.test(t) && /ml/i.test(t);
+   });
+ }
+ function clean(){
+   const wc=waterCard(); if(!wc)return;
+   const boxes=[...document.querySelectorAll('#v460WaterBtns')];
+   let keep=boxes.find(x=>x.parentElement===wc)||boxes[0];
+   boxes.forEach(x=>{if(x!==keep)x.remove()});
+   if(keep && keep.parentElement!==wc)wc.appendChild(keep);
+   /* Also remove any accidentally cloned water controls without relying on duplicate IDs. */
+   const candidates=[...wc.querySelectorAll('div')].filter(x=>{
+     const t=(x.textContent||'').replace(/\s/g,'');
+     return t.includes('+250ml')&&t.includes('+500ml')&&t.includes('+1000ml')&&t.includes('250ml');
+   });
+   candidates.forEach(x=>{if(x!==keep && !x.contains(keep))x.remove()});
+ }
+ const observer=new MutationObserver(()=>clean());
+ window.addEventListener('load',()=>{
+   clean();
+   observer.observe(document.body,{childList:true,subtree:true});
+ });
+ setTimeout(clean,100);
+})();
+</script>
+
+<style id="v463-polish-style">
+#v463StepsBtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px}
+#v463StepsBtns button{min-height:31px;height:31px;padding:3px 5px;border-radius:8px;font-size:11px;line-height:1}
+#v463Toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:#10253a;border:1px solid var(--line);padding:9px 14px;border-radius:12px;font-weight:800;z-index:9999;opacity:0;pointer-events:none;transition:.18s;white-space:nowrap}
+#v463Toast.show{opacity:1}
+.v463balance{margin-top:10px}
+</style>
+<div id="v463Toast"></div>
+<script id="v463-polish-js">
+(function(){
+ const n=v=>Number(v)||0;
+ function prof(){
+   try{return{
+     weight:n(store.profile?.weight||store.weight)||93,
+     height:n(store.profile?.height||store.height)||183,
+     age:n(store.profile?.age||store.age)||34,
+     sex:(store.profile?.sex||store.sex||'male')
+   }}catch(e){return{weight:93,height:183,age:34,sex:'male'}}
+ }
+ function intake(d){return (d?.foods||[]).reduce((s,x)=>s+n(x.k),0)}
+ function bmr(){
+   const p=prof();
+   return 10*p.weight+6.25*p.height-5*p.age+(p.sex==='female'?-161:5);
+ }
+ function activityBurn(d){
+   const p=prof(),kg=p.weight;
+   const steps=Math.round(n(d?.steps)*kg*0.0005);
+   const cardio=Math.round((d?.training||[]).reduce((s,a)=>{
+     if(n(a.burn)>0)return s+n(a.burn);
+     const min=n(a.minutes);if(!min)return s;
+     const t=String(a.type||a.name||'').toLowerCase();
+     let met=6;
+     if(t.includes('chôd')||t.includes('walk'))met=3.5;
+     else if(t.includes('beh')||t.includes('run'))met=8;
+     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
+     else if(t.includes('vesl')||t.includes('row'))met=7;
+     return s+(met*3.5*kg/200)*min;
+   },0));
+   let strength=0;
+   if(d?.workoutCompletedAt||(d?.exercises||[]).length){
+     const min=n(d?.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d?.exercises||[]).length*10));
+     strength=Math.round(5*3.5*kg/200*min);
+   }
+   return {steps,cardio,strength,total:steps+cardio+strength};
+ }
+ function burnForDate(date,d){
+   const today=new Date().toISOString().slice(0,10);
+   let fraction=1;
+   if(date===today){const now=new Date();fraction=(now.getHours()*60+now.getMinutes())/1440}
+   const basal=Math.round(bmr()*fraction),a=activityBurn(d);
+   return {basal,...a,total:basal+a.total};
+ }
+ function toast(s){
+   const x=document.getElementById('v463Toast');if(!x)return;
+   x.textContent=s;x.classList.add('show');clearTimeout(window.__v463t);
+   window.__v463t=setTimeout(()=>x.classList.remove('show'),800);
+ }
+ function syncWaterGoal(){
+   try{
+     const g=n(store.goals?.water)||3000;
+     const el=document.getElementById('homeWaterRemain');
+     if(el){const d=dayData();el.textContent=Math.max(0,g-n(d.water))+' ml'}
+     const goal=document.getElementById('waterGoalText');if(goal)goal.textContent=g;
+   }catch(e){}
+ }
+ function ensureSteps(){
+   const card=[...document.querySelectorAll('#overview .card')].find(c=>/^👟?\s*Kroky/i.test((c.textContent||'').trim()));
+   if(!card||card.querySelector('#v463StepsBtns'))return;
+   const box=document.createElement('div');box.id='v463StepsBtns';
+   box.innerHTML=`<button class="btn-soft" data-s="1000">+ 1 000</button><button class="btn-soft" data-s="2500">+ 2 500</button><button class="btn-soft" data-s="5000">+ 5 000</button><button class="btn-soft" data-s="edit">Upraviť</button>`;
+   card.appendChild(box);
+   box.onclick=e=>{
+     const b=e.target.closest('button');if(!b)return;
+     const d=dayData();
+     if(b.dataset.s==='edit'){
+       const v=prompt('Kroky dnes:',n(d.steps));
+       if(v!==null&&!isNaN(Number(v)))d.steps=Math.max(0,Math.round(Number(v)));
+     }else d.steps=Math.max(0,n(d.steps)+n(b.dataset.s));
+     save();toast('Kroky uložené ✓');
+   };
+ }
+ function waterFeedback(){
+   document.querySelectorAll('#v460WaterBtns button').forEach(b=>{
+     if(b.dataset.v463)return;b.dataset.v463='1';
+     b.addEventListener('click',()=>toast((b.textContent||'').trim()+' ✓'));
+   });
+ }
+ function labelBalance(){
+   const card=[...document.querySelectorAll('#overview .card')].find(c=>/🔥\s*Kalórie/.test(c.textContent||''));
+   const box=card?.querySelector('#v457CalorieLines');
+   if(!box)return;
+   [...box.querySelectorAll('.v457line span')].forEach(s=>{
+     if(s.textContent.trim()==='Bilancia')s.textContent='Bilancia doteraz';
+     if(s.textContent.trim()==='Rozdiel')s.textContent='Bilancia doteraz';
+   });
+ }
+ function enrichProgress(){
+   const modal=document.getElementById('v453DayModal');
+   if(!modal||modal.dataset.v463)return;
+   modal.dataset.v463='1';
+   document.addEventListener('click',e=>{
+     const cell=e.target.closest('#goalCalendar .calday');if(!cell)return;
+     setTimeout(()=>{
+       try{
+         const base=new Date(selectedDay+'T12:00:00'),num=parseInt(cell.textContent,10);
+         const date=`${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(num).padStart(2,'0')}`;
+         const d=store.days?.[date];if(!d)return;
+         const body=document.getElementById('v453Body');if(!body)return;
+         body.querySelector('.v463balance')?.remove();
+         const burn=burnForDate(date,d),food=Math.round(intake(d)),bal=food-burn.total;
+         const div=document.createElement('div');div.className='notice v463balance';
+         div.innerHTML=`<b>⚡ Energetická bilancia</b><br>Príjem ${food} kcal · odhad výdaja ${burn.total} kcal · bilancia ${bal>0?'+':''}${bal} kcal`;
+         body.appendChild(div);
+       }catch(err){}
+     },0);
+   },true);
+ }
+ function update(){
+   syncWaterGoal();ensureSteps();waterFeedback();labelBalance();enrichProgress();
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,100);return r};
+ window.addEventListener('load',()=>setTimeout(update,250));
+ setTimeout(update,120);
+})();
+</script>
+
+<style id="v464-home-fix-style">
+#v457CalorieLines .v457line span{white-space:nowrap;font-size:12px}
+</style>
+<script id="v464-home-fix-js">
+(function(){
+ function n(v){return Number(v)||0}
+ function fix(){
+   /* Top goal shows remaining water, matching the automatic countdown logic. */
+   try{
+     const d=dayData();
+     const goal=n(store.goals?.water)||3250;
+     const remaining=Math.max(0,goal-n(d.water));
+     const targets=[...document.querySelectorAll('.card')].find(c=>/Dnešné ciele/i.test(c.textContent||''));
+     if(targets){
+       const boxes=[...targets.querySelectorAll('div')];
+       const water=boxes.find(x=>/💧\s*Voda/i.test(x.textContent||'') && /ml/i.test(x.textContent||''));
+       if(water){
+         const vals=[...water.querySelectorAll('*')].filter(x=>/^\s*\d+\s*ml\s*$/i.test(x.textContent||''));
+         if(vals.length) vals[vals.length-1].textContent=remaining+' ml';
+       }
+     }
+   }catch(e){}
+   document.querySelectorAll('#v457CalorieLines .v457line span').forEach(s=>{
+     if(/Bilancia/.test(s.textContent||''))s.textContent='Bilancia doteraz';
+   });
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(fix,120);return r};
+ window.addEventListener('load',()=>setTimeout(fix,260));
+ setTimeout(fix,140);
+})();
+</script>
+
+<style id="v465-home-fix-style">
+/* Give calorie rows enough room for both label and value on one line. */
+#v457CalorieLines .v457line{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:6px!important}
+#v457CalorieLines .v457line span{white-space:nowrap!important;font-size:11px!important}
+#v457CalorieLines .v457line b{white-space:nowrap!important;font-size:14px!important}
+</style>
+<script id="v465-home-fix-js">
+(function(){
+ const n=v=>Number(v)||0;
+
+ function fixWaterGoal(){
+   try{
+     const d=dayData(), goal=n(store.goals?.water)||3250;
+     const remaining=Math.max(0,goal-n(d.water));
+
+     /* Find the four small boxes inside "Dnešné ciele", then the one whose
+        own visible label is Voda. Update its numeric value directly. */
+     const targets=[...document.querySelectorAll('.card')].find(c=>/Dnešné ciele/i.test(c.textContent||''));
+     if(!targets)return;
+
+     const waterBox=[...targets.querySelectorAll('div')].find(el=>{
+       const direct=[...el.children].map(x=>(x.textContent||'').trim()).join(' ');
+       return /Voda/i.test(direct) && /^\s*💧?\s*Voda/i.test((el.textContent||'').trim());
+     });
+     if(!waterBox)return;
+
+     const nodes=[...waterBox.querySelectorAll('*')];
+     const value=nodes.find(el=>/^\s*\d+\s*ml\s*$/i.test((el.textContent||'')));
+     if(value)value.textContent=remaining+' ml';
+   }catch(e){}
+ }
+
+ function fixBalance(){
+   const card=[...document.querySelectorAll('.card')].find(c=>/🔥\s*Kalórie/i.test(c.textContent||''));
+   const box=card?.querySelector('#v457CalorieLines'); if(!box)return;
+   [...box.querySelectorAll('.v457line')].forEach(row=>{
+     const s=row.querySelector('span'),b=row.querySelector('b');
+     if(s&&/Bilancia/.test(s.textContent||''))s.textContent='Bilancia doteraz';
+     if(b)b.style.whiteSpace='nowrap';
+   });
+ }
+
+ function fix(){fixWaterGoal();fixBalance()}
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(fix,160);return r};
+ window.addEventListener('load',()=>setTimeout(fix,320));
+ setTimeout(fix,180);
+})();
+</script>
+
+<script id="v466-goals-slash-js">
+(function(){
+ const n=v=>Number(v)||0;
+ function fix(){
+   try{
+     const d=dayData();
+     const targets=[...document.querySelectorAll('.card')].find(c=>/Dnešné ciele/i.test(c.textContent||''));
+     if(!targets)return;
+
+     const goalWater=n(store.goals?.water)||3250;
+     const goalProtein=n(store.goals?.protein)||190;
+     const goalSteps=n(store.goals?.steps)||10000;
+
+     const remainingWater=Math.max(0,goalWater-n(d.water));
+     const protein=(d.foods||[]).reduce((s,x)=>s+n(x.p),0);
+     const steps=n(d.steps);
+
+     const boxes=[...targets.querySelectorAll('div')];
+     function setBox(label,value){
+       const box=boxes.find(el=>{
+         const t=(el.textContent||'').trim();
+         return t.includes(label) && el.children.length>0;
+       });
+       if(!box)return;
+       const candidates=[...box.querySelectorAll('*')].filter(el=>{
+         const t=(el.textContent||'').trim();
+         return /^[-\d.,]+\s*(g|ml)?$/i.test(t) || /^\d+$/.test(t);
+       });
+       if(candidates.length)candidates[candidates.length-1].textContent=value;
+     }
+
+     setBox('Bielkoviny',`${protein.toFixed(0)} / ${goalProtein} g`);
+     setBox('Voda',`${remainingWater} / ${goalWater} ml`);
+     setBox('Kroky',`${Math.round(steps)} / ${goalSteps}`);
+
+     /* Training goal: show completed/planned when data supports it. */
+     const trainingBox=boxes.find(el=>/Tréning/i.test(el.textContent||'') && el.children.length>0);
+     if(trainingBox){
+       const done=!!d.workoutCompletedAt;
+       const vals=[...trainingBox.querySelectorAll('*')].filter(el=>/Naplánovaný|Hotový|Dokončený/i.test(el.textContent||''));
+       if(vals.length) vals[vals.length-1].textContent=done?'1 / 1':'0 / 1';
+     }
+   }catch(e){}
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(fix,180);return r};
+ window.addEventListener('load',()=>setTimeout(fix,340));
+ setTimeout(fix,200);
+})();
+</script>
+
+<script id="v467-goals-correct-fix">
+(function(){
+ const n=v=>Number(v)||0;
+ function directGoalCards(targets){
+   /* Pick the smallest element containing each label, so values cannot cross between cards. */
+   const all=[...targets.querySelectorAll('div')];
+   function card(label){
+     const matches=all.filter(el=>new RegExp(label,'i').test(el.textContent||''));
+     return matches.sort((a,b)=>(a.textContent||'').length-(b.textContent||'').length)[0];
+   }
+   return {protein:card('Bielkoviny'),water:card('Voda'),steps:card('Kroky'),training:card('Tréning')};
+ }
+ function setValue(card,text){
+   if(!card)return;
+   const els=[...card.querySelectorAll('*')];
+   let val=els.find(el=>{
+     const t=(el.textContent||'').trim();
+     return /^(\d+([.,]\d+)?\s*\/\s*\d+([.,]\d+)?\s*(g|ml)?|\d+\s*g|\d+\s*ml|\d+|Naplánovaný|Hotový|Dokončený)$/i.test(t);
+   });
+   if(val)val.textContent=text;
+ }
+ function fix(){
+   try{
+     const d=dayData(), targets=[...document.querySelectorAll('.card')].find(c=>/Dnešné ciele/i.test(c.textContent||''));
+     if(!targets)return;
+     const c=directGoalCards(targets);
+     const pg=n(store.goals?.protein)||190, wg=n(store.goals?.water)||3250, sg=n(store.goals?.steps)||10000;
+     const protein=(d.foods||[]).reduce((s,x)=>s+n(x.p),0);
+     setValue(c.protein,`${Math.round(protein)} / ${pg} g`);
+     setValue(c.water,`${n(d.water)} / ${wg} ml`);
+     setValue(c.steps,`${Math.round(n(d.steps))} / ${sg}`);
+     setValue(c.training,`${d.workoutCompletedAt?1:0} / 1`);
+   }catch(e){}
+ }
+ const oldRender=window.render;
+ window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(fix,220);return r};
+ window.addEventListener('load',()=>setTimeout(fix,380));
+ setTimeout(fix,240);
 })();
 </script>
 </body>
