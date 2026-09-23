@@ -2952,6 +2952,7 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
  const MEALS=[['Raňajky','🌅'],['Obed','🍴'],['Snack','🍏'],['Večera','🌙']];
  const $=id=>document.getElementById(id), n=x=>Number(x)||0;
  function sum(xs){return xs.reduce((a,x)=>({k:a.k+n(x.k),p:a.p+n(x.p),c:a.c+n(x.c),f:a.f+n(x.f)}),{k:0,p:0,c:0,f:0})}
+ function kcalExact(xs){return (xs||[]).reduce((s,x)=>s+Math.round(n(x.k)),0)}
  function pct(a,b){return Math.max(0,Math.min(100,b?100*a/b:0))}
  function ensure(){
    const food=$('food'),grid=food?.querySelector('.grid'); if(!grid||$('v478Food'))return;
@@ -2969,10 +2970,10 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
  }
  function render478(){
    ensure(); if(!$('v478Meals'))return;
-   const d=dayData(),g=store.goals||{},t=sum(d.foods||[]);
-   $('v478Kcal').textContent=Math.round(t.k)+' / '+n(g.kcal||2500)+' kcal'; $('v478Kbar').style.width=pct(t.k,n(g.kcal||2500))+'%';
+   const d=dayData(),g=store.goals||{},t=sum(d.foods||[]), exactK=kcalExact(d.foods||[]);
+   $('v478Kcal').textContent=exactK+' / '+n(g.kcal||2500)+' kcal'; $('v478Kbar').style.width=pct(exactK,n(g.kcal||2500))+'%';
    [['P','p','protein'],['C','c','carbs'],['F','f','fat']].forEach(([id,key,goal])=>{const val=t[key],gg=n(g[goal]);$("v478"+id).textContent=val.toFixed(1)+' / '+gg+' g';$("v478"+id+'bar').style.width=pct(val,gg)+'%'});
-   $('v478Meals').innerHTML=MEALS.map(([meal,ico])=>{const xs=(d.foods||[]).map((x,i)=>({...x,_i:i})).filter(x=>(x.meal||'Snack')===meal),st=sum(xs);return '<div class="v478-meal"><div class="v478-mealhead"><span class="ico">'+ico+'</span><strong>'+meal+'</strong><span class="kc">'+Math.round(st.k)+' kcal</span><span>⌄</span></div><div class="v478-body">'+(xs.length?xs.map(x=>'<div class="v478-foodrow"><div><b>'+x.name+'</b><small>'+x.g+' g · '+Math.round(x.k)+' kcal</small></div><button class="v478-del" data-i="'+x._i+'">⋮</button></div>').join(''):'<div class="v478-empty">Zatiaľ nepridané žiadne jedlo.</div>')+'<div class="v478-actions"><button class="v478-add" data-meal="'+meal+'">＋ Pridať</button><button class="v478-repeat" data-meal="'+meal+'">↻ Zopakovať</button></div></div></div>'}).join('');
+   $('v478Meals').innerHTML=MEALS.map(([meal,ico])=>{const xs=(d.foods||[]).map((x,i)=>({...x,_i:i})).filter(x=>(x.meal||'Snack')===meal),mealK=kcalExact(xs);return '<div class="v478-meal"><div class="v478-mealhead"><span class="ico">'+ico+'</span><strong>'+meal+'</strong><span class="kc">'+mealK+' kcal</span><span>⌄</span></div><div class="v478-body">'+(xs.length?xs.map(x=>'<div class="v478-foodrow"><div><b>'+x.name+'</b><small>'+x.g+' g · '+Math.round(x.k)+' kcal</small></div><button class="v478-del" data-i="'+x._i+'">⋮</button></div>').join(''):'<div class="v478-empty">Zatiaľ nepridané žiadne jedlo.</div>')+'<div class="v478-actions"><button class="v478-add" data-meal="'+meal+'">＋ Pridať</button><button class="v478-repeat" data-meal="'+meal+'">↻ Zopakovať</button></div></div></div>'}).join('');
  }
  document.addEventListener('click',e=>{
    const add=e.target.closest('.v478-add');if(add){openEditor(add.dataset.meal);return}
@@ -2989,7 +2990,7 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 
 
 <style id="v481-exact-food-css">
-/* v4.81 — isolated one-component food editor. Based on stable v4.78. */
+/* v4.81.4 — kcal-exact food totals. Based on stable v4.81.3. */
 #v478Editor{
   padding:14px!important;border:1px solid #2c5878!important;border-radius:18px!important;
   background:linear-gradient(155deg,#0d2133,#0a1826)!important;overflow:hidden!important;
@@ -3082,7 +3083,7 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
    const root=host(), list=root?.querySelector('.v481-list'), tot=root?.querySelector('.v481-total'); if(!list||!tot)return;
    if(!draft.length)list.innerHTML='<div class="v481-empty">Zatiaľ nepridaná žiadna potravina.</div>';
    else list.innerHTML=draft.map((x,i)=>'<div class="v481-row">'+thumb(x.name)+'<div><b>'+esc(x.name)+'</b><small>'+Math.round(num(x.g))+' g · '+Math.round(num(x.k))+' kcal</small></div><button class="v481-edit" data-i="'+i+'" type="button" aria-label="Upraviť">✎</button><button class="v481-del" data-i="'+i+'" type="button" aria-label="Odstrániť">🗑</button></div>').join('');
-   const t=total(); tot.innerHTML='<b>Spolu:</b> '+Math.round(t.k)+' kcal &nbsp;·&nbsp; B '+t.p.toFixed(1)+' g &nbsp;·&nbsp; S '+t.c.toFixed(1)+' g &nbsp;·&nbsp; T '+t.f.toFixed(1)+' g';
+   const t=total(), exactK=draft.reduce((s,x)=>s+Math.round(num(x.k)),0); tot.innerHTML='<b>Spolu:</b> '+exactK+' kcal &nbsp;·&nbsp; B '+t.p.toFixed(1)+' g &nbsp;·&nbsp; S '+t.c.toFixed(1)+' g &nbsp;·&nbsp; T '+t.f.toFixed(1)+' g';
  }
  function showResults(q){
    const root=host(), box=root?.querySelector('.v481-results'); if(!box)return;
@@ -3096,10 +3097,10 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
    root.querySelector('.v481-clear').addEventListener('click',()=>{search.value='';showResults('');search.focus()});
    root.addEventListener('click',e=>{
      const result=e.target.closest('.v481-result'); if(result){chosen=foodById(result.dataset.id); root.querySelector('.v481-results').classList.remove('show'); search.value=chosen?.name||''; renderPicked(); return}
-     if(e.target.closest('.v481-add')){const g=num(root.querySelector('.v481-grams')?.value); if(!chosen||g<=0){alert('Vyber potravinu a zadaj gramy.');return} const m=calc(chosen,g), x={name:chosen.name,g:g,k:m.k,p:m.p,c:m.c,f:m.f}; if(editing>=0){draft[editing]=x;editing=-1}else draft.push(x); renderDraft(); const gi=root.querySelector('.v481-grams');if(gi)gi.value=''; return}
+     if(e.target.closest('.v481-add')){const g=num(root.querySelector('.v481-grams')?.value); if(!chosen||g<=0){alert('Vyber potravinu a zadaj gramy.');return} const m=calc(chosen,g), x={name:chosen.name,g:g,k:Math.round(m.k),p:m.p,c:m.c,f:m.f}; if(editing>=0){draft[editing]=x;editing=-1}else draft.push(x); renderDraft(); const gi=root.querySelector('.v481-grams');if(gi)gi.value=''; return}
      const edit=e.target.closest('.v481-edit'); if(edit){const i=+edit.dataset.i,x=draft[i]; chosen=foods().find(f=>String(f.name)===String(x.name))||chosen; editing=i; renderPicked(); const gi=root.querySelector('.v481-grams');if(gi)gi.value=x.g; return}
      const del=e.target.closest('.v481-del'); if(del){draft.splice(+del.dataset.i,1); if(editing===+del.dataset.i)editing=-1; renderDraft(); return}
-     if(e.target.closest('.v481-repeat')){const xs=previousMeal(); if(!xs.length){alert('Nenašlo sa včerajšie '+repeatLabel(meal())+'.');return} draft=xs.map(x=>({name:x.name,g:num(x.g),k:num(x.k),p:num(x.p),c:num(x.c),f:num(x.f)})); renderDraft(); return}
+     if(e.target.closest('.v481-repeat')){const xs=previousMeal(); if(!xs.length){alert('Nenašlo sa včerajšie '+repeatLabel(meal())+'.');return} draft=xs.map(x=>({name:x.name,g:num(x.g),k:Math.round(num(x.k)),p:num(x.p),c:num(x.c),f:num(x.f)})); renderDraft(); return}
      if(e.target.closest('.v481-save')){if(!draft.length){alert('Najprv pridaj aspoň jednu potravinu.');return} const m=meal(); draft.forEach(x=>dayData().foods.push({...x,meal:m,time:''})); save(); draft=[]; $('food')?.classList.remove('v478-editing'); setTimeout(()=>{try{window.render?.()}catch(_){ }},40); return}
    });
    document.addEventListener('click',function closeResults(ev){if(!root.isConnected){document.removeEventListener('click',closeResults);return} if(!ev.target.closest('.v481-searchwrap'))root.querySelector('.v481-results')?.classList.remove('show')});
@@ -3107,6 +3108,22 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
  function openSync(){if($('food')?.classList.contains('v478-editing'))setTimeout(build,0)}
  document.addEventListener('click',e=>{if(e.target.closest('.v478-add,#v478TopAdd,#v478Search'))setTimeout(openSync,40)},true);
  const food=$('food'); if(food)new MutationObserver(()=>{if(food.classList.contains('v478-editing')){if(!host())openSync()}else document.querySelectorAll('.v481').forEach(x=>x.remove())}).observe(food,{attributes:true,attributeFilter:['class']});
+})();
+</script>
+<script id="v4814-kcal-exact-migration">
+(function(){
+  try{
+    if(window.store&&store.days){
+      let changed=false;
+      Object.values(store.days).forEach(d=>{
+        (d&&Array.isArray(d.foods)?d.foods:[]).forEach(f=>{
+          const v=Number(f.k);
+          if(Number.isFinite(v)){const r=Math.round(v);if(r!==v){f.k=r;changed=true}}
+        });
+      });
+      if(changed&&typeof save==='function')save();
+    }
+  }catch(e){console.warn('kcal exact migration skipped',e)}
 })();
 </script>
 
