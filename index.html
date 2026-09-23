@@ -3390,5 +3390,43 @@ body.v4822-plan-open .bottomnav{z-index:80}
 })();
 </script>
 
+
+<script id="v4832-training-i18n-fix">
+(function(){
+  'use strict';
+  if(typeof fdTranslateDynamic!=='function') return;
+  const previousTranslate=fdTranslateDynamic;
+  const prefixed={
+    en:{
+      '▶ Začať tréning':'▶ Start workout',
+      '▶ Pokračovať v tréningu':'▶ Continue workout',
+      '◷ Čas':'◷ Time',
+      '▤ Série':'▤ Sets',
+      '▥ Objem':'▥ Volume'
+    },
+    de:{
+      '▶ Začať tréning':'▶ Training starten',
+      '▶ Pokračovať v tréningu':'▶ Training fortsetzen',
+      '◷ Čas':'◷ Zeit',
+      '▤ Série':'▤ Sätze',
+      '▥ Objem':'▥ Volumen'
+    }
+  };
+  fdTranslateDynamic=function(value){
+    const src=String(value);
+    if(typeof fdLang==='undefined'||fdLang==='sk') return previousTranslate(src);
+    const map=prefixed[fdLang]||prefixed.en;
+    if(map[src]) return map[src];
+    let m=src.match(/^(\d+)\s*\/\s*(\d+)\s+cvikov hotových$/);
+    if(m) return fdLang==='de'?`${m[1]} / ${m[2]} Übungen erledigt`:`${m[1]} / ${m[2]} exercises complete`;
+    return previousTranslate(src);
+  };
+  try{
+    const root=document.getElementById('v482TrainingUX');
+    if(root&&typeof fdTranslateNode==='function'&&fdLang!=='sk') fdTranslateNode(root);
+  }catch(e){console.warn('v4.83.2 training i18n refresh skipped',e)}
+})();
+</script>
+
 </body>
 </html>
