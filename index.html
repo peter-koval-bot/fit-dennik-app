@@ -3428,5 +3428,35 @@ body.v4822-plan-open .bottomnav{z-index:80}
 })();
 </script>
 
+
+<script id="v4833-quick-add-i18n-fix">
+(function(){
+  'use strict';
+  if(typeof FD_LANGS==='undefined') return;
+  Object.assign(FD_LANGS.en,{
+    '🍽️ Jedlo':'🍽️ Food',
+    '🏋️ Tréning':'🏋️ Training',
+    '💧 +250 ml vody':'💧 +250 ml water',
+    '⚖️ Váhu / meranie':'⚖️ Weight / measurement',
+    'Čo chceš pridať?':'What do you want to add?',
+    'Zavrieť':'Close'
+  });
+  Object.assign(FD_LANGS.de,{
+    '🍽️ Jedlo':'🍽️ Essen',
+    '🏋️ Tréning':'🏋️ Training',
+    '💧 +250 ml vody':'💧 +250 ml Wasser',
+    '⚖️ Váhu / meranie':'⚖️ Gewicht / Messung',
+    'Čo chceš pridať?':'Was möchtest du hinzufügen?',
+    'Zavrieť':'Schließen'
+  });
+  try{
+    const modal=document.getElementById('quickModal');
+    if(modal&&typeof fdTranslateNode==='function'&&typeof fdLang!=='undefined'&&fdLang!=='sk'){
+      fdTranslateNode(modal);
+    }
+  }catch(e){console.warn('v4.83.3 quick-add i18n refresh skipped',e)}
+})();
+</script>
+
 </body>
 </html>
