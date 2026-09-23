@@ -2934,5 +2934,58 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 }
 </style>
 
+
+<style id="v478-food-ux-css">
+/* v4.78 — Food page redesign. Storage/calculation model unchanged. */
+#food .grid{display:block!important}
+#food .grid>.card{display:none!important}
+#food #v478Food{display:block!important}
+#v478Food{background:transparent;border:0;padding:0;box-shadow:none}
+.v478-title{display:flex;justify-content:space-between;align-items:center;margin:0 0 14px;padding:0 4px}.v478-title h2{font-size:29px;margin:0}.v478-title p{margin:2px 0 0;color:var(--muted);font-size:13px}.v478-tools{display:flex;gap:8px}.v478-icon{width:44px;height:44px;border:1px solid #31506d;border-radius:12px;background:#0d1b2a;color:#fff;font-size:22px}
+.v478-summary{border:1px solid #31506d;background:linear-gradient(145deg,#11283d,#0d1928 72%);border-radius:16px;padding:14px;margin-bottom:10px}.v478-sumhead{display:flex;justify-content:space-between;gap:10px;align-items:center}.v478-sumhead b{font-size:18px}.v478-kcal{font-size:19px;font-weight:900}.v478-mainbar,.v478-mbar{height:7px;border-radius:99px;background:#1a3046;overflow:hidden}.v478-mainbar{margin:9px 0 13px}.v478-mainbar i,.v478-mbar i{display:block;height:100%;border-radius:inherit;background:#31a2ff}.v478-macros{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.v478-macro{min-width:0}.v478-macro+.v478-macro{border-left:1px solid #28435d;padding-left:10px}.v478-macro span{display:block;color:var(--muted);font-size:11px}.v478-macro b{display:block;font-size:13px;margin:2px 0 7px;white-space:nowrap}.v478-macro:nth-child(2) .v478-mbar i{background:#ffad35}.v478-macro:nth-child(3) .v478-mbar i{background:#aa62ef}
+.v478-meals{display:grid;gap:9px}.v478-meal{border:1px solid #245172;background:#0c1b2a;border-radius:15px;overflow:hidden}.v478-mealhead{width:100%;display:grid;grid-template-columns:34px 1fr auto 18px;gap:8px;align-items:center;padding:10px 12px;border:0;background:transparent;color:#fff;text-align:left}.v478-mealhead .ico{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:#17344d;font-size:18px}.v478-mealhead strong{font-size:15px}.v478-mealhead .kc{font-size:13px;font-weight:800}.v478-body{padding:0 12px 10px}.v478-foodrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 4px;border-top:1px solid #1d354a}.v478-foodrow small{display:block;color:var(--muted);margin-top:2px}.v478-foodrow button{border:0;background:transparent;color:#9fb5ca;font-size:22px;padding:4px}.v478-empty{border:1px solid #1d354a;border-radius:10px;color:var(--muted);text-align:center;padding:10px;font-size:12px;margin:2px 0 8px}.v478-actions{display:grid;grid-template-columns:1.1fr 1fr;gap:8px}.v478-actions button{height:42px;border-radius:10px;font-weight:800}.v478-add{background:#2f9ff3;color:#fff;border:0}.v478-repeat{background:#162b40;color:#fff;border:0}
+#v478Editor{display:none!important}#food.v478-editing #v478Editor{display:block!important}#v478Editor{border:1px solid #31506d;background:#0d1b2a;border-radius:16px;padding:13px;margin:0 0 10px}#v478EditorHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}#v478EditorHead b{font-size:16px}#v478Close{border:0;background:#182d42;color:#fff;border-radius:9px;padding:8px 10px}
+@media(max-width:390px){.v478-title h2{font-size:26px}.v478-kcal{font-size:17px}.v478-macros{gap:7px}.v478-macro b{font-size:12px}.v478-mealhead{grid-template-columns:32px 1fr auto 16px;padding:9px 10px}.v478-actions button{font-size:13px}}
+</style>
+<script id="v478-food-ux-js">
+(function(){
+ const MEALS=[['Raňajky','🌅'],['Obed','🍴'],['Snack','🍏'],['Večera','🌙']];
+ const $=id=>document.getElementById(id), n=x=>Number(x)||0;
+ function sum(xs){return xs.reduce((a,x)=>({k:a.k+n(x.k),p:a.p+n(x.p),c:a.c+n(x.c),f:a.f+n(x.f)}),{k:0,p:0,c:0,f:0})}
+ function pct(a,b){return Math.max(0,Math.min(100,b?100*a/b:0))}
+ function ensure(){
+   const food=$('food'),grid=food?.querySelector('.grid'); if(!grid||$('v478Food'))return;
+   const host=document.createElement('div');host.id='v478Food';host.className='card full';
+   host.innerHTML='<div class="v478-title"><div><h2>Jedlo</h2><p>Zapisuj jednoducho, jedz lepšie.</p></div><div class="v478-tools"><button class="v478-icon" id="v478Search" aria-label="Hľadať">⌕</button><button class="v478-icon" id="v478TopAdd" aria-label="Pridať">＋</button></div></div><div id="v478Editor"><div id="v478EditorHead"><b id="v478EditorTitle">Pridať jedlo</b><button id="v478Close">Zavrieť</button></div><div id="v478EditorBody"></div></div><div class="v478-summary"><div class="v478-sumhead"><b>Dnes</b><div class="v478-kcal" id="v478Kcal">0 / 2500 kcal</div></div><div class="v478-mainbar"><i id="v478Kbar"></i></div><div class="v478-macros"><div class="v478-macro"><span>Bielkoviny</span><b id="v478P">0 / 190 g</b><div class="v478-mbar"><i id="v478Pbar"></i></div></div><div class="v478-macro"><span>Sacharidy</span><b id="v478C">0 / 255 g</b><div class="v478-mbar"><i id="v478Cbar"></i></div></div><div class="v478-macro"><span>Tuky</span><b id="v478F">0 / 80 g</b><div class="v478-mbar"><i id="v478Fbar"></i></div></div></div></div><div class="v478-meals" id="v478Meals"></div>';
+   grid.prepend(host);
+   const addCard=$('foodSearch')?.closest('.card'); if(addCard){$('v478EditorBody').appendChild(addCard);addCard.style.setProperty('display','block','important')}
+ }
+ function openEditor(meal){ensure(); if(meal&&$('mealType'))$('mealType').value=meal; $('v478EditorTitle').textContent=meal?'Pridať · '+meal:'Pridať jedlo'; $('food').classList.add('v478-editing'); setTimeout(()=>$('foodSearch')?.focus(),80)}
+ function repeatMeal(meal){
+   const dates=Object.keys(store.days||{}).filter(x=>x<selectedDay).sort().reverse();
+   const src=dates.map(x=>(store.days[x]?.foods||[]).filter(f=>(f.meal||'Snack')===meal)).find(x=>x.length);
+   if(!src?.length){alert('Nenašlo sa predchádzajúce jedlo pre '+meal+'.');return}
+   src.forEach(x=>dayData().foods.push({...x,meal}));save();setTimeout(render478,40)
+ }
+ function render478(){
+   ensure(); if(!$('v478Meals'))return;
+   const d=dayData(),g=store.goals||{},t=sum(d.foods||[]);
+   $('v478Kcal').textContent=Math.round(t.k)+' / '+n(g.kcal||2500)+' kcal'; $('v478Kbar').style.width=pct(t.k,n(g.kcal||2500))+'%';
+   [['P','p','protein'],['C','c','carbs'],['F','f','fat']].forEach(([id,key,goal])=>{const val=t[key],gg=n(g[goal]);$("v478"+id).textContent=val.toFixed(1)+' / '+gg+' g';$("v478"+id+'bar').style.width=pct(val,gg)+'%'});
+   $('v478Meals').innerHTML=MEALS.map(([meal,ico])=>{const xs=(d.foods||[]).map((x,i)=>({...x,_i:i})).filter(x=>(x.meal||'Snack')===meal),st=sum(xs);return '<div class="v478-meal"><div class="v478-mealhead"><span class="ico">'+ico+'</span><strong>'+meal+'</strong><span class="kc">'+Math.round(st.k)+' kcal</span><span>⌄</span></div><div class="v478-body">'+(xs.length?xs.map(x=>'<div class="v478-foodrow"><div><b>'+x.name+'</b><small>'+x.g+' g · '+Math.round(x.k)+' kcal</small></div><button class="v478-del" data-i="'+x._i+'">⋮</button></div>').join(''):'<div class="v478-empty">Zatiaľ nepridané žiadne jedlo.</div>')+'<div class="v478-actions"><button class="v478-add" data-meal="'+meal+'">＋ Pridať</button><button class="v478-repeat" data-meal="'+meal+'">↻ Zopakovať</button></div></div></div>'}).join('');
+ }
+ document.addEventListener('click',e=>{
+   const add=e.target.closest('.v478-add');if(add){openEditor(add.dataset.meal);return}
+   const rep=e.target.closest('.v478-repeat');if(rep){repeatMeal(rep.dataset.meal);return}
+   const del=e.target.closest('.v478-del');if(del){if(confirm('Odstrániť túto položku?')){dayData().foods.splice(+del.dataset.i,1);save();setTimeout(render478,30)}return}
+   if(e.target.closest('#v478TopAdd')||e.target.closest('#v478Search')){openEditor('Raňajky');return}
+   if(e.target.closest('#v478Close')){$('food').classList.remove('v478-editing');return}
+ });
+ document.addEventListener('click',e=>{if(e.target.closest('#addFoodBtn'))setTimeout(()=>{$('food').classList.remove('v478-editing');render478()},80)},true);
+ const old=window.render;window.render=function(){const r=old.apply(this,arguments);setTimeout(render478,80);return r};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(render478,180));else setTimeout(render478,180);
+})();
+</script>
+
 </body>
 </html>
