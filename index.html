@@ -3458,5 +3458,90 @@ body.v4822-plan-open .bottomnav{z-index:80}
 })();
 </script>
 
+
+
+<style id="v4834-custom-food-cardio-css">
+/* v4.83.4 — restore clean access to custom foods and cardio in the redesigned UI. */
+.v4834-food-extra{margin-top:12px}
+.v4834-food-extra button{width:100%;min-height:54px;border:1px solid #355e7c;border-radius:15px;background:#10283d;color:#eef7ff;font-size:16px;font-weight:900}
+.v4834-modal{position:fixed;inset:0;z-index:120;background:#020a12cc;display:grid;align-items:end;padding:0;backdrop-filter:blur(5px)}
+.v4834-modal.hidden{display:none!important}
+.v4834-sheet{width:min(760px,100%);max-height:88vh;overflow:auto;margin:0 auto;background:linear-gradient(180deg,#0c2133,#081725);border:1px solid #315a79;border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -18px 46px #0008}
+.v4834-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.v4834-sheet-head h3{margin:0;font-size:21px}.v4834-close{width:42px;height:42px;border:1px solid #355a77;border-radius:12px;background:#132b40;color:white;font-size:24px;line-height:1}
+#v4834CustomFoodBody>.card,#v4834CardioBody>.card{display:block!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
+#v4834CustomFoodBody>.card>h3,#v4834CardioBody>.card>h3{display:none!important}
+#v4834CustomFoodBody .notice,#v4834CardioBody .notice{margin-bottom:10px;color:#aabaca;line-height:1.4}
+#v4834CustomFoodBody .row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+#v4834CustomFoodBody input,#v4834CardioBody input,#v4834CardioBody select{box-sizing:border-box;width:100%;min-width:0;background:#081725;border:1px solid #31516c;color:#fff;border-radius:12px;padding:12px;font-size:16px}
+#v4834CustomFoodBody #saveCustomBtn,#v4834CardioBody #addTrainingBtn{min-height:52px;border-radius:13px;font-size:16px;font-weight:900}
+#v4834CustomFoodBody .list,#v4834CardioBody .list{margin-top:10px}
+#v4834CustomFoodBody .item,#v4834CardioBody .item{border:1px solid #294a64;background:#0b1c2b;border-radius:13px;padding:10px;margin-top:8px}
+.v4834-cardio{margin-top:12px;border:1px solid #285170;background:linear-gradient(180deg,#0d2234,#0b1b2a);border-radius:18px;overflow:hidden}
+.v4834-cardio>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto auto;gap:11px;align-items:center;padding:15px;color:#fff}.v4834-cardio>summary::-webkit-details-marker{display:none}
+.v4834-cardio-icon{font-size:24px}.v4834-cardio-title{font-size:18px;font-weight:900}.v4834-cardio-sub{display:block;color:#9fb1c0;font-size:12px;font-weight:500;margin-top:2px}.v4834-cardio-count{padding:6px 9px;border:1px solid #355e7c;border-radius:999px;color:#c5d5e3;font-size:12px;font-weight:800}.v4834-cardio-chevron{font-size:20px;color:#54b8ff;transition:.15s}.v4834-cardio[open] .v4834-cardio-chevron{transform:rotate(180deg)}
+#v4834CardioBody{border-top:1px solid #23445e;padding:14px}
+#v4834CardioBody .row{display:grid!important;grid-template-columns:1fr!important;gap:9px!important}
+@media(max-width:430px){#v4834CustomFoodBody .row{grid-template-columns:1fr 1fr!important}.v4834-sheet{max-height:90vh}}
+</style>
+<script id="v4834-custom-food-cardio-script">
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  function addTranslations(){
+    try{
+      Object.assign(FD_LANGS.en,{
+        '＋ Vlastná potravina / recept':'＋ Custom food / recipe',
+        'Vlastná potravina / recept':'Custom food / recipe',
+        'Pridaj potravinu, ktorú v zozname nenájdeš.':'Add a food that is not in the list.',
+        'Kardio / aktivita':'Cardio / activity',
+        'Kardio a ďalšie aktivity':'Cardio and other activities',
+        'Zapíš beh, chôdzu, bicykel alebo inú aktivitu.':'Log running, walking, cycling or another activity.'
+      });
+      Object.assign(FD_LANGS.de,{
+        '＋ Vlastná potravina / recept':'＋ Eigenes Lebensmittel / Rezept',
+        'Vlastná potravina / recept':'Eigenes Lebensmittel / Rezept',
+        'Pridaj potravinu, ktorú v zozname nenájdeš.':'Füge ein Lebensmittel hinzu, das nicht in der Liste ist.',
+        'Kardio / aktivita':'Cardio / Aktivität',
+        'Kardio a ďalšie aktivity':'Cardio und weitere Aktivitäten',
+        'Zapíš beh, chôdzu, bicykel alebo inú aktivitu.':'Erfasse Laufen, Gehen, Radfahren oder eine andere Aktivität.'
+      });
+    }catch(e){}
+  }
+  function buildCustomFood(){
+    const host=$('v478Food'),save=$('saveCustomBtn');
+    if(!host||!save||$('v4834CustomFoodOpen')) return;
+    const legacy=save.closest('.card');
+    if(!legacy) return;
+    const extra=document.createElement('div');extra.className='v4834-food-extra';
+    extra.innerHTML='<button id="v4834CustomFoodOpen" type="button">＋ Vlastná potravina / recept</button>';
+    host.appendChild(extra);
+    const modal=document.createElement('div');modal.id='v4834CustomFoodModal';modal.className='v4834-modal hidden';
+    modal.innerHTML='<div class="v4834-sheet" role="dialog" aria-modal="true"><div class="v4834-sheet-head"><div><h3>Vlastná potravina / recept</h3><div class="sub">Pridaj potravinu, ktorú v zozname nenájdeš.</div></div><button class="v4834-close" id="v4834CustomFoodClose" type="button" aria-label="Zavrieť">×</button></div><div id="v4834CustomFoodBody"></div></div>';
+    document.body.appendChild(modal);$('v4834CustomFoodBody').appendChild(legacy);
+    const open=()=>{modal.classList.remove('hidden');document.body.style.overflow='hidden';try{if(typeof fdLang!=='undefined'&&fdLang!=='sk')fdTranslateNode(modal)}catch(e){}};
+    const close=()=>{modal.classList.add('hidden');document.body.style.overflow=''};
+    $('v4834CustomFoodOpen').addEventListener('click',open);$('v4834CustomFoodClose').addEventListener('click',close);
+    modal.addEventListener('click',e=>{if(e.target===modal)close()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.classList.contains('hidden'))close()});
+    save.addEventListener('click',()=>{const name=$('customName')?.value.trim(),w=Number($('customWeight')?.value);if(name&&w)setTimeout(close,100)});
+  }
+  function buildCardio(){
+    const root=$('v482TrainingUX'),add=$('addTrainingBtn');
+    if(!root||!add||$('v4834Cardio')) return;
+    const legacy=add.closest('.card');if(!legacy)return;
+    const details=document.createElement('details');details.id='v4834Cardio';details.className='v4834-cardio';
+    details.innerHTML='<summary><span class="v4834-cardio-icon">🏃</span><span><span class="v4834-cardio-title">Kardio / aktivita</span><span class="v4834-cardio-sub">Zapíš beh, chôdzu, bicykel alebo inú aktivitu.</span></span><span class="v4834-cardio-count" id="v4834CardioCount">0</span><span class="v4834-cardio-chevron">⌄</span></summary><div id="v4834CardioBody"></div>';
+    root.insertAdjacentElement('afterend',details);$('v4834CardioBody').appendChild(legacy);
+    const update=()=>{try{$('v4834CardioCount').textContent=String((dayData().training||[]).length);if(typeof fdLang!=='undefined'&&fdLang!=='sk')fdTranslateNode(details)}catch(e){}};
+    add.addEventListener('click',()=>setTimeout(update,120));
+    document.addEventListener('click',e=>{if(e.target.closest('.remove-training'))setTimeout(update,120)},true);
+    const prior=window.render;if(typeof prior==='function')window.render=function(){const r=prior.apply(this,arguments);setTimeout(update,80);return r};
+    update();
+  }
+  function init(){addTranslations();buildCustomFood();buildCardio();try{if(typeof fdLang!=='undefined'&&fdLang!=='sk')fdTranslateNode(document.body)}catch(e){}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,250));else setTimeout(init,250);
+})();
+</script>
+
 </body>
 </html>
