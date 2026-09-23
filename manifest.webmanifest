@@ -2,7 +2,7 @@
   "name": "Fit Diary",
   "short_name": "Fit Diary",
   "description": "Food, training, recovery and progress in one fitness diary.",
-  "start_url": "./",
+  "start_url": "./splash.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#07111d",
