@@ -11,7 +11,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
-<title>Fit Denník v4.67 GOALS CORRECT FIX</title>
+<title>Fit Denník v4.77.1 HOME POLISH</title>
 <style>
 :root{--bg:#07111d;--card:#101d2c;--card2:#14263a;--line:#284057;--text:#f4f8fb;--muted:#97aabc;--blue:#3aa0ff;--green:#39d98a;--purple:#8b68ff;--orange:#ff8b3d;--red:#ff6868;--yellow:#ffd75b}
 *{box-sizing:border-box}html,body{margin:0;background:linear-gradient(180deg,#14314a 0,#07111d 28%,#07111d 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}body{min-height:100vh}
@@ -2668,6 +2668,169 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
  let raf=0;new MutationObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{plankCard();energyPatch()})}).observe(document.body,{childList:true,subtree:true});
  document.addEventListener("click",()=>setTimeout(energyPatch,60),true);
  plankCard();energyPatch();
+})();
+</script>
+
+
+<style id="v477-ux-polish">
+/* v4.77 — hierarchy/overview polish only; calculations and storage untouched */
+#overview .v477-hidden-detail{display:none!important}
+#overview .v477-more{width:100%;margin-top:2px;background:#0e1c2b;border:1px solid var(--line);color:#cfe0ef}
+#overview .v477-focus{border-color:#31506d;background:linear-gradient(180deg,#10243a,#0d1b2a)}
+#overview .v477-focus h3{margin-bottom:8px}
+#overview .v477-remainline{display:flex;gap:8px;flex-wrap:wrap}
+#overview .v477-chip{flex:1 1 135px;background:#0b1725;border:1px solid #20384e;border-radius:12px;padding:10px}
+#overview .v477-chip span{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}
+#overview .v477-chip b{font-size:16px}
+#overview .mini-goal{min-height:66px}
+#training #todayPlanCard{order:-30}
+#training .v477-today-workout{order:-29}
+#training .v477-plan-tools{order:20}
+#food .v477-today-food{order:-20}
+#food .v477-add-food{order:-19}
+#food .grid,#training .grid{display:flex;flex-direction:column}
+.v477-section-kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
+@media(max-width:520px){#overview .home-kcal{min-height:165px}#overview .v477-chip{flex-basis:45%}}
+</style>
+<script id="v477-ux-polish-script">
+(function(){
+ const $=id=>document.getElementById(id);
+ function cardOf(el){return el&&el.closest('.card')}
+ function setup(){
+   if(document.body.dataset.v477==='1') return;
+   document.body.dataset.v477='1';
+   const overview=$('overview');
+   if(overview){
+     const grid=overview.querySelector('.grid');
+     const kcalCard=cardOf($('kcalNow')), waterCard=cardOf($('waterNow')), stepsCard=cardOf($('stepsNow'));
+     [kcalCard,waterCard,stepsCard].forEach(x=>x&&x.classList.add('v477-hidden-detail'));
+     const goals=cardOf($('homeProteinRemain'));
+     if(goals) goals.classList.add('v477-focus');
+     const macro=cardOf($('proteinNow'));
+     const challenge=cardOf($('strengthWeek'));
+     const recovery=cardOf($('sleepSummary'));
+     const summary=cardOf($('trainingCount'));
+     [challenge,recovery,summary].forEach(x=>x&&x.classList.add('v477-hidden-detail','v477-secondary'));
+     if(grid && !document.getElementById('v477Remaining')){
+       const box=document.createElement('div');box.className='card full v477-focus';box.id='v477Remaining';
+       box.innerHTML='<div class="v477-section-kicker">Rýchly prehľad</div><h3>Čo ešte dnes zostáva</h3><div class="v477-remainline"><div class="v477-chip"><span>Bielkoviny</span><b id="v477P">—</b></div><div class="v477-chip"><span>Voda</span><b id="v477W">—</b></div><div class="v477-chip"><span>Kroky</span><b id="v477S">—</b></div><div class="v477-chip"><span>Tréning</span><b id="v477T">—</b></div></div>';
+       const quickWater=[...grid.children].find(x=>x.textContent.includes('Rýchlo pridať vodu'));
+       grid.insertBefore(box,quickWater||macro||grid.children[2]||null);
+       const btn=document.createElement('button');btn.className='btn-soft v477-more';btn.id='v477More';btn.textContent='Zobraziť viac dnešných detailov';
+       (macro||box).insertAdjacentElement('afterend',btn);
+       btn.addEventListener('click',()=>{const open=btn.dataset.open==='1';btn.dataset.open=open?'0':'1';[challenge,recovery,summary].forEach(x=>x&&x.classList.toggle('v477-hidden-detail',open));btn.textContent=open?'Zobraziť viac dnešných detailov':'Skryť doplnkové detaily';});
+     }
+   }
+   const training=$('training');
+   if(training){
+     const planCard=training.querySelector('.card:has(#openPlanBuilder)'); if(planCard) planCard.classList.add('v477-plan-tools');
+     const todayWorkout=cardOf($('workoutExerciseCount')); if(todayWorkout) todayWorkout.classList.add('v477-today-workout');
+   }
+   const food=$('food');
+   if(food){const add=cardOf($('foodSearch'));if(add)add.classList.add('v477-add-food');const today=cardOf($('foodList'));if(today)today.classList.add('v477-today-food');}
+ }
+ function sync(){
+   const map=[['homeProteinRemain','v477P'],['homeWaterRemain','v477W'],['homeStepsRemain','v477S'],['homeWorkoutState','v477T']];
+   map.forEach(([a,b])=>{const s=$(a),d=$(b);if(s&&d)d.textContent=s.textContent});
+ }
+ function run(){setup();sync()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+ setInterval(sync,1500);
+})();
+</script>
+
+<style id="v4771-home-polish">
+/* v4.77.1 — compact home dashboard; no calculation/storage changes */
+#overview .home-kcal{min-height:132px!important;padding:16px 18px!important;place-items:stretch!important;text-align:left!important;background:linear-gradient(135deg,#132c43,#0d1928 72%)!important}
+#overview .home-kcal>div{width:100%}
+#overview .home-kcal .remain-label{font-size:13px}
+#overview .home-kcal .remain{font-size:36px!important;line-height:1.05;letter-spacing:-1px}
+#overview .home-kcal .sub{margin-top:3px}
+#v4771Top{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.v4771-stat{background:#0b1725;border:1px solid #20384e;border-radius:11px;padding:8px 9px;min-width:0}
+.v4771-stat span{display:block;color:var(--muted);font-size:10px;margin-bottom:2px;white-space:nowrap}
+.v4771-stat b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#overview .v477-focus h3{font-size:16px;margin-bottom:8px}
+#overview .mini-goals{gap:7px}
+#overview .mini-goal{min-height:58px!important;padding:9px!important;font-size:13px}
+#overview .mini-goal b{font-size:15px!important;margin-top:2px}
+#overview #v477Remaining{display:none!important}
+#overview #v477More{margin-top:0}
+.hero .logo{display:none!important}
+.hero .brand{gap:0}
+.hero .brand h1{font-size:29px}
+@media(max-width:390px){#overview .home-kcal .remain{font-size:33px!important}.v4771-stat b{font-size:13px}#v4771Top{gap:5px}.v4771-stat{padding:7px}}
+</style>
+<script id="v4771-home-polish-script">
+(function(){
+ const $=id=>document.getElementById(id);
+ function ensure(){
+   const card=document.querySelector('#overview .home-kcal');
+   if(!card||$('v4771Top'))return;
+   const wrap=card.firstElementChild;
+   const row=document.createElement('div');row.id='v4771Top';
+   row.innerHTML='<div class="v4771-stat"><span>Bielkoviny</span><b id="v4771P">—</b></div><div class="v4771-stat"><span>Kroky</span><b id="v4771S">—</b></div><div class="v4771-stat"><span>Tréning</span><b id="v4771T">—</b></div>';
+   wrap.appendChild(row);
+   const goals=$('homeProteinRemain')?.closest('.card');
+   const h=goals?.querySelector('h3');if(h)h.textContent='Dnešné ciele';
+   goals?.querySelectorAll('.mini-goal').forEach(el=>{
+     const txt=(el.childNodes[0]?.textContent||'').replace(/[🥩💧👟🏋️🎯]/g,'').trim();
+     if(txt)el.childNodes[0].textContent=txt+' ';
+   });
+ }
+ function sync(){
+   ensure();
+   const p=$('homeProteinRemain'),s=$('homeStepsRemain'),t=$('homeWorkoutState');
+   if($('v4771P')&&p)$('v4771P').textContent=p.textContent;
+   if($('v4771S')&&s)$('v4771S').textContent=s.textContent;
+   if($('v4771T')&&t)$('v4771T').textContent=t.textContent;
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',sync);else sync();
+ const old=window.render;window.render=function(){const r=old.apply(this,arguments);setTimeout(sync,80);return r};
+ setInterval(sync,2000);
+})();
+</script>
+
+
+<style id="v4772-today-card-css">
+/* v4.77.2 — one compact Today card; calculations/storage untouched */
+#overview .home-kcal{display:none!important}
+#overview .v477-focus:has(#homeProteinRemain){display:none!important}
+#v4772Today{padding:16px!important;background:linear-gradient(145deg,#11283d,#0d1928 72%);border-color:#31506d}
+#v4772Head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:12px}
+#v4772Head h3{margin:0;font-size:21px}
+#v4772Kcal{font-size:13px;color:var(--muted);text-align:right}
+#v4772Kcal b{display:block;color:#fff;font-size:25px;line-height:1.05;margin-top:2px}
+#v4772Grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.v4772Cell{background:#0b1725;border:1px solid #20384e;border-radius:12px;padding:10px 11px;min-width:0}
+.v4772Cell span{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}
+.v4772Cell b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#overview #v477More{margin:0 0 2px;width:100%}
+@media(max-width:390px){#v4772Today{padding:14px!important}#v4772Head h3{font-size:19px}#v4772Kcal b{font-size:22px}.v4772Cell b{font-size:15px}}
+</style>
+<script id="v4772-today-card-script">
+(function(){
+ const $=id=>document.getElementById(id);
+ function ensure(){
+   if($('v4772Today')) return;
+   const grid=document.querySelector('#overview .grid'); if(!grid)return;
+   const card=document.createElement('div');card.className='card full';card.id='v4772Today';
+   card.innerHTML='<div id="v4772Head"><h3>Dnes</h3><div id="v4772Kcal"><span>Kalórie</span><b id="v4772K">—</b></div></div><div id="v4772Grid"><div class="v4772Cell"><span>Bielkoviny</span><b id="v4772P">—</b></div><div class="v4772Cell"><span>Voda</span><b id="v4772W">—</b></div><div class="v4772Cell"><span>Kroky</span><b id="v4772S">—</b></div><div class="v4772Cell"><span>Tréning</span><b id="v4772T">—</b></div></div>';
+   grid.insertBefore(card,grid.firstElementChild);
+   const more=$('v477More'); if(more){card.insertAdjacentElement('afterend',more);more.textContent='Viac detailov'}
+ }
+ function sync(){
+   ensure();
+   const set=(id,val)=>{const e=$(id);if(e)e.textContent=val};
+   set('v4772K',(($('kcalNow')?.textContent||'0')+' / '+($('kcalGoalText')?.textContent||'2500')+' kcal'));
+   set('v4772P',(($('proteinNow')?.textContent||'0')+' / '+($('proteinGoalText')?.textContent||'190')+' g'));
+   set('v4772W',(($('waterNow')?.textContent||'0')+' / '+($('waterGoalText')?.textContent||'3000')+' ml'));
+   set('v4772S',(($('stepsNow')?.textContent||'0')+' / '+($('stepsGoalText')?.textContent||'8000')));
+   set('v4772T',$('homeWorkoutState')?.textContent||'—');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(sync,120));else setTimeout(sync,120);
+ const prev=window.render;window.render=function(){const r=prev.apply(this,arguments);setTimeout(sync,100);return r};
+ setInterval(sync,2000);
 })();
 </script>
 
