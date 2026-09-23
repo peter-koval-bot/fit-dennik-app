@@ -1,4 +1,4 @@
-const CACHE='fit-diary-v4-86-auth-flash';
+const CACHE='fit-diary-v4-87-smart-calories';
 const ASSETS=[
   './',
   './index.html',
@@ -10,7 +10,8 @@ const ASSETS=[
   './icon-maskable-512.png',
   './apple-touch-icon.png',
   './favicon-32.png',
-  './fit-diary-logo.png'
+  './fit-diary-logo.png',
+  './fit-diary-calorie-ai.js'
 ];
 
 self.addEventListener('install',e=>e.waitUntil(
@@ -29,7 +30,11 @@ function patchAppHtml(html){
     '<body class="locked auth-checking">'
   );
 
-  const pendingStyle = `\n<style id="fd-auth-flash-fix">\nbody.auth-checking .gate{visibility:hidden!important}\n</style>\n`;
+  const pendingStyle = `
+<style id="fd-auth-flash-fix">
+body.auth-checking .gate{visibility:hidden!important}
+</style>
+`;
   html=html.replace('</head>', pendingStyle+'</head>');
 
   html=html.replace(
@@ -45,11 +50,16 @@ function patchAppHtml(html){
     'function showOnboarding(profile=null,edit=false){document.body.classList.remove("auth-checking");'
   );
 
-  html=html.replace(
-    '</body>',
-    '<script>setTimeout(()=>document.body.classList.remove("auth-checking"),5000);</script></body>'
-  );
+  const extras =
+    '<script src="./fit-diary-calorie-ai.js"></script>' +
+    '<script>setTimeout(()=>document.body.classList.remove("auth-checking"),5000);</script>';
 
+  if(!html.includes('fit-diary-calorie-ai.js')){
+    html=html.replace('</body>',extras+'</body>');
+  }else{
+    html=html.replace('</body>',
+      '<script>setTimeout(()=>document.body.classList.remove("auth-checking"),5000);</script></body>');
+  }
   return html;
 }
 
