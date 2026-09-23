@@ -3036,5 +3036,85 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 })();
 </script>
 
+
+<style id="v4793-add-food-layout-final">
+/* v4.79.3 — layout-only refinement. No storage/calculation/event logic changes. */
+#v478Editor{padding:12px!important;border-radius:16px!important}
+#v478EditorHead{margin-bottom:8px!important}
+#v478EditorHead b{font-size:17px!important}
+#v478Close{min-height:40px!important;padding:8px 12px!important}
+#v478EditorBody>.card{padding:0!important;margin:0!important}
+
+/* Keep repeat action compact directly below heading. */
+#v478EditorBody>.card>.quick{display:flex!important;flex-direction:column!important;gap:0!important;margin:0 0 10px!important}
+#v478EditorBody #copyYesterdayBtn{order:-1!important;min-height:42px!important;margin:0!important;padding:8px 12px!important;border-radius:11px!important;font-size:14px!important}
+#v478EditorBody #saveMealTemplateBtn{display:none!important}
+
+/* Main add-food controls: search, food, then amount + add on one row. */
+#v478EditorBody>.card>.row:first-of-type{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr) minmax(132px,42%)!important;
+ gap:8px!important;
+ align-items:stretch!important;
+ margin:0!important;
+}
+#v478EditorBody #foodSearch{
+ grid-column:1 / -1!important;grid-row:1!important;
+ width:100%!important;min-height:46px!important;height:46px!important;
+ margin:0!important;padding:0 13px!important;border-radius:11px!important;font-size:15px!important;
+}
+#v478EditorBody #foodSelect{
+ grid-column:1 / -1!important;grid-row:2!important;
+ width:100%!important;min-height:44px!important;height:44px!important;
+ margin:0!important;padding:0 12px!important;border-radius:11px!important;font-size:15px!important;
+}
+#v478EditorBody #foodGrams{
+ grid-column:1!important;grid-row:3!important;
+ width:100%!important;min-width:0!important;min-height:44px!important;height:44px!important;
+ margin:0!important;padding:0 12px!important;border-radius:11px!important;font-size:15px!important;
+}
+#v478EditorBody #mealTime,#v478EditorBody #mealType{display:none!important}
+#v478EditorBody #addFoodBtn{
+ grid-column:2!important;grid-row:3!important;
+ width:100%!important;min-width:0!important;min-height:44px!important;height:44px!important;
+ margin:0!important;padding:0 8px!important;border-radius:11px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ font-size:14px!important;font-weight:900!important;line-height:1.05!important;white-space:nowrap!important;
+ background:#2f9ff3!important;color:#fff!important;
+}
+/* Pull the existing add button into the same visual row as grams. */
+#v478EditorBody>.card>.row:nth-of-type(2){
+ display:contents!important;
+}
+
+/* Compact helper/total area. */
+#v4792Hint{display:none!important}
+#v4792MiniTotal{
+ margin:9px 0 0!important;padding:9px 11px!important;min-height:38px!important;
+ display:flex!important;align-items:center!important;
+ border-radius:10px!important;font-size:12.5px!important;
+}
+
+/* Existing added-items area and save controls stay functional, but tighter. */
+#v478EditorBody hr{margin:10px 0!important}
+#v478EditorBody table{margin-top:8px!important}
+#v478EditorBody button{box-sizing:border-box!important}
+
+@media(max-width:390px){
+ #v478EditorBody>.card>.row:first-of-type{grid-template-columns:minmax(0,1fr) minmax(122px,41%)!important;gap:7px!important}
+ #v478EditorBody #addFoodBtn{font-size:13px!important;padding:0 5px!important}
+}
+</style>
+<script id="v4793-add-food-labels">
+(function(){
+ function labels(){
+   var b=document.getElementById('addFoodBtn');
+   if(b) b.textContent='+ Pridať';
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(labels,260)},{once:true});else setTimeout(labels,260);
+ document.addEventListener('click',function(e){if(e.target.closest('.v478-add,#v478TopAdd,#v478Search'))setTimeout(labels,30)});
+})();
+</script>
+
 </body>
 </html>
