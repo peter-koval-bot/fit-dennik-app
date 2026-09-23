@@ -1590,14 +1590,12 @@ function run(){rows();detail()}(()=>{let q=false;new MutationObserver(()=>{if(q|
    document.getElementById('v455Save').onclick=saveMeal;
    renderDraft();
  }
- function foodEmoji(name){const n=String(name||'').toLowerCase();if(n.includes('kurac'))return '🍗';if(n.includes('ryž'))return '🍚';if(n.includes('brok'))return '🥦';if(n.includes('vaj'))return '🥚';if(n.includes('ban'))return '🍌';if(n.includes('jabl'))return '🍎';return '🍽️'}
  function renderDraft(){
    const host=document.getElementById('v455Draft'),tot=document.getElementById('v455Total');if(!host||!tot)return;
-   host.innerHTML=draft.map((x,i)=>`<div class="v455item"><div class="v4794thumb">${foodEmoji(x.name)}</div><div class="v4794itemtext"><b>${x.name}</b><small>${x.g} g · ${Math.round(x.k)} kcal</small></div><button type="button" class="v4794edit" data-i="${i}" aria-label="Upraviť">✎</button><button type="button" class="v455rm" data-i="${i}" aria-label="Odstrániť">🗑</button></div>`).join('');
+   host.innerHTML=draft.map((x,i)=>`<div class="v455item"><div><b>${x.name}</b><small>${x.g} g · ${Math.round(x.k)} kcal · B ${x.p.toFixed(1)} · S ${x.c.toFixed(1)} · T ${x.f.toFixed(1)}</small></div><button type="button" class="btn-soft v455rm" data-i="${i}">×</button></div>`).join('');
    const s=draft.reduce((a,x)=>({k:a.k+x.k,p:a.p+x.p,c:a.c+x.c,f:a.f+x.f}),{k:0,p:0,c:0,f:0});
    tot.textContent=`Spolu: ${Math.round(s.k)} kcal · B ${s.p.toFixed(1)} · S ${s.c.toFixed(1)} · T ${s.f.toFixed(1)}`;
    host.querySelectorAll('.v455rm').forEach(b=>b.onclick=()=>{draft.splice(+b.dataset.i,1);renderDraft()});
-   host.querySelectorAll('.v4794edit').forEach(b=>b.onclick=()=>{const x=draft[+b.dataset.i];if(!x)return;const search=document.getElementById('foodSearch'),grams=document.getElementById('foodGrams');if(search)search.value=x.name;if(grams)grams.value=x.g;draft.splice(+b.dataset.i,1);try{fillFoodOptions()}catch(e){}renderDraft();setTimeout(()=>grams?.focus(),0)});
  }
  function addIngredient(){
    const x=selectedFood(); if(!x){alert('Vyber potravinu a zadaj gramáž.');return}
@@ -2989,197 +2987,33 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 })();
 </script>
 
-
-<style id="v4792-safe-add-food-css">
-/* v4.79.2 — safe compact add-food UI built on stable v4.78; no MutationObserver. */
-#v478EditorBody>.card{padding:12px!important;border:0!important;background:transparent!important;box-shadow:none!important}
-#v478EditorBody>.card>h3{display:none!important}
-#v478EditorBody>.card>.row:first-of-type{display:grid!important;grid-template-columns:minmax(0,1fr) 150px!important;gap:8px!important;align-items:center!important}
-#v478EditorBody #foodSearch{grid-column:1 / -1!important;width:100%!important;min-height:48px!important;border-radius:12px!important;font-size:16px!important}
-#v478EditorBody #foodSelect{grid-column:1 / -1!important;width:100%!important;min-height:46px!important;border-radius:12px!important;font-size:15px!important}
-#v478EditorBody #foodGrams{grid-column:1!important;width:100%!important;min-height:46px!important;border-radius:12px!important;font-size:16px!important}
-#v478EditorBody #mealTime{display:none!important}
-#v478EditorBody>.card>.row:nth-of-type(2){display:grid!important;grid-template-columns:1fr!important;margin-top:8px!important}
-#v478EditorBody #mealType{display:none!important}
-#v478EditorBody #addFoodBtn{width:100%!important;min-height:48px!important;border-radius:12px!important;font-size:16px!important;font-weight:900!important;background:#2f9ff3!important;color:#fff!important}
-#v478EditorBody>.card>.quick{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin-top:10px!important}
-#v478EditorBody #copyYesterdayBtn{order:-1!important;width:100%!important;min-height:42px!important;border-radius:11px!important;text-align:left!important}
-#v478EditorBody #saveMealTemplateBtn{display:none!important}
-#v4792MiniTotal{margin:10px 0 0;padding:10px 12px;border:1px solid #28445f;border-radius:11px;background:#10253a;color:#fff;font-size:13px;font-weight:800}
-#v4792Hint{margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.35}
-@media(max-width:390px){#v478EditorBody>.card>.row:first-of-type{grid-template-columns:1fr!important}}
+<style id="v480-exact-food-editor-css">
+#v478Editor{padding:14px!important;border-radius:18px!important;background:#0d1b2a!important;overflow:hidden!important}
+#v478EditorHead{margin-bottom:12px!important}#v478EditorHead b{font-size:20px!important;font-weight:900!important}#v478Close{font-size:15px!important;font-weight:800!important;padding:10px 14px!important;background:#1b3148!important}
+#v478EditorBody>.card{display:none!important}.v480{display:grid;gap:10px}.v480-repeat{height:48px;border:1px solid #31506d;border-radius:13px;background:#13283c;color:#fff;text-align:left;padding:0 14px;font-weight:800;font-size:15px}.v480-repeat span{float:right;font-size:21px}
+.v480-searchwrap{position:relative}.v480-search{width:100%;height:48px;border:2px solid #2f9ff3!important;border-radius:13px!important;background:#091827!important;color:#fff!important;padding:0 42px 0 44px!important;font-size:16px!important;box-sizing:border-box}.v480-searchico{position:absolute;left:15px;top:13px;color:#c7d5e4;font-size:20px}.v480-clear{position:absolute;right:12px;top:11px;width:28px;height:28px;border:0;background:transparent;color:#8197ab;font-size:20px}.v480-results{display:none;position:absolute;left:0;right:0;top:52px;z-index:20;max-height:210px;overflow:auto;background:#102338;border:1px solid #31506d;border-radius:12px;padding:5px;box-shadow:0 12px 30px #0008}.v480-results.show{display:block}.v480-result{width:100%;border:0;background:transparent;color:#fff;display:flex;align-items:center;gap:10px;padding:9px;border-radius:9px;text-align:left}.v480-result:active{background:#1a3550}.v480-result .fi{font-size:24px;width:32px;text-align:center}.v480-result small{display:block;color:#9fb2c6;margin-top:2px}
+.v480-picked{border:1px solid #31506d;border-radius:14px;background:#11253a;padding:10px}.v480-foodtop{display:grid;grid-template-columns:48px 1fr 18px;gap:10px;align-items:center}.v480-foodimg{width:48px;height:48px;border-radius:11px;background:#eef3f7;display:grid;place-items:center;font-size:30px}.v480-foodname{font-weight:900;font-size:16px}.v480-foodmeta{color:#9fb2c6;font-size:13px;margin-top:2px}.v480-arrow{font-size:24px}.v480-amount{display:grid;grid-template-columns:auto minmax(0,1fr) 46px minmax(118px,1.05fr);align-items:center;gap:8px;margin-top:10px}.v480-amount label{color:#dce7f1;font-size:14px}.v480-grams{height:44px!important;min-width:0!important;border:1px solid #31506d!important;border-radius:11px 0 0 11px!important;background:#0a1929!important;color:#fff!important;padding:0 12px!important;font-size:16px!important;box-sizing:border-box}.v480-unit{height:44px;display:grid;place-items:center;border:1px solid #31506d;border-left:0;border-radius:0 11px 11px 0;margin-left:-8px;font-weight:800;background:#152a40}.v480-add{height:44px;border:0;border-radius:11px;background:#2f9ff3;color:#fff;font-weight:900;font-size:15px;white-space:nowrap;padding:0 12px}
+.v480-subtitle{font-weight:900;font-size:15px;margin-top:2px}.v480-list{border:1px solid #31506d;border-radius:13px;background:#0b1b2b;overflow:hidden}.v480-empty{padding:14px;text-align:center;color:#8fa5ba;font-size:13px}.v480-row{display:grid;grid-template-columns:42px 1fr 34px 34px;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid #1d354a}.v480-row:last-child{border-bottom:0}.v480-row .fi{width:40px;height:40px;border-radius:9px;background:#eef3f7;display:grid;place-items:center;font-size:25px}.v480-row b{font-size:14px}.v480-row small{display:block;color:#9fb2c6;margin-top:2px}.v480-row button{border:0;background:transparent;font-size:19px;padding:4px}.v480-edit{color:#dbe7f2}.v480-del{color:#ff515b}.v480-total{border:1px solid #31506d;border-radius:12px;background:#12263b;padding:11px;text-align:center;font-weight:800;font-size:14px}.v480-save{height:50px;border:0;border-radius:12px;background:#2f9ff3;color:#fff;font-size:17px;font-weight:900}
+@media(max-width:390px){.v480-amount{grid-template-columns:auto minmax(0,1fr) 40px 112px;gap:6px}.v480-add{font-size:13px;padding:0 8px}.v480-amount label{font-size:13px}#v478EditorHead b{font-size:18px!important}}
 </style>
-<script id="v4792-safe-add-food-js">
+<script id="v480-exact-food-editor-js">
 (function(){
-  function setup(){
-    var body=document.getElementById('v478EditorBody');
-    if(!body || document.getElementById('v4792MiniTotal')) return;
-    var card=body.querySelector('.card');
-    if(!card) return;
-    var total=document.createElement('div'); total.id='v4792MiniTotal'; total.textContent='Vyber potravinu a zadaj gramy.';
-    var hint=document.createElement('div'); hint.id='v4792Hint'; hint.textContent='Potravina sa uloží priamo do zvoleného jedla.';
-    var row2=card.querySelectorAll('.row')[1];
-    if(row2){ row2.insertAdjacentElement('beforebegin', total); row2.insertAdjacentElement('beforebegin', hint); }
-    var btn=document.getElementById('addFoodBtn'); if(btn) btn.textContent='+ Pridať potravinu';
-    var search=document.getElementById('foodSearch'); if(search) search.placeholder='Hľadať potravinu…';
-    var grams=document.getElementById('foodGrams'); if(grams) grams.placeholder='Gramy';
-    function update(){
-      var sel=document.getElementById('foodSelect'), g=document.getElementById('foodGrams'), box=document.getElementById('v4792MiniTotal');
-      if(!sel||!g||!box) return;
-      var grams=Number(g.value)||0, opt=sel.options[sel.selectedIndex];
-      if(!grams||!opt){box.textContent='Vyber potravinu a zadaj gramy.';return;}
-      var name=opt.textContent||'Potravina'; box.textContent=name+' · '+grams+' g';
-    }
-    document.getElementById('foodGrams')?.addEventListener('input',update);
-    document.getElementById('foodSelect')?.addEventListener('change',update);
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(setup,250)},{once:true}); else setTimeout(setup,250);
-  document.addEventListener('click',function(e){ if(e.target.closest('.v478-add,#v478TopAdd,#v478Search')) setTimeout(setup,20); });
-})();
-</script>
-
-
-<style id="v4793-add-food-layout-final">
-/* v4.79.3 — layout-only refinement. No storage/calculation/event logic changes. */
-#v478Editor{padding:12px!important;border-radius:16px!important}
-#v478EditorHead{margin-bottom:8px!important}
-#v478EditorHead b{font-size:17px!important}
-#v478Close{min-height:40px!important;padding:8px 12px!important}
-#v478EditorBody>.card{padding:0!important;margin:0!important}
-
-/* Keep repeat action compact directly below heading. */
-#v478EditorBody>.card>.quick{display:flex!important;flex-direction:column!important;gap:0!important;margin:0 0 10px!important}
-#v478EditorBody #copyYesterdayBtn{order:-1!important;min-height:42px!important;margin:0!important;padding:8px 12px!important;border-radius:11px!important;font-size:14px!important}
-#v478EditorBody #saveMealTemplateBtn{display:none!important}
-
-/* Main add-food controls: search, food, then amount + add on one row. */
-#v478EditorBody>.card>.row:first-of-type{
- display:grid!important;
- grid-template-columns:minmax(0,1fr) minmax(132px,42%)!important;
- gap:8px!important;
- align-items:stretch!important;
- margin:0!important;
-}
-#v478EditorBody #foodSearch{
- grid-column:1 / -1!important;grid-row:1!important;
- width:100%!important;min-height:46px!important;height:46px!important;
- margin:0!important;padding:0 13px!important;border-radius:11px!important;font-size:15px!important;
-}
-#v478EditorBody #foodSelect{
- grid-column:1 / -1!important;grid-row:2!important;
- width:100%!important;min-height:44px!important;height:44px!important;
- margin:0!important;padding:0 12px!important;border-radius:11px!important;font-size:15px!important;
-}
-#v478EditorBody #foodGrams{
- grid-column:1!important;grid-row:3!important;
- width:100%!important;min-width:0!important;min-height:44px!important;height:44px!important;
- margin:0!important;padding:0 12px!important;border-radius:11px!important;font-size:15px!important;
-}
-#v478EditorBody #mealTime,#v478EditorBody #mealType{display:none!important}
-#v478EditorBody #addFoodBtn{
- grid-column:2!important;grid-row:3!important;
- width:100%!important;min-width:0!important;min-height:44px!important;height:44px!important;
- margin:0!important;padding:0 8px!important;border-radius:11px!important;
- display:flex!important;align-items:center!important;justify-content:center!important;
- font-size:14px!important;font-weight:900!important;line-height:1.05!important;white-space:nowrap!important;
- background:#2f9ff3!important;color:#fff!important;
-}
-/* Pull the existing add button into the same visual row as grams. */
-#v478EditorBody>.card>.row:nth-of-type(2){
- display:contents!important;
-}
-
-/* Compact helper/total area. */
-#v4792Hint{display:none!important}
-#v4792MiniTotal{
- margin:9px 0 0!important;padding:9px 11px!important;min-height:38px!important;
- display:flex!important;align-items:center!important;
- border-radius:10px!important;font-size:12.5px!important;
-}
-
-/* Existing added-items area and save controls stay functional, but tighter. */
-#v478EditorBody hr{margin:10px 0!important}
-#v478EditorBody table{margin-top:8px!important}
-#v478EditorBody button{box-sizing:border-box!important}
-
-@media(max-width:390px){
- #v478EditorBody>.card>.row:first-of-type{grid-template-columns:minmax(0,1fr) minmax(122px,41%)!important;gap:7px!important}
- #v478EditorBody #addFoodBtn{font-size:13px!important;padding:0 5px!important}
-}
-</style>
-<script id="v4793-add-food-labels">
-(function(){
- function labels(){
-   var b=document.getElementById('addFoodBtn');
-   if(b) b.textContent='+ Pridať';
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(labels,260)},{once:true});else setTimeout(labels,260);
- document.addEventListener('click',function(e){if(e.target.closest('.v478-add,#v478TopAdd,#v478Search'))setTimeout(labels,30)});
-})();
-</script>
-
-
-<style id="v4794-one-to-one-food-editor">
-/* v4.79.4 — approved compact meal-composer layout */
-#v478Editor{padding:14px!important;border-radius:18px!important;background:#0d1b2a!important;border:1px solid #31506d!important}
-#v478EditorHead{margin:0 0 10px!important;align-items:center!important}
-#v478EditorHead b{font-size:18px!important;font-weight:900!important}
-#v478Close{height:42px!important;padding:0 14px!important;border-radius:11px!important;font-weight:800!important;background:#1a3046!important}
-#v478EditorBody>.card{padding:0!important;margin:0!important;background:transparent!important;border:0!important}
-#v478EditorBody>.card>h3{display:none!important}
-#v4794Repeat{width:100%;height:46px;margin:0 0 10px;border:1px solid #31506d;border-radius:12px;background:#11283d;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14px;font-size:14px;font-weight:800;text-align:left}
-#v4794Repeat .arr{font-size:22px;font-weight:400}
-#v4794SearchWrap{position:relative;margin-bottom:10px}
-#v4794SearchWrap:before{content:'⌕';position:absolute;left:14px;top:50%;transform:translateY(-52%);font-size:24px;color:#c4d4e4;z-index:2}
-#v478EditorBody #foodSearch{width:100%!important;height:48px!important;min-height:48px!important;padding:0 40px 0 46px!important;border:2px solid #218ee0!important;border-radius:12px!important;background:#0a1826!important;font-size:15px!important;box-sizing:border-box!important}
-#v4794Selected{border:1px solid #28445f;border-radius:13px;background:#102238;padding:10px;margin-bottom:10px}
-#v4794FoodTop{display:grid;grid-template-columns:50px minmax(0,1fr) 20px;gap:10px;align-items:center;margin-bottom:9px}
-#v4794FoodIcon{width:50px;height:44px;border-radius:9px;background:#e8edf2;display:grid;place-items:center;font-size:29px;overflow:hidden}
-#v478EditorBody #foodSelect{width:100%!important;height:44px!important;min-height:44px!important;border:0!important;background:transparent!important;padding:0!important;font-size:16px!important;font-weight:800!important;color:#fff!important;appearance:none!important}
-#v4794Chevron{font-size:22px;color:#fff}
-#v4794Per100{display:block;color:#9fb2c5;font-size:12px;margin-top:-13px;margin-left:60px;margin-bottom:10px}
-#v4794Amount{display:grid;grid-template-columns:auto minmax(0,1fr) 42px minmax(118px,38%);align-items:center;gap:0}
-#v4794Amount label{font-size:13px;color:#d7e1eb;margin-right:10px}
-#v478EditorBody #foodGrams{width:100%!important;height:44px!important;min-height:44px!important;border:1px solid #31506d!important;border-radius:10px 0 0 10px!important;padding:0 12px!important;font-size:16px!important;background:#0b1928!important;box-sizing:border-box!important}
-#v4794Unit{height:44px;border:1px solid #31506d;border-left:0;border-radius:0 10px 10px 0;display:grid;place-items:center;background:#11283d;font-weight:800}
-#v455AddIngredient{height:44px!important;margin:0 0 0 10px!important;padding:0 12px!important;border:0!important;border-radius:10px!important;background:#319ff2!important;color:#fff!important;font-size:15px!important;font-weight:900!important;white-space:nowrap!important}
-#v4794DraftLabel{font-size:14px;font-weight:900;margin:4px 0 6px}
-#v455Builder{margin:0!important;padding:0!important;border:0!important}
-#v455Draft{display:grid!important;gap:0!important;margin:0!important;border:1px solid #28445f;border-radius:12px;background:#0d1c2c;overflow:hidden}
-#v455Draft:empty{display:none!important}
-.v455item{display:grid!important;grid-template-columns:48px minmax(0,1fr) 34px 34px!important;gap:9px!important;align-items:center!important;padding:8px 10px!important;background:transparent!important;border:0!important;border-bottom:1px solid #1f374d!important;border-radius:0!important}
-.v455item:last-child{border-bottom:0!important}.v4794thumb{width:44px;height:40px;border-radius:8px;background:#e8edf2;display:grid;place-items:center;font-size:25px}.v4794itemtext b{display:block;font-size:14px}.v4794itemtext small{font-size:12px!important;color:#9fb2c5!important;margin-top:2px!important}.v4794edit,.v455rm{width:32px;height:32px;border:0!important;background:transparent!important;color:#d9e5f0!important;font-size:20px!important;padding:0!important}.v455rm{font-size:17px!important}
-#v455Total{margin:8px 0!important;padding:10px!important;border:1px solid #28445f!important;border-radius:11px!important;background:#102238!important;text-align:center!important;font-size:13px!important;font-weight:800!important}
-#v455Save{width:100%!important;height:48px!important;margin:0!important;border-radius:10px!important;background:#319ff2!important;color:#fff!important;font-size:16px!important;font-weight:900!important;border:0!important}
-#v4792MiniTotal,#v4792Hint,#v478EditorBody>.card>.quick,#v478EditorBody>.card>.row,#v478EditorBody #addFoodBtn,#v478EditorBody #mealTime,#v478EditorBody #mealType{display:none!important}
-@media(max-width:390px){#v4794Amount{grid-template-columns:auto minmax(0,1fr) 36px minmax(105px,37%)}#v455AddIngredient{margin-left:7px!important;font-size:13px!important;padding:0 8px!important}.v455item{grid-template-columns:42px minmax(0,1fr) 30px 30px!important;gap:7px!important;padding:7px 8px!important}.v4794thumb{width:40px;height:38px}}
-</style>
-<script id="v4794-one-to-one-food-editor-js">
-(function(){
- function emoji(name){name=String(name||'').toLowerCase();if(name.includes('kurac'))return '🍗';if(name.includes('ryž'))return '🍚';if(name.includes('brok'))return '🥦';if(name.includes('vaj'))return '🥚';return '🍽️'}
- function foodInfo(){var sel=document.getElementById('foodSelect'),opt=sel&&sel.options[sel.selectedIndex],name=opt?opt.textContent.trim():'';var f=null;try{f=(typeof allFoods==='function'?allFoods():[]).find(x=>x.name===name)}catch(e){}return {name:name,f:f}}
- function refreshFood(){var x=foodInfo(),ic=document.getElementById('v4794FoodIcon'),per=document.getElementById('v4794Per100');if(ic)ic.textContent=emoji(x.name);if(per){var k=x.f?Number(x.f.kcal??x.f.k)||0:0;per.textContent=k?Math.round(k)+' kcal / 100 g':'Vyber potravinu'}}
- function meal(){return document.getElementById('mealType')?.value||'Obed'}
- function refreshLabels(){var m=meal();var title=document.getElementById('v478EditorTitle');if(title)title.textContent='Pridať · '+m;var r=document.getElementById('v4794RepeatText');if(r)r.textContent='Zopakovať včerajší '+m.toLowerCase();var save=document.getElementById('v455Save');if(save)save.textContent='Uložiť '+m.toLowerCase();var lab=document.getElementById('v4794DraftLabel');if(lab)lab.textContent='Pridané do '+m.toLowerCase()+'a'}
- function repeatSelected(e){e.preventDefault();e.stopImmediatePropagation();var m=meal(),y=store.days[dateShift(selectedDay,-1)],xs=(y?.foods||[]).filter(x=>(x.meal||'Snack')===m);if(!xs.length){alert('Včerajší '+m.toLowerCase()+' nemá uložené jedlá.');return}dayData().foods.push(...xs.map(x=>({...x})));save()}
- function setup(){
-  var body=document.getElementById('v478EditorBody'),card=body?.querySelector('.card'),search=document.getElementById('foodSearch'),sel=document.getElementById('foodSelect'),grams=document.getElementById('foodGrams'),builder=document.getElementById('v455Builder'),add=document.getElementById('v455AddIngredient');
-  if(!body||!card||!search||!sel||!grams||!builder||!add)return;
-  if(document.getElementById('v4794Repeat')){refreshLabels();refreshFood();return}
-  var repeat=document.createElement('button');repeat.id='v4794Repeat';repeat.type='button';repeat.innerHTML='<span>↻ &nbsp;<span id="v4794RepeatText">Zopakovať včerajšie jedlo</span></span><span class="arr">›</span>';repeat.addEventListener('click',repeatSelected,true);
-  var sw=document.createElement('div');sw.id='v4794SearchWrap';sw.appendChild(search);
-  var box=document.createElement('div');box.id='v4794Selected';
-  var top=document.createElement('div');top.id='v4794FoodTop';var icon=document.createElement('div');icon.id='v4794FoodIcon';var chev=document.createElement('span');chev.id='v4794Chevron';chev.textContent='›';top.append(icon,sel,chev);
-  var per=document.createElement('span');per.id='v4794Per100';
-  var amount=document.createElement('div');amount.id='v4794Amount';var label=document.createElement('label');label.textContent='Množstvo';var unit=document.createElement('span');unit.id='v4794Unit';unit.textContent='g';amount.append(label,grams,unit,add);box.append(top,per,amount);
-  var draftLabel=document.createElement('div');draftLabel.id='v4794DraftLabel';
-  card.prepend(repeat,sw,box,draftLabel,builder);
-  sel.addEventListener('change',refreshFood);search.addEventListener('input',()=>setTimeout(refreshFood,0));
-  refreshLabels();refreshFood();
- }
- document.addEventListener('click',function(e){if(e.target.closest('.v478-add,#v478TopAdd,#v478Search'))setTimeout(setup,40)},true);
- document.addEventListener('change',function(e){if(e.target.id==='mealType')setTimeout(refreshLabels,0)});
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,300),{once:true});else setTimeout(setup,300);
+ const by=id=>document.getElementById(id); let draft=[], chosen=null, editing=-1, currentMeal='Obed';
+ const num=x=>Number(x)||0, esc=s=>String(s??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));
+ function icon(name){const s=String(name||'').toLowerCase();if(/kurac|chicken|morč|morc/.test(s))return '🍗';if(/losos|salmon/.test(s))return '🐟';if(/tuniak|tuna/.test(s))return '🐟';if(/ryž|ryz|rice/.test(s))return '🍚';if(/brokol/.test(s))return '🥦';if(/vaj|egg/.test(s))return '🥚';if(/banán|banan/.test(s))return '🍌';if(/jabl|apple/.test(s))return '🍎';if(/zemiak|potato/.test(s))return '🥔';if(/ovsen|oat/.test(s))return '🥣';if(/chlieb|bread/.test(s))return '🍞';if(/jogurt|yog/.test(s))return '🥛';if(/syr|cheese/.test(s))return '🧀';if(/hoväd|hovad|beef/.test(s))return '🥩';if(/brav|pork/.test(s))return '🥩';if(/cestov|pasta/.test(s))return '🍝';if(/šalát|salat|zelen/.test(s))return '🥗';return '🍽️'}
+ function meal(){return by('mealType')?.value||currentMeal||'Obed'}
+ function foodById(id){return allFoods().find(f=>String(f.id)===String(id))}
+ function macros(f,g){const m=g/100;return{k:num(f.k)*m,p:num(f.p)*m,c:num(f.c)*m,f:num(f.f)*m}}
+ function total(){return draft.reduce((a,x)=>({k:a.k+x.k,p:a.p+x.p,c:a.c+x.c,f:a.f+x.f}),{k:0,p:0,c:0,f:0})}
+ function previous(){const m=meal();const dates=Object.keys(store.days||{}).filter(d=>d<selectedDay).sort().reverse();for(const d of dates){const xs=(store.days[d]?.foods||[]).filter(x=>(x.meal||'Snack')===m);if(xs.length)return xs}return[]}
+ function build(){const body=by('v478EditorBody');if(!body)return;currentMeal=meal();draft=[];chosen=allFoods()[0]||null;editing=-1;body.querySelectorAll('.v480').forEach(x=>x.remove());const root=document.createElement('div');root.className='v480';root.innerHTML=`<button class="v480-repeat" type="button">↻ &nbsp;Zopakovať predchádzajúci ${esc(currentMeal.toLowerCase())}<span>›</span></button><div class="v480-searchwrap"><span class="v480-searchico">⌕</span><input class="v480-search" placeholder="Hľadať potravinu..." autocomplete="off"><button class="v480-clear" type="button">×</button><div class="v480-results"></div></div><div class="v480-picked"></div><div class="v480-subtitle">Pridané do ${esc(currentMeal.toLowerCase())}</div><div class="v480-list"></div><div class="v480-total"></div><button class="v480-save" type="button">Uložiť ${esc(currentMeal.toLowerCase())}</button>`;body.appendChild(root);renderPicked();renderDraft();wire(root)}
+ function renderPicked(){const box=document.querySelector('.v480-picked');if(!box)return;if(!chosen){box.innerHTML='<div class="v480-empty">Vyhľadaj a vyber potravinu.</div>';return}box.innerHTML=`<div class="v480-foodtop"><div class="v480-foodimg">${icon(chosen.name)}</div><div><div class="v480-foodname">${esc(chosen.name)}</div><div class="v480-foodmeta">${Math.round(num(chosen.k))} kcal / 100 g</div></div><div class="v480-arrow">›</div></div><div class="v480-amount"><label>Množstvo</label><input class="v480-grams" type="number" min="1" inputmode="decimal" placeholder="200"><div class="v480-unit">g</div><button class="v480-add" type="button">＋ Pridať</button></div>`}
+ function renderDraft(){const list=document.querySelector('.v480-list'),tot=document.querySelector('.v480-total');if(!list||!tot)return;list.innerHTML=draft.length?draft.map((x,i)=>`<div class="v480-row"><div class="fi">${icon(x.name)}</div><div><b>${esc(x.name)}</b><small>${Math.round(x.g)} g · ${Math.round(x.k)} kcal</small></div><button class="v480-edit" data-i="${i}" type="button">✎</button><button class="v480-del" data-i="${i}" type="button">🗑</button></div>`).join(''):'<div class="v480-empty">Zatiaľ nepridaná žiadna potravina.</div>';const t=total();tot.textContent=`Spolu: ${Math.round(t.k)} kcal · B ${t.p.toFixed(1)} g · S ${t.c.toFixed(1)} g · T ${t.f.toFixed(1)} g`}
+ function showResults(q){const r=document.querySelector('.v480-results');if(!r)return;const xs=allFoods().filter(f=>!q||f.name.toLowerCase().includes(q.toLowerCase())).slice(0,8);r.innerHTML=xs.map(f=>`<button class="v480-result" type="button" data-id="${esc(f.id)}"><span class="fi">${icon(f.name)}</span><span><b>${esc(f.name)}</b><small>${Math.round(num(f.k))} kcal / 100 g</small></span></button>`).join('');r.classList.toggle('show',xs.length>0)}
+ function wire(root){const search=root.querySelector('.v480-search');search.addEventListener('input',()=>showResults(search.value.trim()));search.addEventListener('focus',()=>showResults(search.value.trim()));root.querySelector('.v480-clear').onclick=()=>{search.value='';showResults('');search.focus()};root.addEventListener('click',e=>{const res=e.target.closest('.v480-result');if(res){chosen=foodById(res.dataset.id);root.querySelector('.v480-results').classList.remove('show');search.value=chosen?.name||'';renderPicked();return}if(e.target.closest('.v480-add')){const g=num(root.querySelector('.v480-grams')?.value);if(!chosen||g<=0){alert('Vyber potravinu a zadaj gramy.');return}const m=macros(chosen,g),x={name:chosen.name,g,...m};if(editing>=0){draft[editing]=x;editing=-1}else draft.push(x);root.querySelector('.v480-grams').value='';renderDraft();return}const ed=e.target.closest('.v480-edit');if(ed){const i=+ed.dataset.i,x=draft[i];chosen=allFoods().find(f=>f.name===x.name)||chosen;editing=i;renderPicked();root.querySelector('.v480-grams').value=x.g;return}const del=e.target.closest('.v480-del');if(del){draft.splice(+del.dataset.i,1);renderDraft();return}if(e.target.closest('.v480-repeat')){const xs=previous();if(!xs.length){alert('Nenašlo sa predchádzajúce jedlo pre '+meal()+'.');return}xs.forEach(x=>dayData().foods.push({...x,meal:meal()}));save();by('food')?.classList.remove('v478-editing');return}if(e.target.closest('.v480-save')){if(!draft.length){alert('Najprv pridaj aspoň jednu potravinu.');return}const m=meal();draft.forEach(x=>dayData().foods.push({...x,meal:m,time:''}));save();draft=[];by('food')?.classList.remove('v478-editing');setTimeout(()=>window.render&&window.render(),30)}})}
+ function syncOpen(){if(by('food')?.classList.contains('v478-editing')){const title=by('v478EditorTitle');currentMeal=meal();if(title)title.textContent='Pridať · '+currentMeal;setTimeout(build,0)}}
+ document.addEventListener('click',e=>{if(e.target.closest('.v478-add,#v478TopAdd,#v478Search'))setTimeout(syncOpen,30)},true);
+ const food=by('food');if(food){new MutationObserver(()=>{if(food.classList.contains('v478-editing')&&!document.querySelector('.v480'))syncOpen();if(!food.classList.contains('v478-editing'))document.querySelectorAll('.v480').forEach(x=>x.remove())}).observe(food,{attributes:true,attributeFilter:['class']})}
 })();
 </script>
 
