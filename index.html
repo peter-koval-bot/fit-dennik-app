@@ -2834,5 +2834,37 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 })();
 </script>
 
+<style id="v4773-water-row-css">
+/* v4.77.3 — water quick-add occupies old inactive detail slot; existing layout dimensions stay unchanged */
+#v4773Actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:10px}
+#v4773Water{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;min-width:0}
+#v4773Water .add-water{padding:11px 3px!important;min-width:0!important;font-size:12px!important;white-space:nowrap;border-radius:10px}
+#v4773Actions>#v44OverviewMore{width:100%;margin:0!important;min-height:44px}
+#overview #v477More{display:none!important}
+#overview .v4773-original-water{display:none!important}
+@media(max-width:390px){#v4773Water{gap:4px}#v4773Water .add-water{font-size:11px!important;padding-left:1px!important;padding-right:1px!important}}
+</style>
+<script id="v4773-water-row-script">
+(function(){
+ function setup(){
+   const card=document.getElementById('v4772Today');
+   if(!card||document.getElementById('v4773Actions'))return;
+   const grid=document.querySelector('#overview .grid');
+   const original=[...(grid?.children||[])].find(x=>/Rýchlo pridať vodu/i.test(x.textContent||''));
+   if(original)original.classList.add('v4773-original-water');
+   const actions=document.createElement('div');actions.id='v4773Actions';
+   const water=document.createElement('div');water.id='v4773Water';
+   water.innerHTML='<button class="btn-blue add-water" data-ml="250">+250</button><button class="btn-blue add-water" data-ml="500">+500</button><button class="btn-blue add-water" data-ml="1000">+1000</button><button class="btn-soft add-water" data-ml="-250">−250</button>';
+   actions.appendChild(water);
+   const details=document.getElementById('v44OverviewMore');
+   if(details)actions.appendChild(details);
+   card.insertAdjacentElement('afterend',actions);
+   water.querySelectorAll('.add-water').forEach(b=>b.addEventListener('click',()=>{const d=dayData();d.water=Math.max(0,(d.water||0)+Number(b.dataset.ml));save()}));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(setup,180));else setTimeout(setup,180);
+ const mo=new MutationObserver(setup);mo.observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
