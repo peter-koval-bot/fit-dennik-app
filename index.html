@@ -2958,7 +2958,7 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
    const host=document.createElement('div');host.id='v478Food';host.className='card full';
    host.innerHTML='<div class="v478-title"><div><h2>Jedlo</h2><p>Zapisuj jednoducho, jedz lepšie.</p></div><div class="v478-tools"><button class="v478-icon" id="v478Search" aria-label="Hľadať">⌕</button><button class="v478-icon" id="v478TopAdd" aria-label="Pridať">＋</button></div></div><div id="v478Editor"><div id="v478EditorHead"><b id="v478EditorTitle">Pridať jedlo</b><button id="v478Close">Zavrieť</button></div><div id="v478EditorBody"></div></div><div class="v478-summary"><div class="v478-sumhead"><b>Dnes</b><div class="v478-kcal" id="v478Kcal">0 / 2500 kcal</div></div><div class="v478-mainbar"><i id="v478Kbar"></i></div><div class="v478-macros"><div class="v478-macro"><span>Bielkoviny</span><b id="v478P">0 / 190 g</b><div class="v478-mbar"><i id="v478Pbar"></i></div></div><div class="v478-macro"><span>Sacharidy</span><b id="v478C">0 / 255 g</b><div class="v478-mbar"><i id="v478Cbar"></i></div></div><div class="v478-macro"><span>Tuky</span><b id="v478F">0 / 80 g</b><div class="v478-mbar"><i id="v478Fbar"></i></div></div></div></div><div class="v478-meals" id="v478Meals"></div>';
    grid.prepend(host);
-   const addCard=$('foodSearch')?.closest('.card'); if(addCard){$('v478EditorBody').appendChild(addCard);addCard.style.setProperty('display','block','important')}
+   const addCard=$('foodSearch')?.closest('.card'); if(addCard){$('v478EditorBody').appendChild(addCard);addCard.style.setProperty('display','none','important');addCard.setAttribute('aria-hidden','true')}
  }
  function openEditor(meal){ensure(); if(meal&&$('mealType'))$('mealType').value=meal; $('v478EditorTitle').textContent=meal?'Pridať · '+meal:'Pridať jedlo'; $('food').classList.add('v478-editing'); setTimeout(()=>$('foodSearch')?.focus(),80)}
  function repeatMeal(meal){
@@ -3018,6 +3018,10 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
   .v481-amount{grid-template-columns:76px minmax(0,1fr) 45px 124px}.v481-add{margin-left:8px;padding:0 9px;font-size:14px}.v481-amount-label{font-size:13px}.v481-picked{padding-left:10px;padding-right:10px}
 }
 @media(max-width:370px){.v481-amount{grid-template-columns:68px minmax(0,1fr) 42px 112px}.v481-add{font-size:13px;padding:0 7px;margin-left:6px}.v481-repeat{font-size:14px}}
+</style>
+<style id="v4813-editor-isolation">
+#v478EditorBody > .card{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+#v478EditorBody > .v481{display:grid!important;visibility:visible!important;height:auto!important;max-height:none!important;opacity:1!important;pointer-events:auto!important}
 </style>
 <script id="v481-exact-food-js">
 (function(){
