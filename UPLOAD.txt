@@ -1,0 +1,11 @@
+FIT DIARY v4.84.1 — FINAL EXACT LOGO
+
+Upload ALL files from this folder to the ROOT of GitHub repository fit-dennik-app.
+Replace files with the same names.
+
+Important: existing user data/storage keys were NOT renamed, so current data remains compatible.
+The brand shown to users is Fit Diary.
+The app icon is the exact Variant 1 symbol from the approved branding board.
+fit-diary-logo.png is the exact approved main Fit Diary logo crop.
+
+After upload, users who already installed the PWA may need to remove the old Home Screen icon and add the app again for iOS/Android to refresh the cached icon.

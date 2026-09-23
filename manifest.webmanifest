@@ -1,10 +1,30 @@
 {
-  "name": "Fit Denník",
-  "short_name": "Fit Denník",
+  "name": "Fit Diary",
+  "short_name": "Fit Diary",
+  "description": "Food, training, recovery and progress in one fitness diary.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#07111f",
-  "theme_color": "#07111f",
-  "icons": [{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "background_color": "#07111d",
+  "theme_color": "#07111d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }
