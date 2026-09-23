@@ -2987,5 +2987,62 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 })();
 </script>
 
+
+<style id="v479-add-food-css">
+/* v4.79 — compact Add Food UX */
+#v478Editor{padding:14px!important;border-radius:18px!important;background:linear-gradient(145deg,#10263a,#0b1928 75%)!important}
+#v478EditorHead{margin-bottom:12px!important}#v478EditorHead b{font-size:20px!important}#v478Close{padding:10px 14px!important;font-weight:800!important}
+#v479QuickRepeat{width:100%;height:48px;border:1px solid #31506d;border-radius:12px;background:#12283d;color:#fff;font-weight:800;text-align:left;padding:0 14px;margin-bottom:10px}
+#v479Form{display:grid;gap:10px}
+#v479SearchWrap{position:relative}#v479SearchWrap:before{content:'⌕';position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:25px;color:#c9d7e5;z-index:2;pointer-events:none}
+#v479SearchWrap #foodSearch{width:100%!important;height:50px!important;padding:0 14px 0 46px!important;border:2px solid #1684d2!important;border-radius:13px!important;background:#0b1928!important;font-size:16px!important;box-sizing:border-box!important}
+#v479FoodChoice{border:1px solid #284963;border-radius:13px;background:#0c1c2b;padding:10px 12px;display:grid;gap:5px}
+#v479FoodChoice label{font-size:12px;color:var(--muted)}#v479FoodChoice #foodSelect{display:block!important;width:100%!important;height:42px!important;background:#102238!important;border:0!important;padding:0 8px!important;font-weight:800!important}
+#v479Qty{display:grid;grid-template-columns:auto minmax(90px,130px) minmax(120px,1fr);gap:9px;align-items:center}
+#v479Qty label{font-size:13px;color:#dce7f2}#v479Qty #foodGrams{width:100%!important;height:46px!important;margin:0!important}#v479Qty #v455AddIngredient{width:100%!important;height:46px!important;margin:0!important;border:0!important;border-radius:11px!important;background:#2f9ff3!important;color:#fff!important;font-weight:900!important}
+#v479DraftTitle{font-size:14px;font-weight:900;margin:3px 2px -2px}#v455Builder{margin:0!important;padding:0!important;border:0!important}#v455Draft{margin:0!important;gap:0!important;border:1px solid #284963;border-radius:13px;overflow:hidden;background:#0b1928}
+.v455item{border:0!important;border-bottom:1px solid #1d354a!important;border-radius:0!important;background:transparent!important;padding:10px 12px!important}.v455item:last-child{border-bottom:0!important}.v455item .v455rm{width:38px;height:38px;padding:0!important;border-radius:9px!important;font-size:20px!important}
+#v455Total{margin:0!important;padding:12px!important;text-align:center!important;border:1px solid #284963!important;background:#0d2032!important;border-radius:12px!important;font-size:13px!important}
+#v455Save{height:52px!important;margin:0!important;border:0!important;border-radius:12px!important;background:#2f9ff3!important;color:#fff!important;font-size:17px!important;font-weight:900!important}
+#v479Form #mealTime,#v479Form #mealType,#v479Form #addFoodBtn,#v479Form .quick,#v479Form h3{display:none!important}
+@media(max-width:390px){#v479Qty{grid-template-columns:auto 92px 1fr;gap:7px}#v479Qty #v455AddIngredient{font-size:13px!important}#v478Editor{padding:12px!important}}
+</style>
+<script id="v479-add-food-js">
+(function(){
+ const $=id=>document.getElementById(id);
+ function previousMeal(meal){
+   const dates=Object.keys(store.days||{}).filter(x=>x<selectedDay).sort().reverse();
+   for(const dt of dates){const xs=(store.days[dt]?.foods||[]).filter(f=>(f.meal||'Snack')===meal);if(xs.length)return xs}return [];
+ }
+ function repeatCurrent(){
+   const meal=$('mealType')?.value||'Snack',xs=previousMeal(meal);
+   if(!xs.length){alert('Nenašlo sa predchádzajúce jedlo pre '+meal+'.');return}
+   xs.forEach(x=>dayData().foods.push({...x,meal}));save();
+   $('food')?.classList.remove('v478-editing');
+ }
+ function build(){
+   const body=$('v478EditorBody'), search=$('foodSearch'), sel=$('foodSelect'), grams=$('foodGrams'), meal=$('mealType'), time=$('mealTime'), addOld=$('addFoodBtn'), builder=$('v455Builder');
+   if(!body||!search||!sel||!grams||!meal||!builder||$('v479Form'))return;
+   const original=search.closest('.card'); if(!original)return;
+   const form=document.createElement('div');form.id='v479Form';
+   const repeat=document.createElement('button');repeat.type='button';repeat.id='v479QuickRepeat';repeat.textContent='↻  Zopakovať predchádzajúce jedlo  ›';repeat.onclick=repeatCurrent;
+   const sw=document.createElement('div');sw.id='v479SearchWrap';sw.appendChild(search);
+   const choice=document.createElement('div');choice.id='v479FoodChoice';choice.innerHTML='<label>Vyber potravinu</label>';choice.appendChild(sel);
+   const qty=document.createElement('div');qty.id='v479Qty';const lab=document.createElement('label');lab.textContent='Množstvo';qty.append(lab,grams,$('v455AddIngredient'));
+   const title=document.createElement('div');title.id='v479DraftTitle';title.textContent='Pridané do jedla';
+   form.append(repeat,sw,choice,qty,title,$('v455Draft'),$('v455Total'),$('v455Save'));
+   // Keep legacy controls in the DOM for compatibility, but out of the compact UI.
+   const hidden=document.createElement('div');hidden.style.display='none';hidden.append(meal,time,addOld);const q=original.querySelector('.quick');if(q)hidden.append(q);form.append(hidden);
+   body.innerHTML='';body.append(form);original.style.display='none';
+   search.placeholder='Hľadaj potravinu…';
+ }
+ function syncTitle(){const meal=$('mealType')?.value||'Snack',t=$('v478EditorTitle');if(t&&$('food')?.classList.contains('v478-editing'))t.textContent='Pridať · '+meal;const r=$('v479QuickRepeat');if(r)r.textContent='↻  Zopakovať predchádzajúce '+meal.toLowerCase()+'  ›'}
+ const mo=new MutationObserver(()=>{build();syncTitle()});
+ function run(){build();syncTitle();mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']})}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(run,250));else setTimeout(run,250);
+ document.addEventListener('click',e=>{if(e.target.closest('.v478-add,#v478TopAdd,#v478Search'))setTimeout(syncTitle,30);if(e.target.closest('#v455Save'))setTimeout(()=>{$('food')?.classList.remove('v478-editing')},100)},true);
+})();
+</script>
+
 </body>
 </html>
