@@ -2894,5 +2894,45 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 })();
 </script>
 
+<style id="v4775-water-final-css">
+/* v4.77.5 — final responsive water row. Critical fix: span the full parent grid width. */
+#v4773Actions{
+  grid-column:1 / -1!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 124px!important;
+  gap:10px!important;
+  margin:10px 0 0!important;
+  align-items:stretch!important;
+}
+#v4773Water{
+  width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:30px repeat(4,minmax(44px,1fr))!important;
+  gap:5px!important;align-items:center!important;padding:5px!important;
+  border:1px solid #17689c!important;border-radius:12px!important;background:#0b2032!important;overflow:hidden!important;
+}
+#v4773Water::before{content:'💧'!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:20px!important;line-height:1!important}
+#v4773Water .add-water{
+  width:100%!important;min-width:0!important;height:44px!important;margin:0!important;padding:0 2px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  font-size:12px!important;font-weight:800!important;line-height:1!important;white-space:nowrap!important;
+  border-radius:9px!important;box-sizing:border-box!important;overflow:hidden!important;
+}
+#v4773Actions>#v44OverviewMore{
+  width:124px!important;min-width:124px!important;height:auto!important;min-height:56px!important;margin:0!important;padding:8px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;
+  font-size:15px!important;font-weight:800!important;line-height:1.15!important;border-radius:12px!important;box-sizing:border-box!important;
+}
+@media(max-width:390px){
+ #v4773Actions{grid-template-columns:minmax(0,1fr) 112px!important;gap:8px!important}
+ #v4773Water{grid-template-columns:25px repeat(4,minmax(39px,1fr))!important;gap:4px!important;padding:4px!important}
+ #v4773Water::before{font-size:17px!important}
+ #v4773Water .add-water{height:42px!important;font-size:11px!important;padding:0 1px!important}
+ #v4773Actions>#v44OverviewMore{width:112px!important;min-width:112px!important;font-size:14px!important}
+}
+</style>
+
 </body>
 </html>
