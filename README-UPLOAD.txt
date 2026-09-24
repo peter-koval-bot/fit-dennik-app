@@ -1,25 +1,29 @@
-FIT DIARY — SMART CALORIES v4.87
+FIT DIARY v4.88 — NATÍVNE SMART KALÓRIE
 
-Upload BOTH files to the ROOT of peter-koval-bot/fit-dennik-app in one commit:
+Nahraj do ROOTu repozitára peter-koval-bot/fit-dennik-app iba tieto 2 súbory:
 
-1) fit-diary-calorie-ai.js   (new file)
-2) sw.js                     (replace the existing sw.js)
+1) index.html  — NAHRAĎ existujúci index.html
+2) sw.js       — NAHRAĎ existujúci sw.js
 
-Do NOT replace index.html, splash.html or manifest.webmanifest.
+Nemeň splash.html ani manifest.webmanifest.
+Súbor fit-diary-calorie-ai.js môže zostať v repozitári; v4.88 ho už nenačítava a nepoužíva.
 
-After upload:
-- fully close Fit Diary on iPhone
-- open it once, close it again
-- open it a second time if the old service worker is still active
+Čo sa zmenilo:
+- žiadne extra SMART tlačidlo a žiadna druhá databáza údajov
+- výpočty používajú existujúci profil zo Supabase (pohlavie, vek, výška, aktivita, cieľ)
+- používajú už zapísané jedlá, kroky, silové tréningy, kardio a hmotnosť
+- BMR: Mifflin–St Jeor
+- silový tréning: odhad podľa času + počtu sérií/hustoty tréningu s realistickým rozsahom
+- kardio: čistý výdaj nad pokojový metabolizmus; ručne zadané kcal sa rešpektujú
+- kroky: odhad podľa výšky, hmotnosti a počtu krokov; beh/chôdza z kardia sa nepočíta dvakrát
+- adaptívny Smart maintenance/TDEE sa po dostatku dát kalibruje z reálneho príjmu a trendu hmotnosti
+- nový výpočet je priamo na Domove a v detailoch histórie
+- čiarový kód v Jedle používa bezplatnú databázu Open Food Facts
+- doterajšie dáta, účet, cloud a fotky sa nemenia
 
-New feature:
-- Smart Calories button inside the logged-in app
-- food calories + macros
-- free Open Food Facts barcode lookup
-- BMR (Mifflin-St Jeor / Katch-McArdle when body fat % is known)
-- TDEE base outside training
-- strength-training calorie estimate with a realistic range
-- adaptive Smart calibration from logged intake and body-weight trend
-- personal calculation data stored locally on the device
+Po nahratí:
+- Fit Diary úplne zavri a otvor znova.
+- Pri prvom štarte môže iPhone ešte použiť starý service worker; ak treba, zavri a otvor appku ešte raz.
 
-No paid AI API is required for this version.
+Poznámka k presnosti:
+Kalórie spálené tréningom a denný energetický výdaj sú vždy odhady. V4.88 preto zobrazuje rozsah pri silovom tréningu a pri adaptívnom TDEE aj stav kalibrácie.

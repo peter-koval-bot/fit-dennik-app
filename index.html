@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Fit Diary v4.84.1 — final branding with approved exact logo; based on stable v4.83.4. -->
+<!-- Fit Diary v4.88.0 — integrated adaptive energy engine; preserves existing account, food, training and progress data. -->
 <html lang="sk">
 <head>
 <meta charset="utf-8">
@@ -1640,271 +1640,16 @@ function run(){rows();detail()}(()=>{let q=false;new MutationObserver(()=>{if(q|
 })();
 </script>
 
-<style id="v456-energy-balance-style">
-#v456Energy{margin-top:12px}
-#v456EnergyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
-.v456e{background:#0d1928;border:1px solid var(--line);border-radius:14px;padding:11px}
-.v456e span{font-size:11px;color:var(--muted);display:block}.v456e b{font-size:18px;display:block;margin-top:4px}
-#v456Balance{margin-top:10px;padding:13px;border-radius:14px;background:#10253a;font-weight:800}
-#v456Note{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
-</style>
-<script id="v456-energy-balance-js">
-(function(){
- function num(v){return Number(v)||0}
- function currentDay(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
- function intake(d){return (d.foods||[]).reduce((s,x)=>s+num(x.k),0)}
- function profileWeight(){
-   try{return num(store.profile?.weight||store.weight)||93}catch(e){return 93}
- }
- function baseBurn(){
-   /* Conservative baseline estimate for ordinary daily living, then steps/training are added separately. */
-   const w=profileWeight();
-   return Math.round(22*w*1.20);
- }
- function stepBurn(d){
-   const w=profileWeight(),steps=num(d.steps);
-   return Math.round(steps*w*0.0005);
- }
- function cardioBurn(d){
-   return Math.round((d.training||[]).reduce((s,x)=>{
-     if(num(x.burn)>0)return s+num(x.burn);
-     const min=num(x.minutes); if(!min)return s;
-     const type=String(x.type||x.name||'').toLowerCase();
-     let met=6;
-     if(type.includes('chôd')||type.includes('walk'))met=3.5;
-     else if(type.includes('beh')||type.includes('run'))met=8;
-     else if(type.includes('bicy')||type.includes('bike'))met=6.8;
-     else if(type.includes('vesl')||type.includes('row'))met=7;
-     return s+(met*3.5*profileWeight()/200)*min;
-   },0))
- }
- function strengthBurn(d){
-   if(!d.workoutCompletedAt && !(d.exercises||[]).length)return 0;
-   const mins=Math.min(120,num(d.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d.exercises||[]).length*10)));
-   return Math.round((5*3.5*profileWeight()/200)*mins);
- }
- function ensure(){
-   let host=document.getElementById('v456Energy');
-   if(!host){
-     const home=document.getElementById('home')||document.querySelector('main');
-     if(!home)return;
-     host=document.createElement('div');host.id='v456Energy';host.className='card full';
-     const first=home.querySelector('.card');
-     if(first)first.insertAdjacentElement('afterend',host);else home.appendChild(host);
-   }
-   const d=currentDay(),food=intake(d),base=baseBurn(),steps=stepBurn(d),cardio=cardioBurn(d),strength=strengthBurn(d);
-   const total=base+steps+cardio+strength,balance=food-total;
-   const abs=Math.abs(Math.round(balance));
-   let label='Približne udržiavanie';
-   if(balance<=-100)label=`Odhadovaný deficit −${abs} kcal`;
-   else if(balance>=100)label=`Odhadovaný nadbytok +${abs} kcal`;
-   host.innerHTML=`<h3>🔥 Energetická bilancia</h3>
-     <div id="v456EnergyGrid">
-       <div class="v456e"><span>Príjem</span><b>${Math.round(food)} kcal</b></div>
-       <div class="v456e"><span>Odhad výdaja</span><b>${total} kcal</b></div>
-       <div class="v456e"><span>Bežné fungovanie</span><b>${base} kcal</b></div>
-       <div class="v456e"><span>Kroky</span><b>${steps} kcal</b></div>
-       <div class="v456e"><span>Silový tréning</span><b>${strength} kcal</b></div>
-       <div class="v456e"><span>Kardio</span><b>${cardio} kcal</b></div>
-     </div>
-     <div id="v456Balance">${label}</div>
-     <div id="v456Note">Ide o orientačný výpočet, nie presné meranie. Výdaj pri bežnej aktivite aj tréningu sa medzi ľuďmi líši.</div>`;
- }
- const oldRender=window.render;
- window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(ensure,0);return r};
- window.addEventListener('load',()=>setTimeout(ensure,100));
- setTimeout(ensure,0);
-})();
-</script>
 
-<style id="v457-calorie-tile-style">
-#v457CalorieLines{margin-top:8px;display:grid;gap:5px}
-.v457line{display:flex;justify-content:space-between;gap:12px;font-size:14px}
-.v457line span{color:var(--muted)}
-.v457line b{font-weight:800}
-</style>
-<script id="v457-calorie-tile-js">
-(function(){
- function num(v){return Number(v)||0}
- function getDay(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
- function weight(){try{return num(store.profile?.weight||store.weight)||93}catch(e){return 93}}
- function calc(){
-   const d=getDay(), w=weight();
-   const intake=(d.foods||[]).reduce((s,x)=>s+num(x.k),0);
-   const base=Math.round(22*w*1.20);
-   const steps=Math.round(num(d.steps)*w*0.0005);
-   const cardio=Math.round((d.training||[]).reduce((s,x)=>{
-     if(num(x.burn)>0)return s+num(x.burn);
-     const min=num(x.minutes); if(!min)return s;
-     const t=String(x.type||x.name||'').toLowerCase();
-     let met=6;
-     if(t.includes('chôd')||t.includes('walk'))met=3.5;
-     else if(t.includes('beh')||t.includes('run'))met=8;
-     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
-     else if(t.includes('vesl')||t.includes('row'))met=7;
-     return s+(met*3.5*w/200)*min;
-   },0));
-   let strength=0;
-   if(d.workoutCompletedAt||(d.exercises||[]).length){
-     const mins=Math.min(120,num(d.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d.exercises||[]).length*10)));
-     strength=Math.round((5*3.5*w/200)*mins);
-   }
-   const burn=base+steps+cardio+strength;
-   return {intake:Math.round(intake),burn,balance:Math.round(intake-burn)};
- }
- function update(){
-   const cards=[...document.querySelectorAll('.card')];
-   const card=cards.find(c=>/Kalórie/i.test(c.textContent||'') && !c.id.includes('v456'));
-   if(!card)return;
-   const x=calc();
-   let box=card.querySelector('#v457CalorieLines');
-   if(!box){box=document.createElement('div');box.id='v457CalorieLines';card.appendChild(box)}
-   const bal=x.balance===0?'0':(x.balance>0?'+'+x.balance:'−'+Math.abs(x.balance));
-   box.innerHTML=`<div class="v457line"><span>Príjem</span><b>${x.intake} kcal</b></div>
-   <div class="v457line"><span>Výdaj</span><b>${x.burn} kcal</b></div>
-   <div class="v457line"><span>Bilancia</span><b>${bal} kcal</b></div>`;
- }
- const oldRender=window.render;
- window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,20);return r};
- window.addEventListener('load',()=>setTimeout(update,150));
- setTimeout(update,50);
-})();
-</script>
 
-<style id="v458-actual-burn-style">
-#v458BurnNote{font-size:10px;color:var(--muted);margin-top:6px;line-height:1.35}
-</style>
-<script id="v458-actual-burn-js">
-(function(){
- function n(v){return Number(v)||0}
- function d(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
- function w(){try{return n(store.profile?.weight||store.weight)||93}catch(e){return 93}}
- function burn(){
-   const x=d(),kg=w();
-   /* Only entered/measured activity: no automatic BMR/TDEE. */
-   const steps=Math.round(n(x.steps)*kg*0.0005);
-   const cardio=Math.round((x.training||[]).reduce((s,a)=>{
-     if(n(a.burn)>0)return s+n(a.burn);
-     const min=n(a.minutes); if(!min)return s;
-     const t=String(a.type||a.name||'').toLowerCase();
-     let met=6;
-     if(t.includes('chôd')||t.includes('walk'))met=3.5;
-     else if(t.includes('beh')||t.includes('run'))met=8;
-     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
-     else if(t.includes('vesl')||t.includes('row'))met=7;
-     return s+(met*3.5*kg/200)*min;
-   },0));
-   let strength=0;
-   if(x.workoutCompletedAt||(x.exercises||[]).length){
-     const min=Math.min(120,n(x.workoutSummary?.minutes)||Math.max(30,Math.min(90,(x.exercises||[]).length*10)));
-     strength=Math.round(5*3.5*kg/200*min);
-   }
-   return {steps,cardio,strength,total:steps+cardio+strength};
- }
- function update(){
-   const x=d(), intake=Math.round((x.foods||[]).reduce((s,a)=>s+n(a.k),0)),b=burn();
-   const cards=[...document.querySelectorAll('.card')];
-   const card=cards.find(c=>/Kalórie/i.test(c.textContent||'')&&!c.id.includes('v456'));
-   if(card){
-     const box=card.querySelector('#v457CalorieLines');
-     if(box){
-       const bal=intake-b.total, bs=bal===0?'0':(bal>0?'+'+bal:'−'+Math.abs(bal));
-       box.innerHTML=`<div class="v457line"><span>Príjem</span><b>${intake} kcal</b></div>
-       <div class="v457line"><span>Výdaj z aktivity</span><b>${b.total} kcal</b></div>
-       <div class="v457line"><span>Rozdiel</span><b>${bs} kcal</b></div>
-       <div id="v458BurnNote">Výdaj sa pridá až zo zadaných krokov, kardia a silového tréningu.</div>`;
-     }
-   }
-   const e=document.getElementById('v456Energy');
-   if(e)e.innerHTML=`<h3>🔥 Spálené kalórie z aktivity</h3>
-   <div id="v456EnergyGrid">
-   <div class="v456e"><span>Kroky</span><b>${b.steps} kcal</b></div>
-   <div class="v456e"><span>Silový tréning</span><b>${b.strength} kcal</b></div>
-   <div class="v456e"><span>Kardio</span><b>${b.cardio} kcal</b></div>
-   <div class="v456e"><span>Spolu</span><b>${b.total} kcal</b></div>
-   </div><div id="v456Note">Bez zadaných krokov alebo tréningu sa tu nič automaticky nepripočítava. Hodnoty sú stále odhad podľa hmotnosti, času a typu aktivity.</div>`;
- }
- const oldRender=window.render;
- window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,40);return r};
- window.addEventListener('load',()=>setTimeout(update,180));
- setTimeout(update,80);
-})();
-</script>
 
-<script id="v459-live-bmr-js">
-(function(){
- function n(v){return Number(v)||0}
- function day(){try{return dayData()}catch(e){return {foods:[],steps:0,training:[],exercises:[]}}}
- function profile(){
-   try{
-     return {
-       weight:n(store.profile?.weight||store.weight)||93,
-       height:n(store.profile?.height||store.height)||183,
-       age:n(store.profile?.age||store.age)||34
-     };
-   }catch(e){return {weight:93,height:183,age:34}}
- }
- function values(){
-   const d=day(),p=profile();
-   // Mifflin–St Jeor, male. Basal burn accrues continuously through the day.
-   const bmr=Math.round(10*p.weight+6.25*p.height-5*p.age+5);
-   const now=new Date();
-   const mins=now.getHours()*60+now.getMinutes();
-   const basal=Math.round(bmr*(mins/1440));
-   const steps=Math.round(n(d.steps)*p.weight*0.0005);
-   const cardio=Math.round((d.training||[]).reduce((s,a)=>{
-     if(n(a.burn)>0)return s+n(a.burn);
-     const min=n(a.minutes); if(!min)return s;
-     const t=String(a.type||a.name||'').toLowerCase();
-     let met=6;
-     if(t.includes('chôd')||t.includes('walk'))met=3.5;
-     else if(t.includes('beh')||t.includes('run'))met=8;
-     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
-     else if(t.includes('vesl')||t.includes('row'))met=7;
-     return s+(met*3.5*p.weight/200)*min;
-   },0));
-   let strength=0;
-   if(d.workoutCompletedAt||(d.exercises||[]).length){
-     const min=Math.min(120,n(d.workoutSummary?.minutes)||Math.max(30,Math.min(90,(d.exercises||[]).length*10)));
-     strength=Math.round(5*3.5*p.weight/200*min);
-   }
-   const intake=Math.round((d.foods||[]).reduce((s,a)=>s+n(a.k),0));
-   const total=basal+steps+cardio+strength;
-   return {bmr,basal,steps,cardio,strength,intake,total,balance:intake-total};
- }
- function update(){
-   const v=values();
-   const cards=[...document.querySelectorAll('.card')];
-   const card=cards.find(c=>/Kalórie/i.test(c.textContent||'')&&!c.id.includes('v456'));
-   if(card){
-     const box=card.querySelector('#v457CalorieLines');
-     if(box){
-       const bs=v.balance===0?'0':(v.balance>0?'+'+v.balance:'−'+Math.abs(v.balance));
-       box.innerHTML=`<div class="v457line"><span>Príjem</span><b>${v.intake} kcal</b></div>
-       <div class="v457line"><span>Výdaj doteraz</span><b>${v.total} kcal</b></div>
-       <div class="v457line"><span>Bilancia</span><b>${bs} kcal</b></div>
-       <div id="v458BurnNote">Základný metabolizmus sa počíta priebežne podľa času + zadané kroky a tréning.</div>`;
-     }
-   }
-   const e=document.getElementById('v456Energy');
-   if(e)e.innerHTML=`<h3>🔥 Výdaj energie doteraz</h3>
-   <div id="v456EnergyGrid">
-    <div class="v456e"><span>Bazálny metabolizmus</span><b>${v.basal} kcal</b></div>
-    <div class="v456e"><span>Kroky</span><b>${v.steps} kcal</b></div>
-    <div class="v456e"><span>Silový tréning</span><b>${v.strength} kcal</b></div>
-    <div class="v456e"><span>Kardio</span><b>${v.cardio} kcal</b></div>
-   </div>
-   <div id="v456Balance">Spolu doteraz: ${v.total} kcal</div>
-   <div id="v456Note">Denný BMR: približne ${v.bmr} kcal. BMR sa počas dňa načítava postupne; kroky a tréning sa pridajú po zadaní.</div>`;
- }
- const oldRender=window.render;
- window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(update,50);return r};
- window.addEventListener('load',()=>setTimeout(update,180));
- setInterval(()=>{if(!document.hidden)update()},60000);
- document.addEventListener('visibilitychange',()=>{if(!document.hidden)update()},{passive:true});
- setTimeout(update,80);
-})();
-</script>
+
+
+
+
+
+
+
 
 <style id="v460-water-card-style">
 #v460WaterBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
@@ -2098,36 +1843,8 @@ function run(){rows();detail()}(()=>{let q=false;new MutationObserver(()=>{if(q|
      b.addEventListener('click',()=>toast((b.textContent||'').trim()+' ✓'));
    });
  }
- function labelBalance(){
-   const card=[...document.querySelectorAll('#overview .card')].find(c=>/🔥\s*Kalórie/.test(c.textContent||''));
-   const box=card?.querySelector('#v457CalorieLines');
-   if(!box)return;
-   [...box.querySelectorAll('.v457line span')].forEach(s=>{
-     if(s.textContent.trim()==='Bilancia')s.textContent='Bilancia doteraz';
-     if(s.textContent.trim()==='Rozdiel')s.textContent='Bilancia doteraz';
-   });
- }
- function enrichProgress(){
-   const modal=document.getElementById('v453DayModal');
-   if(!modal||modal.dataset.v463)return;
-   modal.dataset.v463='1';
-   document.addEventListener('click',e=>{
-     const cell=e.target.closest('#goalCalendar .calday');if(!cell)return;
-     setTimeout(()=>{
-       try{
-         const base=new Date(selectedDay+'T12:00:00'),num=parseInt(cell.textContent,10);
-         const date=`${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(num).padStart(2,'0')}`;
-         const d=store.days?.[date];if(!d)return;
-         const body=document.getElementById('v453Body');if(!body)return;
-         body.querySelector('.v463balance')?.remove();
-         const burn=burnForDate(date,d),food=Math.round(intake(d)),bal=food-burn.total;
-         const div=document.createElement('div');div.className='notice v463balance';
-         div.innerHTML=`<b>⚡ Energetická bilancia</b><br>Príjem ${food} kcal · odhad výdaja ${burn.total} kcal · bilancia ${bal>0?'+':''}${bal} kcal`;
-         body.appendChild(div);
-       }catch(err){}
-     },0);
-   },true);
- }
+ function labelBalance(){}
+ function enrichProgress(){}
  function update(){
    syncWaterGoal();ensureSteps();waterFeedback();labelBalance();enrichProgress();
  }
@@ -2411,224 +2128,13 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
 </script>
 
 
-<script id="v472-energy-breakdown">
-(function(){
-  const num=v=>Number(v)||0;
-  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-
-  function profile(){
-    const p=(window.store&&store.profile)||{};
-    return {
-      w:num(p.weight||p.weightKg||p.kg)||93,
-      h:num(p.height||p.heightCm||p.cm)||183,
-      age:num(p.age)||34
-    };
-  }
-  function today(){
-    try { return typeof dayData==="function" ? dayData() : null; } catch(e){ return null; }
-  }
-  function bmrFull(){
-    const p=profile();
-    return Math.round(10*p.w + 6.25*p.h - 5*p.age + 5);
-  }
-  function elapsedBmr(){
-    const now=new Date();
-    const mins=now.getHours()*60+now.getMinutes();
-    return Math.round(bmrFull()*mins/1440);
-  }
-  function stepsKcal(d){
-    const p=profile();
-    return Math.round(num(d&&d.steps)*p.w*0.0005);
-  }
-  function cardioKcal(d){
-    if(!d) return 0;
-    // Prefer explicitly stored kcal; do not infer missing minutes on historical records.
-    if(Array.isArray(d.cardio)) return Math.round(d.cardio.reduce((s,x)=>s+num(x.kcal||x.calories),0));
-    return Math.round(num(d.cardioKcal||d.activityKcal));
-  }
-  function strengthMinutes(d){
-    if(!d) return 0;
-    let m=num(d.workoutSummary&&d.workoutSummary.minutes);
-    if(!m && d.workoutStartedAt){
-      m=Math.max(1,Math.round((Date.now()-num(d.workoutStartedAt))/60000));
-    }
-    if(!m){
-      let sets=0;
-      (d.exercises||[]).forEach(ex=>sets+=(ex.sets||[]).length);
-      if(sets) m=Math.round(sets*3.5);
-    }
-    return clamp(m,0,120);
-  }
-  function strengthKcal(d){
-    const m=strengthMinutes(d);
-    if(!m) return 0;
-    const p=profile();
-    // 5 MET, subtract resting 1 MET because elapsed BMR is already included.
-    return Math.round((5-1)*3.5*p.w/200*m);
-  }
-  function intake(d){
-    if(!d) return 0;
-    if(Array.isArray(d.foods)) return Math.round(d.foods.reduce((s,x)=>s+num(x.k),0));
-    return Math.round(num(d.kcal||d.calories));
-  }
-  function calc(){
-    const d=today();
-    const b=elapsedBmr(), s=stepsKcal(d), c=cardioKcal(d), st=strengthKcal(d);
-    const total=b+s+c+st, i=intake(d);
-    return {b,s,c,st,total,i,bal:i-total};
-  }
-  function patch(){
-    const e=calc();
-    const nodes=[...document.querySelectorAll("body *")].filter(el=>{
-      if(el.children.length) return false;
-      const t=(el.textContent||"").trim();
-      return /odhad výdaja|výdaj doteraz|bilancia/i.test(t);
-    });
-    nodes.forEach(el=>{
-      const t=(el.textContent||"").trim();
-      if(/Príjem/i.test(t) && /výdaj/i.test(t)){
-        el.textContent=`Príjem ${e.i} kcal · odhad výdaja ${e.total} kcal · bilancia ${e.bal>=0?"+":""}${e.bal} kcal`;
-      } else if(/výdaj doteraz/i.test(t)){
-        el.textContent=`Výdaj doteraz ${e.total} kcal`;
-      }
-    });
-
-    // Add/update a transparent calculation breakdown under each energy balance block.
-    [...document.querySelectorAll("body *")].forEach(el=>{
-      if(el.children.length) return;
-      const t=(el.textContent||"").trim();
-      if(!/Príjem .*odhad výdaja .*bilancia/i.test(t)) return;
-      let box=el.nextElementSibling;
-      if(!box || !box.classList.contains("v472-energy-parts")){
-        box=document.createElement("div");
-        box.className="v472-energy-parts";
-        box.style.cssText="margin-top:8px;font-size:13px;line-height:1.45;color:#8fa4b8";
-        el.insertAdjacentElement("afterend",box);
-      }
-      box.textContent=`BMR doteraz ${e.b} · kroky ${e.s} · silový tréning ${e.st} · kardio ${e.c} kcal`;
-    });
-  }
-
-  window.fdEnergyV472={calc,patch};
-  patch();
-  setInterval(()=>{ if(!document.hidden) patch(); },60000);
-  document.addEventListener("visibilitychange",()=>{ if(!document.hidden) patch(); });
-  document.addEventListener("click",()=>setTimeout(patch,50),true);
-})();
-</script>
 
 
-<script id="v473-history-energy-fix">
-(function(){
- const n=v=>Number(v)||0;
- function prof(){const p=store.profile||{};return{w:n(p.weight||store.weight)||93,h:n(p.height||store.height)||183,a:n(p.age||store.age)||34,sex:p.sex||store.sex||'male'}}
- function calc(date,d){
-   const p=prof();
-   const bmr=Math.round(10*p.w+6.25*p.h-5*p.a+(p.sex==='female'?-161:5));
-   const steps=Math.round(n(d.steps)*p.w*0.0005);
-   const cardio=Math.round((d.training||[]).reduce((s,x)=>{
-     if(n(x.burn)>0)return s+n(x.burn);
-     const m=n(x.minutes); if(!m)return s;
-     const t=String(x.type||x.name||'').toLowerCase();
-     let met=5;
-     if(t.includes('chôd')||t.includes('walk'))met=3.5;
-     else if(t.includes('beh')||t.includes('run'))met=8;
-     else if(t.includes('bicy')||t.includes('bike'))met=6.8;
-     return s+met*3.5*p.w/200*m;
-   },0));
-   let mins=Math.min(120,n(d.workoutSummary?.minutes));
-   if(!mins){
-     let sets=0;(d.exercises||[]).forEach(e=>sets+=(e.sets||[]).length);
-     mins=Math.min(120,Math.max(0,Math.round(sets*3.5)));
-   }
-   // Net strength kcal: resting metabolism is already included in BMR.
-   const strength=Math.round(4*3.5*p.w/200*mins);
-   const total=bmr+steps+cardio+strength;
-   const intake=Math.round((d.foods||[]).reduce((s,x)=>s+n(x.k),0));
-   return {bmr,steps,cardio,strength,total,intake,bal:intake-total,mins};
- }
- function patchModal(){
-   const body=document.getElementById('v453Body'); if(!body)return;
-   const modal=document.getElementById('v453DayModal'); if(!modal)return;
-   const all=(modal.textContent||'');
-   const m=all.match(/20\d\d-\d\d-\d\d/); if(!m)return;
-   const date=m[0],d=store.days?.[date]; if(!d)return;
-   const e=calc(date,d);
-   const candidates=[...body.querySelectorAll('*')].filter(x=>/Energetická bilancia/.test(x.textContent||''));
-   const box=candidates.find(x=>/odhad výdaja/.test(x.textContent||'')); if(!box)return;
-   box.innerHTML=`<b>⚡ Energetická bilancia</b><br>
-     Príjem ${e.intake} kcal · odhad výdaja ${e.total} kcal · bilancia ${e.bal>=0?'+':''}${e.bal} kcal
-     <div style="margin-top:8px;font-size:13px;line-height:1.5;color:#8fa4b8">
-       BMR ${e.bmr} · kroky ${e.steps} · silový tréning ${e.strength} · kardio ${e.cardio} kcal
-       <br>Silový tréning: ${e.mins} min
-     </div>`;
- }
- let raf=0;
- const obs=new MutationObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(patchModal)});
- obs.observe(document.body,{childList:true,subtree:true});
- document.addEventListener('click',()=>setTimeout(patchModal,50),true);
- setTimeout(patchModal,100);
-})();
-</script>
 
 
-<script id="v474-energy-final">
-(function(){
-  const n=v=>Number(v)||0, clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-  function prof(){const p=store.profile||{};return{w:n(p.weight||store.weight)||93,h:n(p.height||store.height)||183,a:n(p.age||store.age)||34}}
-  function bmr(){const p=prof();return Math.round(10*p.w+6.25*p.h-5*p.a+5)}
-  function dayCalc(date,d){
-    const p=prof(), today=(new Date()).toISOString().slice(0,10)===date;
-    let base=bmr();
-    if(today){const q=new Date();base=Math.round(base*(q.getHours()*60+q.getMinutes())/1440)}
-    const steps=Math.round(n(d?.steps)*p.w*0.0005);
-    let mins=clamp(n(d?.workoutSummary?.minutes),0,120);
-    if(!mins){let sets=0;(d?.exercises||[]).forEach(e=>sets+=(e.sets||[]).length);mins=clamp(Math.round(sets*2.5),0,105)}
-    // Moderate resistance training, net of resting metabolism already contained in BMR.
-    const strength=Math.round((4.5-1)*3.5*p.w/200*mins);
-    let cardio=0;
-    (d?.training||[]).forEach(x=>{
-      if(n(x.burn)>0){cardio+=n(x.burn);return}
-      const m=n(x.minutes); if(!m)return;
-      const t=String(x.type||x.name||'').toLowerCase();
-      let met=5;
-      if(t.includes('chôd')||t.includes('walk'))met=3.5;
-      else if(t.includes('beh')||t.includes('run'))met=8;
-      else if(t.includes('bicy')||t.includes('bike'))met=6.8;
-      cardio+=(met-1)*3.5*p.w/200*m;
-    });
-    cardio=Math.round(cardio);
-    const total=base+steps+strength+cardio;
-    const intake=Math.round((d?.foods||[]).reduce((s,x)=>s+n(x.k),0));
-    return {base,steps,strength,cardio,total,intake,bal:intake-total,mins};
-  }
-  function cleanup(){
-    // Remove leaked standalone energy-breakdown lines from normal pages.
-    document.querySelectorAll('.v472-energy-parts').forEach(x=>x.remove());
-    [...document.querySelectorAll('body *')].forEach(el=>{
-      if(el.children.length)return;
-      const t=(el.textContent||'').trim();
-      if(/^BMR (doteraz )?\d+ .*kroky .*silový tréning .*kardio .*kcal$/i.test(t)) el.remove();
-    });
-  }
-  function patchHistory(){
-    const modal=document.getElementById('v453DayModal'),body=document.getElementById('v453Body');
-    if(!modal||!body)return;
-    const m=(modal.textContent||'').match(/20\d\d-\d\d-\d\d/);if(!m)return;
-    const date=m[0],d=store.days?.[date];if(!d)return;
-    const e=dayCalc(date,d);
-    const box=[...body.querySelectorAll('*')].find(x=>/Energetická bilancia/.test(x.textContent||'')&&/odhad výdaja/.test(x.textContent||''));
-    if(!box)return;
-    box.innerHTML=`<b>⚡ Energetická bilancia</b><br>Príjem ${e.intake} kcal · odhad výdaja ${e.total} kcal · bilancia ${e.bal>=0?'+':''}${e.bal} kcal
-    <div style="margin-top:8px;font-size:13px;line-height:1.5;color:#8fa4b8">BMR ${e.base} · kroky ${e.steps} · silový tréning ${e.strength} · kardio ${e.cardio} kcal<br>Silový tréning: ${e.mins} min</div>`;
-  }
-  let raf=0;
-  function run(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{cleanup();patchHistory()})}
-  const ob=new MutationObserver(run);ob.observe(document.body,{childList:true,subtree:true});
-  document.addEventListener('click',()=>setTimeout(run,40),true);
-  run();
-})();
-</script>
+
+
+
 
 
 
@@ -2668,24 +2174,8 @@ high-frequency mutation repair callbacks are scoped/debounced. -->
  const list=document.getElementById("exerciseList");
  if(list){let raf=0;new MutationObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(plankCard)}).observe(list,{childList:true,subtree:true})}
 
- // Historical calendar energy: realistic full-day BMR + recorded activity.
- function energyPatch(){
-   const modal=document.getElementById("v453DayModal"),body=document.getElementById("v453Body");if(!modal||!body)return;
-   const dm=(modal.textContent||"").match(/20\d\d-\d\d-\d\d/);if(!dm)return;
-   const d=store.days?.[dm[0]];if(!d)return;
-   const p=store.profile||{},w=n(p.weight||store.weight)||93,h=n(p.height||store.height)||183,a=n(p.age||store.age)||34;
-   const bmr=Math.round(10*w+6.25*h-5*a+5), steps=Math.round(n(d.steps)*w*.0005);
-   let mins=Math.min(120,n(d.workoutSummary?.minutes));
-   if(!mins){let sets=0;(d.exercises||[]).forEach(x=>sets+=(x.sets||[]).length);mins=Math.min(105,Math.round(sets*2.5))}
-   const strength=Math.round((4.5-1)*3.5*w/200*mins);
-   let cardio=0;(d.training||[]).forEach(x=>{if(n(x.burn)){cardio+=n(x.burn);return}const m=n(x.minutes);if(!m)return;let met=5,t=String(x.type||x.name||"").toLowerCase();if(t.includes("chôd")||t.includes("walk"))met=3.5;else if(t.includes("beh")||t.includes("run"))met=8;else if(t.includes("bicy")||t.includes("bike"))met=6.8;cardio+=(met-1)*3.5*w/200*m});cardio=Math.round(cardio);
-   const total=bmr+steps+strength+cardio, intake=Math.round((d.foods||[]).reduce((q,x)=>q+n(x.k),0)),bal=intake-total;
-   const box=[...body.querySelectorAll("*")].find(x=>/Energetická bilancia/.test(x.textContent||"")&&/odhad výdaja/.test(x.textContent||""));
-   if(box)box.innerHTML=`<b>⚡ Energetická bilancia</b><br>Príjem ${intake} kcal · odhad výdaja ${total} kcal · bilancia ${bal>=0?"+":""}${bal} kcal<div style="margin-top:8px;font-size:13px;line-height:1.5;color:#8fa4b8">BMR ${bmr} · kroky ${steps} · silový tréning ${strength} · kardio ${cardio} kcal<br>Silový tréning: ${mins} min</div>`;
- }
- let raf=0;new MutationObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{plankCard();energyPatch()})}).observe(document.body,{childList:true,subtree:true});
- document.addEventListener("click",()=>setTimeout(energyPatch,60),true);
- plankCard();energyPatch();
+
+ plankCard();
 })();
 </script>
 
@@ -3548,6 +3038,139 @@ body.v4822-plan-open .bottomnav{z-index:80}
   }
   function init(){addTranslations();buildCustomFood();buildCardio();try{if(typeof fdLang!=='undefined'&&fdLang!=='sk')fdTranslateNode(document.body)}catch(e){}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,250));else setTimeout(init,250);
+})();
+</script>
+
+
+
+<style id="v488-smart-energy-css">
+/* Fit Diary v4.88 — native adaptive energy engine. No floating SMART button. */
+#fdce-btn,#fdce-modal{display:none!important}
+#v488Energy{border-color:#315b78;background:linear-gradient(145deg,#10283d,#0b1928 76%)}
+#v488Energy .v488-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+#v488Energy .v488-head h3{margin:0;font-size:19px}#v488Energy .v488-status{font-size:11px;font-weight:900;padding:6px 9px;border:1px solid #35698e;border-radius:999px;background:#0d263a;color:#7fd2ff;white-space:nowrap}
+.v488-main{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.v488-box{background:#091725;border:1px solid #23445e;border-radius:13px;padding:10px;min-width:0}.v488-box span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em}.v488-box b{display:block;font-size:17px;margin-top:4px;white-space:nowrap}.v488-neg{color:#54d99a}.v488-pos{color:#ffb36a}
+.v488-break{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px}.v488-chip{border:1px solid #294a64;background:#0b1c2b;border-radius:11px;padding:8px}.v488-chip span{display:block;color:#8fa6ba;font-size:10px}.v488-chip b{display:block;font-size:13px;margin-top:2px}.v488-note{margin-top:9px;color:#8fa4b8;font-size:11px;line-height:1.45}.v488-range{color:#8fa4b8;font-size:10px;margin-top:2px}
+.v488-barcode{border:1px solid #315778;border-radius:13px;background:#0b1c2b;padding:9px}.v488-barcode-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.v488-barcode-top b{font-size:13px}.v488-barcode-toggle{border:1px solid #355e7c;background:#132b40;color:#eaf5ff;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:800}.v488-barcode-body{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;margin-top:8px}.v488-barcode-body[hidden]{display:none!important}.v488-barcode-input{height:42px!important;margin:0!important;padding:0 11px!important;background:#071726!important;border:1px solid #315778!important;color:#fff!important;border-radius:10px!important;font-size:16px!important}.v488-barcode-go{border:0;background:#2f9ff3;color:#fff;border-radius:10px;padding:0 13px;font-weight:900}.v488-barcode-msg{grid-column:1/-1;color:#9fb1c4;font-size:11px;line-height:1.35}
+.v488-history-energy{margin-top:14px;border:1px solid #294a64;background:#0b1c2b;border-radius:14px;padding:12px}.v488-history-energy b{font-size:15px}.v488-history-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.v488-history-grid span{display:block;color:#8fa4b8;font-size:11px}.v488-history-grid strong{display:block;margin-top:2px}
+@media(max-width:540px){.v488-main{grid-template-columns:1fr 1fr}.v488-break{grid-template-columns:1fr 1fr}}
+</style>
+<script id="v488-smart-energy-js">
+(function(){
+ 'use strict';
+ if(window.__FIT_DIARY_V488__)return; window.__FIT_DIARY_V488__=true;
+ const n=v=>Number(v)||0, clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), round=v=>Math.round(Number.isFinite(v)?v:0);
+ const localToday=()=>{const d=new Date(),o=d.getTimezoneOffset();return new Date(d.getTime()-o*60000).toISOString().slice(0,10)};
+ const lang=()=>typeof fdLang!=='undefined'?fdLang:'sk';
+ const T=(sk,en,de)=>lang()==='en'?en:lang()==='de'?de:sk;
+ function profileFor(date){
+   let p={};try{p=currentProfile||{}}catch(_){p={}}
+   const w=weightForDate(date)||n(p.starting_weight_kg)||null;
+   return {weight:w,height:n(p.height_cm)||null,age:n(p.age_years)||null,sex:p.sex||'male',activity:p.activity_level||'moderate',goal:p.goal_type||'maintain'};
+ }
+ function weightForDate(date){
+   try{
+     const ds=Object.keys(store.days||{}).filter(x=>x<=date&&n(store.days[x]?.weight)>0).sort();
+     if(ds.length)return n(store.days[ds.at(-1)].weight);
+     const p=currentProfile||{};return n(p.starting_weight_kg)||null;
+   }catch(_){return null}
+ }
+ function bmrFor(p){if(!(p.weight>0&&p.height>0&&p.age>0))return 0;return 10*p.weight+6.25*p.height-5*p.age+(p.sex==='female'?-161:5)}
+ function activityFactor(level){return ({sedentary:1.20,light:1.375,moderate:1.55,very_active:1.725,extra_active:1.90})[level]||1.45}
+ function formulaMaintenance(date){const p=profileFor(date),b=bmrFor(p);return b?b*activityFactor(p.activity):0}
+ function intakeOf(d){return (d?.foods||[]).reduce((s,x)=>s+n(x.k),0)}
+ function daysBetween(a,b){return Math.max(0,Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/86400000))}
+ function shift(date,days){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
+ function median(xs){if(!xs.length)return 0;const a=[...xs].sort((x,y)=>x-y),m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
+ function robustSlope(points){
+   if(points.length<2)return 0;const slopes=[];
+   for(let i=0;i<points.length;i++)for(let j=i+1;j<points.length;j++){const dd=daysBetween(points[i].date,points[j].date);if(dd>0)slopes.push((points[j].kg-points[i].kg)/dd)}
+   return median(slopes);
+ }
+ function adaptiveMaintenance(endDate,formulaOverride=0){
+   const formula=formulaOverride||formulaMaintenance(endDate);if(!formula)return{value:0,active:false,confidence:0,note:T('Doplň profil','Complete profile','Profil vervollständigen')};
+   const start=shift(endDate,-55);
+   const weights=Object.keys(store.days||{}).filter(d=>d>=start&&d<=endDate&&n(store.days[d]?.weight)>0).sort().map(d=>({date:d,kg:n(store.days[d].weight)}));
+   if(weights.length<4)return{value:formula,active:false,confidence:0,note:T('Smart kalibrácia potrebuje aspoň 4 váženia.','Smart calibration needs at least 4 weigh-ins.','Smart-Kalibrierung braucht mindestens 4 Wiegewerte.')};
+   const first=weights[0].date,last=weights.at(-1).date,span=daysBetween(first,last)+1;
+   if(span<14)return{value:formula,active:false,confidence:0,note:T('Smart kalibrácia sa zapne po 14+ dňoch.','Smart calibration starts after 14+ days.','Smart-Kalibrierung startet nach 14+ Tagen.')};
+   const foodDays=[];for(let d=first;d<=last;d=shift(d,1)){const d0=store.days?.[d],k=intakeOf(d0);if((d0?.foods||[]).length&&k>=500)foodDays.push({date:d,k})}
+   const coverage=foodDays.length/span;
+   if(foodDays.length<10||coverage<0.65)return{value:formula,active:false,confidence:0,note:T('Pre kalibráciu zapisuj jedlo a váhu pravidelne.','Log food and weight consistently to calibrate.','Für die Kalibrierung Essen und Gewicht regelmäßig erfassen.')};
+   const slope=clamp(robustSlope(weights),-0.18,0.18);
+   const avgIntake=foodDays.reduce((s,x)=>s+x.k,0)/foodDays.length;
+   let raw=avgIntake-slope*7700; raw=clamp(raw,formula*0.75,formula*1.35);
+   const confidence=clamp(0.30+(foodDays.length-10)*0.018+(weights.length-4)*0.025+(coverage-0.65)*0.35,0.30,0.90);
+   const value=formula*(1-confidence)+raw*confidence;
+   return {value,raw,active:true,confidence,slope,days:span,foodDays:foodDays.length,weights:weights.length,note:T(`Kalibrované z ${foodDays.length} dní · trend ${(slope*7)>=0?'+':''}${(slope*7).toFixed(2)} kg/týž.`,`Calibrated from ${foodDays.length} days · trend ${(slope*7)>=0?'+':''}${(slope*7).toFixed(2)} kg/week`,`Kalibriert aus ${foodDays.length} Tagen · Trend ${(slope*7)>=0?'+':''}${(slope*7).toFixed(2)} kg/Woche`)};
+ }
+ function cardioMet(type){const t=String(type||'').toLowerCase();if(t.includes('chôd')||t.includes('walk')||t.includes('geh'))return 4.3;if(t.includes('beh')||t.includes('run')||t.includes('lauf'))return 8.3;if(t.includes('bicy')||t.includes('bike')||t.includes('rad'))return 7.5;if(t.includes('elipt')||t.includes('ellip'))return 5.0;if(t.includes('vesl')||t.includes('row')||t.includes('rud'))return 7.0;return 5.0}
+ function cardioFor(date,d,p){let kcal=0,eqSteps=0,manual=0,estimated=0;const stepLen=((p.sex==='female'?0.413:0.415)*(p.height||175))/100000;
+   for(const x of (d?.training||[])){
+     const mins=n(x.min||x.minutes),entered=n(x.burn||x.kcal||x.calories),isEstimated=x.estimated===true;
+     let k=0;if(entered>0&&!isEstimated){k=entered;manual++}else if(mins>0){k=Math.max(0,(cardioMet(x.type||x.name)-1)*3.5*(p.weight||0)/200*mins);estimated++}
+     kcal+=k;const t=String(x.type||x.name||'').toLowerCase();let speed=0;if(t.includes('chôd')||t.includes('walk')||t.includes('geh'))speed=5;if(t.includes('beh')||t.includes('run')||t.includes('lauf'))speed=9;if(speed&&mins&&stepLen>0)eqSteps+=(speed*mins/60)/stepLen;
+   }
+   return {kcal:round(kcal),eqSteps:round(eqSteps),manual,estimated};
+ }
+ function strengthFor(date,d,p){
+   const ex=d?.exercises||[];let sets=0;ex.forEach(e=>sets+=(e.sets||[]).length);if(!sets&&!d?.workoutCompletedAt)return{kcal:0,low:0,high:0,minutes:0,met:0,sets:0};
+   let mins=n(d?.workoutSummary?.minutes);if(!mins&&d?.workoutStartedAt&&date===localToday())mins=Math.round((Date.now()-n(d.workoutStartedAt))/60000);if(!mins)mins=Math.max(12,sets*3);mins=clamp(mins,0,150);
+   const density=mins?sets/mins:0;let met=3.5;if(density>=0.38)met=5.8;else if(density>=0.26)met=5.0;else if(density>=0.18)met=4.2;
+   const activeMet=Math.max(0,met-1),kg=p.weight||0,mid=activeMet*3.5*kg/200*mins;
+   const low=Math.max(0,(Math.max(2.5,met-0.8)-1)*3.5*kg/200*mins),high=Math.max(mid,(Math.min(6.5,met+1.0)-1)*3.5*kg/200*mins);
+   return{kcal:round(mid),low:round(low),high:round(high),minutes:round(mins),met,sets};
+ }
+ function stepsFor(d,p,cardio){const all=Math.max(0,n(d?.steps)),usable=Math.max(0,all-Math.min(all,cardio.eqSteps||0)),stepM=(p.sex==='female'?0.413:0.415)*(p.height||175)/100,km=usable*stepM/1000;return{kcal:round(km*(p.weight||0)*0.48),steps:all,usable:round(usable),km}}
+ function activeFor(date,d){const p=profileFor(date);if(!p.weight)return{steps:{kcal:0},strength:{kcal:0,low:0,high:0,minutes:0},cardio:{kcal:0},total:0};const cardio=cardioFor(date,d,p),strength=strengthFor(date,d,p),steps=stepsFor(d,p,cardio);return{steps,strength,cardio,total:steps.kcal+strength.kcal+cardio.kcal}}
+ function recentAverageActive(endDate){const xs=[];for(let i=1;i<=14;i++){const date=shift(endDate,-i),d=store.days?.[date];if(!d)continue;const meaningful=(d.foods||[]).length||n(d.steps)||(d.training||[]).length||(d.exercises||[]).length;if(meaningful)xs.push(activeFor(date,d).total)}return xs.length>=4?xs.reduce((a,b)=>a+b,0)/xs.length:null}
+ function energyFor(date=selectedDay){
+   const d=store.days?.[date]||{foods:[],training:[],exercises:[],steps:0},p=profileFor(date),bmr=bmrFor(p),formula=formulaMaintenance(date),adaptive=adaptiveMaintenance(date,formula),maintenance=adaptive.value||formula,active=activeFor(date,d),avg=recentAverageActive(date);
+   let adjustment=0;if(avg!==null){const diff=active.total-avg;adjustment=(date===localToday()?Math.max(0,diff):diff)*0.70}const total=maintenance?clamp(maintenance+adjustment,maintenance*0.78,maintenance*1.32):0;
+   const intake=intakeOf(d),balance=intake-total;
+   return{date,p,bmr:round(bmr),formula:round(formula),maintenance:round(maintenance),adaptive,active,total:round(total),intake:round(intake),balance:round(balance),avgActive:avg===null?null:round(avg)};
+ }
+ function goalTarget(maintenance,goal){if(!maintenance)return 0;if(goal==='lose_fat')return Math.max(maintenance-500,maintenance*0.84);if(goal==='recomposition')return maintenance*0.93;if(goal==='gain_muscle')return Math.min(maintenance+300,maintenance*1.06);return maintenance}
+ // Upgrade the existing onboarding/profile target calculator without changing its UI or data model.
+ window.calculateTargets=function(){
+   const sex=document.getElementById('obSex')?.value,age=n(document.getElementById('obAge')?.value),h=n(document.getElementById('obHeight')?.value),w=n(document.getElementById('obWeight')?.value),activity=document.getElementById('obActivity')?.value,goal=document.getElementById('obGoal')?.value;
+   if(!sex||!age||!h||!w||!activity||!goal)return null;const bmr=10*w+6.25*h-5*age+(sex==='female'?-161:5),formula=bmr*activityFactor(activity);let maint=formula;
+   try{const ad=adaptiveMaintenance(typeof selectedDay!=='undefined'?selectedDay:localToday(),formula);if(ad.active)maint=ad.value}catch(_){ }
+   let kcal=Math.round(goalTarget(maint,goal)/25)*25;const floor=sex==='male'?1600:1300;kcal=Math.max(floor,kcal);const protein=Math.round(w*((goal==='lose_fat'||goal==='recomposition')?2.0:1.8)),fat=Math.round(w*.8),carbs=Math.max(0,Math.round((kcal-protein*4-fat*9)/4)),water=Math.round((w*35)/250)*250;
+   return{bmr:round(bmr),tdee:round(maint),kcal,protein,carbs,fat,water,steps:8000,strength:goal==='gain_muscle'?4:3,cardio:goal==='gain_muscle'?1:2};
+ };
+ window.estimateBurn=function(type,min){const p=profileFor(typeof selectedDay!=='undefined'?selectedDay:localToday());if(!p.weight)return null;return round(Math.max(0,(cardioMet(type)-1)*3.5*p.weight/200*n(min)))};
+ function signed(v){return v>0?'+'+v:v<0?'−'+Math.abs(v):'0'}
+ function ensureEnergyCard(){
+   const grid=document.querySelector('#overview .grid');if(!grid)return null;let card=document.getElementById('v488Energy');if(!card){card=document.createElement('div');card.id='v488Energy';card.className='card full';const home=grid.querySelector('.home-kcal');if(home)home.insertAdjacentElement('afterend',card);else grid.prepend(card)}return card;
+ }
+ function renderEnergy(){
+   let e;try{e=energyFor(selectedDay)}catch(err){return}const card=ensureEnergyCard();if(!card||!e.maintenance)return;
+   const s=e.adaptive.active?T(`Smart ${Math.round(e.adaptive.confidence*100)} %`,`Smart ${Math.round(e.adaptive.confidence*100)}%`,`Smart ${Math.round(e.adaptive.confidence*100)} %`):T('Vzorec','Formula','Formel');const cls=e.balance<=0?'v488-neg':'v488-pos';
+   card.innerHTML=`<div class="v488-head"><div><h3>${T('🔥 Energia a kalórie','🔥 Energy & calories','🔥 Energie & Kalorien')}</h3><div class="sub">${T('Používa tvoj profil, jedlo, kroky, tréning a trend hmotnosti.','Uses your profile, food, steps, training and weight trend.','Nutzt Profil, Essen, Schritte, Training und Gewichtstrend.')}</div></div><span class="v488-status">${s}</span></div><div class="v488-main"><div class="v488-box"><span>${T('Príjem','Intake','Aufnahme')}</span><b>${e.intake} kcal</b></div><div class="v488-box"><span>${T('Denný cieľ','Daily target','Tagesziel')}</span><b>${round(store.goals?.kcal)} kcal</b></div><div class="v488-box"><span>${T('Odhad výdaja','Est. expenditure','Gesch. Verbrauch')}</span><b>${e.total} kcal</b></div><div class="v488-box"><span>${T('Bilancia','Balance','Bilanz')}</span><b class="${cls}">${signed(e.balance)} kcal</b></div></div><div class="v488-break"><div class="v488-chip"><span>BMR</span><b>${e.bmr} kcal</b></div><div class="v488-chip"><span>${T('Kroky','Steps','Schritte')}</span><b>${e.active.steps.kcal} kcal</b></div><div class="v488-chip"><span>${T('Silový tréning','Strength','Krafttraining')}</span><b>${e.active.strength.kcal} kcal</b><div class="v488-range">${e.active.strength.minutes?`${e.active.strength.minutes} min · ${e.active.strength.low}–${e.active.strength.high} kcal`:T('nezapísaný','not logged','nicht erfasst')}</div></div><div class="v488-chip"><span>${T('Kardio','Cardio','Cardio')}</span><b>${e.active.cardio.kcal} kcal</b></div></div><div class="v488-note"><b>${T('Smart udržiavanie','Smart maintenance','Smart-Erhaltung')}:</b> ${e.maintenance} kcal/deň · ${e.adaptive.note}<br>${T('Odhady nie sú meranie z kalorimetra. Aktivitu počítame ako čistý výdaj nad pokojový metabolizmus, aby sa BMR nepripočítal dvakrát.','These are estimates, not calorimetry. Activity is counted above resting metabolism to avoid double-counting BMR.','Dies sind Schätzungen, keine Kalorimetrie. Aktivität wird oberhalb des Ruheumsatzes gerechnet, damit der BMR nicht doppelt gezählt wird.')}</div>`;
+   const rem=document.getElementById('kcalRemaining'),line=document.getElementById('homeKcalLine');if(rem)rem.textContent=Math.max(0,round(n(store.goals?.kcal)-e.intake));if(line)line.textContent=`${e.intake} z ${round(store.goals?.kcal)} kcal · ${T('výdaj ~','burn ~','Verbrauch ~')}${e.total}`;
+   const bs=document.getElementById('burnedSummary');if(bs)bs.textContent=e.active.total;const net=document.getElementById('netKcal');if(net){net.textContent=signed(e.balance);const badge=net.closest('.badge');if(badge&&badge.firstChild&&badge.firstChild.nodeType===3)badge.firstChild.textContent=T('Bilancia: ','Balance: ','Bilanz: ')}
+ }
+ function patchHistory(){
+   const modal=document.getElementById('v453DayModal'),body=document.getElementById('v453Body');if(!modal||!body||!modal.classList.contains('open'))return;const m=(document.getElementById('v453Title')?.textContent||'').match(/20\d\d-\d\d-\d\d/);if(!m)return;let e;try{e=energyFor(m[0])}catch(_){return}const sig=[m[0],e.intake,e.total,e.balance,e.active.steps.kcal,e.active.strength.kcal,e.active.cardio.kcal].join('|');let box=body.querySelector('.v488-history-energy');if(box?.dataset.sig===sig)return;if(!box){box=document.createElement('div');box.className='v488-history-energy';body.appendChild(box)}box.dataset.sig=sig;box.innerHTML=`<b>${T('⚡ Energetická bilancia','⚡ Energy balance','⚡ Energiebilanz')}</b><div class="v488-history-grid"><div><span>${T('Príjem','Intake','Aufnahme')}</span><strong>${e.intake} kcal</strong></div><div><span>${T('Odhad výdaja','Est. expenditure','Gesch. Verbrauch')}</span><strong>${e.total} kcal</strong></div><div><span>BMR</span><strong>${e.bmr} kcal</strong></div><div><span>${T('Bilancia','Balance','Bilanz')}</span><strong>${signed(e.balance)} kcal</strong></div></div><div class="v488-note">${T('Kroky','Steps','Schritte')} ${e.active.steps.kcal} · ${T('silový','strength','Kraft')} ${e.active.strength.kcal} · ${T('kardio','cardio','Cardio')} ${e.active.cardio.kcal} kcal</div>`;
+ }
+ async function lookupBarcode(root,code,msg){
+   code=String(code||'').replace(/\D/g,'');if(code.length<8){msg.textContent=T('Zadaj platný čiarový kód.','Enter a valid barcode.','Gültigen Barcode eingeben.');return}msg.textContent=T('Načítavam Open Food Facts…','Loading Open Food Facts…','Open Food Facts wird geladen…');
+   try{const url='https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=code,product_name,product_name_sk,product_name_en,product_name_de,nutriments';const r=await fetch(url,{headers:{Accept:'application/json'}});if(!r.ok)throw new Error('HTTP '+r.status);const data=await r.json(),p=data?.product;if(!p)throw new Error('not found');const nu=p.nutriments||{},name=p.product_name_sk||p.product_name||p.product_name_en||p.product_name_de||('EAN '+code);let kcal=n(nu['energy-kcal_100g']);if(!kcal&&n(nu['energy-kj_100g']))kcal=n(nu['energy-kj_100g'])/4.184;const protein=n(nu.proteins_100g),carbs=n(nu.carbohydrates_100g),fat=n(nu.fat_100g);if(!(kcal>0))throw new Error('nutrition');const id='off-'+code,food={id,name,k:kcal,p:protein,c:carbs,f:fat,custom:true,barcode:code,source:'Open Food Facts'};const i=(store.customFoods||[]).findIndex(x=>x.id===id);if(i>=0)store.customFoods[i]=food;else store.customFoods.push(food);if(typeof saveLocalOnly==='function')saveLocalOnly();if(typeof queueCloudSync==='function')queueCloudSync();const search=root.querySelector('.v481-search');if(search){search.value=name;search.dispatchEvent(new Event('input',{bubbles:true}));setTimeout(()=>{const b=[...root.querySelectorAll('.v481-result')].find(x=>x.dataset.id===id);if(b)b.click()},30)}msg.textContent=T('Načítané. Skontroluj hodnoty na etikete a zadaj gramáž.','Loaded. Check the label and enter grams.','Geladen. Werte mit dem Etikett prüfen und Gramm eingeben.');}
+   catch(err){msg.textContent=T('Produkt alebo nutričné údaje sa nenašli. Môžeš ho pridať ako vlastnú potravinu.','Product or nutrition data not found. You can add it as a custom food.','Produkt oder Nährwerte nicht gefunden. Du kannst es als eigenes Lebensmittel hinzufügen.')}
+ }
+ function ensureBarcode(){
+   const root=document.querySelector('#v478EditorBody .v481');if(!root||root.querySelector('.v488-barcode'))return;const search=root.querySelector('.v481-searchwrap');if(!search)return;const box=document.createElement('div');box.className='v488-barcode';box.innerHTML=`<div class="v488-barcode-top"><b>▦ ${T('Čiarový kód','Barcode','Barcode')}</b><button type="button" class="v488-barcode-toggle">${T('Použiť','Use','Verwenden')}</button></div><div class="v488-barcode-body" hidden><input class="v488-barcode-input" inputmode="numeric" autocomplete="off" placeholder="EAN / UPC"><button type="button" class="v488-barcode-go">${T('Načítať','Load','Laden')}</button><div class="v488-barcode-msg">Open Food Facts · ${T('bezplatná databáza','free database','kostenlose Datenbank')}</div></div>`;search.insertAdjacentElement('afterend',box);const body=box.querySelector('.v488-barcode-body'),input=box.querySelector('.v488-barcode-input'),msg=box.querySelector('.v488-barcode-msg');box.querySelector('.v488-barcode-toggle').onclick=()=>{body.hidden=!body.hidden;if(!body.hidden)input.focus()};box.querySelector('.v488-barcode-go').onclick=()=>lookupBarcode(root,input.value,msg);input.addEventListener('keydown',e=>{if(e.key==='Enter')lookupBarcode(root,input.value,msg)});
+ }
+ function cleanupOldSmart(){document.getElementById('fdce-btn')?.remove();document.getElementById('fdce-modal')?.remove()}
+ function updateAll(){cleanupOldSmart();renderEnergy();patchHistory();ensureBarcode()}
+ const prev=window.render;if(typeof prev==='function')window.render=function(){const r=prev.apply(this,arguments);setTimeout(updateAll,60);return r};
+ document.addEventListener('click',e=>{if(e.target.closest('.v478-add,#v478TopAdd,#v478Search,#goalCalendar .calday,[data-v483-date]'))setTimeout(updateAll,140)},true);
+ const obs=new MutationObserver(()=>{cleanupOldSmart();const vr=document.querySelector('#v478EditorBody .v481');if(vr&&!vr.querySelector('.v488-barcode'))ensureBarcode();if(document.getElementById('v453DayModal')?.classList.contains('open'))patchHistory()});
+ if(document.body)obs.observe(document.body,{childList:true,subtree:true});
+ setInterval(()=>{if(!document.hidden)renderEnergy()},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(updateAll,50)});
+ setTimeout(updateAll,200);
+ window.FitDiaryEnergyV488={energyFor,adaptiveMaintenance,activeFor};
 })();
 </script>
 
