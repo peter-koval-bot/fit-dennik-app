@@ -1,4 +1,4 @@
-const CACHE='fit-diary-v4-90-native-health';
+const CACHE='fit-diary-v4-91-admin-dashboard';
 const ASSETS=[
   './',
   './index.html',

@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Fit Diary v4.90.0 — native HealthKit / Health Connect step sync; preserves existing account, food, training, progress and camera/barcode features. -->
+<!-- Fit Diary v4.91.0 — secure owner-only Admin Dashboard; preserves existing account, food, training, progress, camera/barcode and native health features. -->
 <html lang="sk">
 <head>
 <meta charset="utf-8">
@@ -217,6 +217,14 @@ html,body{
 .fd-gate-logo{width:84px;height:84px;border-radius:22px;display:block;margin:0 auto 12px;box-shadow:0 12px 28px #0007}
 @media(max-width:390px){.fd-brand-logo{width:44px;height:44px;border-radius:13px}.hero .brand{gap:10px!important}}
 </style>
+
+<style id="v491-admin-css">
+/* Fit Diary v4.91 — owner-only admin dashboard. Account metadata only; no diary/health content. */
+#v491Admin{border-color:#315579;background:linear-gradient(180deg,#0f2235,#0b1826)}
+.v491-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.v491-head h3{margin:0}.v491-owner{font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:6px 9px;border-radius:999px;border:1px solid #2f6da2;background:#102f49;color:#a9dcff;white-space:nowrap}.v491-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}.v491-stat{background:#0c1a29;border:1px solid #263e54;border-radius:14px;padding:11px;text-align:center}.v491-stat span{display:block;color:#8fa9bf;font-size:11px;line-height:1.25}.v491-stat b{display:block;font-size:23px;margin-top:4px}.v491-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 10px}.v491-actions button{min-height:38px}.v491-status{font-size:12px;color:#8fa9bf}.v491-users{display:grid;gap:8px;margin-top:10px}.v491-user{border:1px solid #263e54;border-radius:14px;background:#0b1724;padding:11px}.v491-user-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.v491-user-email{font-weight:850;word-break:break-word}.v491-user-name{font-size:12px;color:#a9bfd1;margin-top:2px}.v491-user-badge{font-size:10px;padding:4px 7px;border-radius:999px;border:1px solid #2f6da2;background:#102f49;color:#a9dcff;white-space:nowrap}.v491-user-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}.v491-user-meta div{background:#101f2f;border-radius:10px;padding:8px}.v491-user-meta span{display:block;color:#7f9ab0;font-size:10px;line-height:1.25}.v491-user-meta b{display:block;font-size:11px;margin-top:3px;word-break:break-word}.v491-note{font-size:11px;color:#8197aa;line-height:1.45;margin-top:10px}.v491-error{color:#ff9b9b}.v491-empty{padding:16px;text-align:center;color:#8da3b6;border:1px dashed #29445e;border-radius:12px}.v491-admin-menu{grid-column:1/-1!important;border-color:#376b94!important;background:#102b42!important;color:#d7efff!important}
+@media(max-width:640px){.v491-stats{grid-template-columns:1fr 1fr}.v491-user-meta{grid-template-columns:1fr}.v491-stat b{font-size:20px}}
+</style>
+
 </head>
 <body class="locked">
 
@@ -3266,6 +3274,93 @@ body.v4822-plan-open .bottomnav{z-index:80}
  function maybeAuto(){const s=readState();if(s.enabled&&s.auto&&nativeReady()&&typeof currentUser!=='undefined'&&currentUser)syncToday(false)}
  function update(){ensureCard();updateUI();setTimeout(maybeAuto,250)}
  const mo=new MutationObserver(()=>{if(document.querySelector('#settings .grid')&&!$('v490Health'))requestAnimationFrame(update)});if(document.body)mo.observe(document.body,{childList:true,subtree:true});document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>{update();maybeAuto()},200)});window.addEventListener('focus',()=>setTimeout(maybeAuto,250));window.addEventListener('pageshow',()=>setTimeout(()=>{update();maybeAuto()},400));setInterval(()=>{if(!document.hidden)maybeAuto()},300000);setTimeout(update,250);window.FDHealthV490={connect,syncToday,readStepsFor,state:readState};
+})();
+</script>
+
+
+<script id="v491-admin-js">
+(()=>{
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const lang=()=>{try{return typeof fdLang!=='undefined'?fdLang:'sk'}catch(_){return'sk'}};
+ const T=(sk,en,de)=>lang()==='en'?en:lang()==='de'?de:sk;
+ let dataCache=null,loading=false,confirmedAdmin=false;
+
+ function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+ function fmt(iso){if(!iso)return '—';try{return new Intl.DateTimeFormat(lang()==='de'?'de-DE':lang()==='en'?'en-GB':'sk-SK',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(iso))}catch(_){return String(iso)}}
+ function setStatus(text,bad=false){const e=$('v491AdminStatus');if(e){e.textContent=text||'';e.className='v491-status'+(bad?' v491-error':'')}}
+
+ async function callApi(retry=true){
+   if(typeof ensureSession!=='function')throw new Error('Session API unavailable');
+   const s=await ensureSession();
+   if(!s?.access_token)throw new Error(T('Nie si prihlásený.','You are not signed in.','Du bist nicht angemeldet.'));
+   const r=await fetch(SUPABASE_URL+'/functions/v1/admin-dashboard',{method:'GET',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}});
+   if(r.status===401&&retry&&typeof refreshSession==='function'){await refreshSession();return callApi(false)}
+   if(r.status===403)return null;
+   let body=null;try{body=await r.json()}catch(_){}
+   if(!r.ok)throw new Error(body?.error||('HTTP '+r.status));
+   return body;
+ }
+
+ function ensureMenuButton(){
+   if(!confirmedAdmin||$('v491AdminMenuBtn'))return;
+   const actions=document.querySelector('#profileMenu .profile-menu-actions');if(!actions)return;
+   const b=document.createElement('button');b.id='v491AdminMenuBtn';b.type='button';b.className='btn-soft v491-admin-menu';b.textContent='🛡️ '+T('Admin panel','Admin dashboard','Admin-Dashboard');
+   b.onclick=()=>{try{typeof closeHeroMenus==='function'&&closeHeroMenus();typeof setTab==='function'&&setTab('settings')}catch(_){}setTimeout(()=>$('v491Admin')?.scrollIntoView({behavior:'smooth',block:'start'}),120)};
+   const logout=$('logoutBtn');actions.insertBefore(b,logout||null);
+ }
+
+ function ensureCard(){
+   if(!confirmedAdmin||$('v491Admin'))return $('v491Admin');
+   const grid=document.querySelector('#settings .grid');if(!grid)return null;
+   const card=document.createElement('div');card.id='v491Admin';card.className='card full';
+   card.innerHTML=`<div class="v491-head"><div><h3>🛡️ ${T('Admin Dashboard','Admin Dashboard','Admin-Dashboard')}</h3><div class="sub">${T('Používatelia a stav účtov Fit Diary','Fit Diary users and account status','Fit-Diary-Nutzer und Kontostatus')}</div></div><span class="v491-owner">OWNER</span></div><div class="v491-stats"><div class="v491-stat"><span>${T('Registrovaní','Registered','Registriert')}</span><b id="v491Registered">—</b></div><div class="v491-stat"><span>${T('Prihlásení 24 h','Signed in 24h','Login 24h')}</span><b id="v49124h">—</b></div><div class="v491-stat"><span>${T('Prihlásení 7 dní','Signed in 7d','Login 7 Tage')}</span><b id="v4917d">—</b></div><div class="v491-stat"><span>${T('Prihlásení 30 dní','Signed in 30d','Login 30 Tage')}</span><b id="v49130d">—</b></div></div><div class="v491-actions"><button id="v491Refresh" class="btn-blue" type="button">↻ ${T('Obnoviť','Refresh','Aktualisieren')}</button><span id="v491AdminStatus" class="v491-status"></span></div><div id="v491Users" class="v491-users"></div><div class="v491-note">🔒 ${T('Panel zobrazuje iba údaje účtu: e-mail, registráciu, posledné prihlásenie a poslednú synchronizáciu cloudových dát. Nezobrazuje heslá, jedlo, tréningy, hmotnosť ani zdravotné údaje.','This panel shows account metadata only: email, registration, last sign-in and last cloud-data sync. It does not show passwords, food, workouts, weight or health data.','Dieses Panel zeigt nur Kontometadaten: E-Mail, Registrierung, letzten Login und letzte Cloud-Synchronisierung. Es zeigt keine Passwörter, Ernährung, Trainings-, Gewichts- oder Gesundheitsdaten.')}</div>`;
+   const dataCard=[...grid.children].find(x=>/💾\s*Dáta|💾\s*Data|💾\s*Daten/.test(x.textContent||''));
+   grid.insertBefore(card,dataCard||null);
+   $('v491Refresh').onclick=()=>load(true);
+   return card;
+ }
+
+ function render(d){
+   dataCache=d;if(!d)return;
+   ensureCard();ensureMenuButton();
+   const s=d.stats||{};
+   if($('v491Registered'))$('v491Registered').textContent=Number(s.registered||0).toLocaleString();
+   if($('v49124h'))$('v49124h').textContent=Number(s.signedIn24h||0).toLocaleString();
+   if($('v4917d'))$('v4917d').textContent=Number(s.signedIn7d||0).toLocaleString();
+   if($('v49130d'))$('v49130d').textContent=Number(s.signedIn30d||0).toLocaleString();
+   const box=$('v491Users');if(!box)return;
+   const me=(typeof currentUser!=='undefined'&&currentUser?.id)||'';
+   const rows=Array.isArray(d.users)?d.users:[];
+   box.innerHTML=rows.length?rows.map(u=>`<div class="v491-user"><div class="v491-user-top"><div><div class="v491-user-email">${esc(u.email||'—')}</div><div class="v491-user-name">${esc(u.displayName||T('Bez mena','No name','Kein Name'))}</div></div>${u.id===me?`<span class="v491-user-badge">${T('TY','YOU','DU')}</span>`:''}</div><div class="v491-user-meta"><div><span>${T('Registrácia','Registered','Registriert')}</span><b>${esc(fmt(u.createdAt))}</b></div><div><span>${T('Posledné prihlásenie','Last sign-in','Letzter Login')}</span><b>${esc(fmt(u.lastSignInAt))}</b></div><div><span>${T('Posledná synchronizácia dát','Last data sync','Letzte Datensynchronisierung')}</span><b>${esc(fmt(u.lastSyncAt))}</b></div></div></div>`).join(''):`<div class="v491-empty">${T('Žiadni používatelia.','No users.','Keine Nutzer.')}</div>`;
+   setStatus(T('Aktualizované','Updated','Aktualisiert')+': '+fmt(d.generatedAt));
+ }
+
+ async function load(force=false){
+   if(loading)return;if(dataCache&&!force){render(dataCache);return}
+   loading=true;setStatus(T('Načítavam…','Loading…','Lade…'));
+   try{
+     const d=await callApi();
+     if(!d){confirmedAdmin=false;$('v491Admin')?.remove();$('v491AdminMenuBtn')?.remove();return}
+     confirmedAdmin=true;render(d);
+   }catch(err){if(confirmedAdmin){ensureCard();setStatus(T('Admin údaje sa nepodarilo načítať.','Could not load admin data.','Admin-Daten konnten nicht geladen werden.')+' '+String(err?.message||err),true)}}
+   finally{loading=false}
+ }
+
+ async function bootstrap(){
+   if(typeof currentUser==='undefined'||!currentUser)return;
+   await load(false);
+ }
+
+ try{
+   if(typeof showApp==='function'){
+     const oldShowApp=showApp;
+     showApp=function(){const r=oldShowApp.apply(this,arguments);setTimeout(bootstrap,350);return r};
+   }
+ }catch(_){}
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&confirmedAdmin)setTimeout(()=>load(true),400)});
+ setTimeout(bootstrap,900);
+ window.FDAdminV491={refresh:()=>load(true)};
 })();
 </script>
 
