@@ -1,4 +1,4 @@
-const CACHE='fit-diary-v4-91-admin-dashboard';
+const CACHE='fit-diary-v4-92-admin-analytics';
 const ASSETS=[
   './',
   './index.html',

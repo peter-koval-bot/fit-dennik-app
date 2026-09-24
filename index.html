@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- Fit Diary v4.92.0 — owner analytics, platform/version telemetry with user control, no diary-content exposure. -->
 <!-- Fit Diary v4.91.0 — secure owner-only Admin Dashboard; preserves existing account, food, training, progress, camera/barcode and native health features. -->
 <html lang="sk">
 <head>
@@ -218,11 +219,13 @@ html,body{
 @media(max-width:390px){.fd-brand-logo{width:44px;height:44px;border-radius:13px}.hero .brand{gap:10px!important}}
 </style>
 
-<style id="v491-admin-css">
-/* Fit Diary v4.91 — owner-only admin dashboard. Account metadata only; no diary/health content. */
-#v491Admin{border-color:#315579;background:linear-gradient(180deg,#0f2235,#0b1826)}
-.v491-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.v491-head h3{margin:0}.v491-owner{font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:6px 9px;border-radius:999px;border:1px solid #2f6da2;background:#102f49;color:#a9dcff;white-space:nowrap}.v491-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:10px 0 12px}.v491-stat{background:#0c1a29;border:1px solid #263e54;border-radius:14px;padding:11px;text-align:center}.v491-stat span{display:block;color:#8fa9bf;font-size:11px;line-height:1.25}.v491-stat b{display:block;font-size:23px;margin-top:4px}.v491-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 10px}.v491-actions button{min-height:38px}.v491-status{font-size:12px;color:#8fa9bf}.v491-users{display:grid;gap:8px;margin-top:10px}.v491-user{border:1px solid #263e54;border-radius:14px;background:#0b1724;padding:11px}.v491-user-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.v491-user-email{font-weight:850;word-break:break-word}.v491-user-name{font-size:12px;color:#a9bfd1;margin-top:2px}.v491-user-badge{font-size:10px;padding:4px 7px;border-radius:999px;border:1px solid #2f6da2;background:#102f49;color:#a9dcff;white-space:nowrap}.v491-user-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}.v491-user-meta div{background:#101f2f;border-radius:10px;padding:8px}.v491-user-meta span{display:block;color:#7f9ab0;font-size:10px;line-height:1.25}.v491-user-meta b{display:block;font-size:11px;margin-top:3px;word-break:break-word}.v491-note{font-size:11px;color:#8197aa;line-height:1.45;margin-top:10px}.v491-error{color:#ff9b9b}.v491-empty{padding:16px;text-align:center;color:#8da3b6;border:1px dashed #29445e;border-radius:12px}.v491-admin-menu{grid-column:1/-1!important;border-color:#376b94!important;background:#102b42!important;color:#d7efff!important}
-@media(max-width:640px){.v491-stats{grid-template-columns:1fr 1fr}.v491-user-meta{grid-template-columns:1fr}.v491-stat b{font-size:20px}}
+<style id="v492-admin-css">
+/* Fit Diary v4.92 — privacy-aware owner analytics dashboard. */
+#v492Admin{border-color:#315579;background:linear-gradient(180deg,#0f2235,#0b1826)}
+.v492-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.v492-head h3{margin:0}.v492-owner{font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;padding:6px 9px;border-radius:999px;border:1px solid #2f6da2;background:#102f49;color:#a9dcff;white-space:nowrap}.v492-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0 12px}.v492-stat{background:#0c1a29;border:1px solid #263e54;border-radius:14px;padding:11px;text-align:center}.v492-stat span{display:block;color:#8fa9bf;font-size:11px;line-height:1.25}.v492-stat b{display:block;font-size:22px;margin-top:4px}.v492-panels{display:grid;grid-template-columns:minmax(0,2fr) minmax(220px,1fr);gap:8px;margin:8px 0}.v492-panel{background:#0b1724;border:1px solid #263e54;border-radius:14px;padding:11px;min-width:0}.v492-chart{min-height:185px;margin-top:6px}.v492-chart svg{display:block;width:100%;height:auto;max-height:190px}.v492-axis{stroke:#36516a;stroke-width:1}.v492-line{fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.v492-line-reg{stroke:#55b7ff}.v492-line-act{stroke:#6fe0a0}.v492-legend{display:flex;gap:12px;flex-wrap:wrap;color:#8fa9bf;font-size:10px}.v492-legend span{display:flex;align-items:center;gap:5px}.v492-legend i{display:inline-block;width:14px;height:3px;border-radius:2px}.v492-legend i.reg{background:#55b7ff}.v492-legend i.act{background:#6fe0a0}.v492-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.v492-chips span,.v492-tech span{font-size:10px;padding:5px 7px;border-radius:999px;border:1px solid #31516c;background:#10283b;color:#b9d9ef}.v492-subhead{display:block;margin-top:14px}.v492-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}.v492-status{font-size:12px;color:#8fa9bf}.v492-error{color:#ff9b9b}.v492-users{display:grid;gap:8px;margin-top:10px}.v492-user{border:1px solid #263e54;border-radius:14px;background:#0b1724;padding:11px}.v492-user-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.v492-email{font-weight:850;word-break:break-word}.v492-name{font-size:12px;color:#a9bfd1;margin-top:2px}.v492-you{font-size:10px;padding:4px 7px;border-radius:999px;border:1px solid #2f6da2;background:#102f49;color:#a9dcff;white-space:nowrap}.v492-tech{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.v492-user-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:9px}.v492-user-meta div{background:#101f2f;border-radius:10px;padding:8px}.v492-user-meta span{display:block;color:#7f9ab0;font-size:10px;line-height:1.25}.v492-user-meta b{display:block;font-size:11px;margin-top:3px;word-break:break-word}.v492-note{font-size:11px;color:#8197aa;line-height:1.45;margin-top:10px}.v492-empty{padding:16px;text-align:center;color:#8da3b6;border:1px dashed #29445e;border-radius:12px}.v492-admin-menu{grid-column:1/-1!important;border-color:#376b94!important;background:#102b42!important;color:#d7efff!important}.v492-privacy-card{border-color:#2d4b63}.v492-toggle{display:flex;align-items:center;gap:9px;margin-top:12px;font-size:13px;color:#d5e4ef}.v492-toggle input{width:auto}.v492-usage-status{font-size:11px;color:#8da5b8;margin-top:6px}
+@media(max-width:760px){.v492-stats{grid-template-columns:1fr 1fr}.v492-panels{grid-template-columns:1fr}.v492-user-meta{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.v492-user-meta{grid-template-columns:1fr}.v492-stat b{font-size:20px}}
+
 </style>
 
 </head>
@@ -3278,90 +3281,86 @@ body.v4822-plan-open .bottomnav{z-index:80}
 </script>
 
 
-<script id="v491-admin-js">
+<script id="v492-usage-js">
+(()=>{
+ 'use strict';
+ const VERSION='4.92';
+ const PREF='fd_usage_analytics';
+ const LAST='fd_usage_last_sent';
+ const $=id=>document.getElementById(id);
+ const lang=()=>{try{return typeof fdLang!=='undefined'?fdLang:'sk'}catch(_){return'sk'}};
+ const T=(sk,en,de)=>lang()==='en'?en:lang()==='de'?de:sk;
+ const enabled=()=>localStorage.getItem(PREF)!=='off';
+ function localDate(){const d=new Date(),p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
+ function nativePlatform(){try{if(window.Capacitor?.isNativePlatform?.())return String(window.Capacitor.getPlatform?.()||'native').toLowerCase()}catch(_){}return''}
+ function platform(){const np=nativePlatform();if(np==='ios')return'iOS';if(np==='android')return'Android';const ua=navigator.userAgent||'',pf=navigator.platform||'';if(/iPhone|iPad|iPod/i.test(ua))return'iOS';if(/Android/i.test(ua))return'Android';if(/Mac/i.test(pf)||/Macintosh/i.test(ua))return'macOS';if(/Win/i.test(pf)||/Windows/i.test(ua))return'Windows';if(/Linux/i.test(pf)||/Linux/i.test(ua))return'Linux';return'Web'}
+ function installMode(){if(nativePlatform())return'native';try{if(window.matchMedia?.('(display-mode: standalone)').matches||navigator.standalone===true)return'pwa'}catch(_){}return'browser'}
+ async function session(){if(typeof ensureSession!=='function')return null;try{return await ensureSession()}catch(_){return null}}
+ async function send(force=false){
+   if(!enabled()||typeof currentUser==='undefined'||!currentUser)return false;
+   const last=Number(localStorage.getItem(LAST)||0);if(!force&&Date.now()-last<30*60*1000)return true;
+   const s=await session();if(!s?.access_token)return false;
+   try{
+     const r=await fetch(SUPABASE_URL+'/functions/v1/track-usage',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'application/json'},body:JSON.stringify({localDate:localDate(),platform:platform(),installMode:installMode(),appVersion:VERSION})});
+     if(r.ok){localStorage.setItem(LAST,String(Date.now()));return true}
+   }catch(_){}
+   return false;
+ }
+ async function erase(){
+   const s=await session();if(!s?.access_token)return;
+   try{await fetch(SUPABASE_URL+'/functions/v1/track-usage',{method:'DELETE',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}})}catch(_){}
+ }
+ function ensurePrivacyCard(){
+   if($('v492UsagePrivacy'))return;
+   const grid=document.querySelector('#settings .grid');if(!grid)return;
+   const card=document.createElement('div');card.id='v492UsagePrivacy';card.className='card full v492-privacy-card';
+   card.innerHTML=`<h3>🔐 ${T('Súkromie a štatistiky používania','Privacy & usage statistics','Datenschutz & Nutzungsstatistik')}</h3><div class="sub">${T('Fit Diary môže ukladať iba technické údaje potrebné pre prevádzkové štatistiky: poslednú aktivitu, platformu, spôsob spustenia a verziu aplikácie. Obsah jedál, tréningov, hmotnosť ani zdravotné údaje sa do tejto štatistiky neposielajú.','Fit Diary can store only technical data for operational statistics: last activity, platform, install mode and app version. Food, workout, weight and health content is not sent as part of this statistic.','Fit Diary kann nur technische Daten für Betriebsstatistiken speichern: letzte Aktivität, Plattform, Startart und App-Version. Inhalte zu Ernährung, Training, Gewicht oder Gesundheit werden dafür nicht gesendet.')}</div><label class="v492-toggle"><input id="v492UsageToggle" type="checkbox"><span>${T('Povoliť základné štatistiky používania','Allow basic usage statistics','Grundlegende Nutzungsstatistik erlauben')}</span></label><div id="v492UsageStatus" class="v492-usage-status"></div>`;
+   const health=$('v490Health'),data=[...grid.children].find(x=>/💾\s*Dáta|💾\s*Data|💾\s*Daten/.test(x.textContent||''));grid.insertBefore(card,health||data||null);
+   const cb=$('v492UsageToggle');cb.checked=enabled();cb.onchange=async()=>{if(cb.checked){localStorage.removeItem(PREF);$('v492UsageStatus').textContent=T('Zapnuté.','Enabled.','Aktiviert.');await send(true)}else{localStorage.setItem(PREF,'off');localStorage.removeItem(LAST);$('v492UsageStatus').textContent=T('Vypnuté a uložené technické štatistiky boli odstránené.','Disabled and stored technical statistics were removed.','Deaktiviert und gespeicherte technische Statistiken wurden gelöscht.');await erase()}};
+   $('v492UsageStatus').textContent=enabled()?T('Zapnuté.','Enabled.','Aktiviert.'):T('Vypnuté.','Disabled.','Deaktiviert.');
+ }
+ function boot(){ensurePrivacyCard();send(false)}
+ try{if(typeof showApp==='function'){const old=showApp;showApp=function(){const r=old.apply(this,arguments);setTimeout(boot,450);return r}}}catch(_){}
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>{ensurePrivacyCard();send(false)},300)});
+ window.addEventListener('pageshow',()=>setTimeout(boot,600));
+ setTimeout(boot,1200);
+ window.FDUsageV492={track:()=>send(true),enabled,platform,installMode};
+})();
+
+</script>
+
+<script id="v492-admin-js">
 (()=>{
  'use strict';
  const $=id=>document.getElementById(id);
  const lang=()=>{try{return typeof fdLang!=='undefined'?fdLang:'sk'}catch(_){return'sk'}};
  const T=(sk,en,de)=>lang()==='en'?en:lang()==='de'?de:sk;
- let dataCache=null,loading=false,confirmedAdmin=false;
-
- function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
- function fmt(iso){if(!iso)return '—';try{return new Intl.DateTimeFormat(lang()==='de'?'de-DE':lang()==='en'?'en-GB':'sk-SK',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(iso))}catch(_){return String(iso)}}
- function setStatus(text,bad=false){const e=$('v491AdminStatus');if(e){e.textContent=text||'';e.className='v491-status'+(bad?' v491-error':'')}}
-
- async function callApi(retry=true){
-   if(typeof ensureSession!=='function')throw new Error('Session API unavailable');
-   const s=await ensureSession();
-   if(!s?.access_token)throw new Error(T('Nie si prihlásený.','You are not signed in.','Du bist nicht angemeldet.'));
-   const r=await fetch(SUPABASE_URL+'/functions/v1/admin-dashboard',{method:'GET',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}});
-   if(r.status===401&&retry&&typeof refreshSession==='function'){await refreshSession();return callApi(false)}
-   if(r.status===403)return null;
-   let body=null;try{body=await r.json()}catch(_){}
-   if(!r.ok)throw new Error(body?.error||('HTTP '+r.status));
-   return body;
+ let cache=null,loading=false,confirmed=false;
+ const esc=v=>String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+ function fmt(iso,dateOnly=false){if(!iso)return'—';try{return new Intl.DateTimeFormat(lang()==='de'?'de-DE':lang()==='en'?'en-GB':'sk-SK',dateOnly?{day:'2-digit',month:'2-digit'}:{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(iso))}catch(_){return String(iso)}}
+ function num(v){return Number(v||0).toLocaleString()}
+ function status(t,bad=false){const e=$('v492AdminStatus');if(e){e.textContent=t||'';e.className='v492-status'+(bad?' v492-error':'')}}
+ async function api(retry=true){
+   if(typeof ensureSession!=='function')throw new Error('Session API unavailable');const s=await ensureSession();if(!s?.access_token)throw new Error(T('Nie si prihlásený.','You are not signed in.','Du bist nicht angemeldet.'));
+   const r=await fetch(SUPABASE_URL+'/functions/v1/admin-dashboard',{headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+s.access_token}});if(r.status===401&&retry&&typeof refreshSession==='function'){await refreshSession();return api(false)}if(r.status===403)return null;let b=null;try{b=await r.json()}catch(_){}if(!r.ok)throw new Error(b?.error||('HTTP '+r.status));return b;
  }
-
- function ensureMenuButton(){
-   if(!confirmedAdmin||$('v491AdminMenuBtn'))return;
-   const actions=document.querySelector('#profileMenu .profile-menu-actions');if(!actions)return;
-   const b=document.createElement('button');b.id='v491AdminMenuBtn';b.type='button';b.className='btn-soft v491-admin-menu';b.textContent='🛡️ '+T('Admin panel','Admin dashboard','Admin-Dashboard');
-   b.onclick=()=>{try{typeof closeHeroMenus==='function'&&closeHeroMenus();typeof setTab==='function'&&setTab('settings')}catch(_){}setTimeout(()=>$('v491Admin')?.scrollIntoView({behavior:'smooth',block:'start'}),120)};
-   const logout=$('logoutBtn');actions.insertBefore(b,logout||null);
+ function menu(){if(!confirmed||$('v492AdminMenuBtn'))return;const a=document.querySelector('#profileMenu .profile-menu-actions');if(!a)return;const b=document.createElement('button');b.id='v492AdminMenuBtn';b.type='button';b.className='btn-soft v492-admin-menu';b.textContent='🛡️ '+T('Admin panel','Admin dashboard','Admin-Dashboard');b.onclick=()=>{try{typeof closeHeroMenus==='function'&&closeHeroMenus();typeof setTab==='function'&&setTab('settings')}catch(_){}setTimeout(()=>$('v492Admin')?.scrollIntoView({behavior:'smooth',block:'start'}),120)};a.insertBefore(b,$('logoutBtn')||null)}
+ function card(){
+   $('v491Admin')?.remove();$('v491AdminMenuBtn')?.remove();if(!confirmed||$('v492Admin'))return $('v492Admin');const g=document.querySelector('#settings .grid');if(!g)return null;const c=document.createElement('div');c.id='v492Admin';c.className='card full';
+   c.innerHTML=`<div class="v492-head"><div><h3>🛡️ ${T('Admin Dashboard','Admin Dashboard','Admin-Dashboard')}</h3><div class="sub">${T('Používatelia, aktivita a technický stav Fit Diary','Users, activity and technical status of Fit Diary','Nutzer, Aktivität und technischer Status von Fit Diary')}</div></div><span class="v492-owner">OWNER</span></div><div class="v492-stats"><div class="v492-stat"><span>${T('Registrovaní','Registered','Registriert')}</span><b id="v492Registered">—</b></div><div class="v492-stat"><span>${T('Aktívni 24 h','Active 24h','Aktiv 24h')}</span><b id="v49224">—</b></div><div class="v492-stat"><span>${T('Aktívni 7 dní','Active 7d','Aktiv 7 Tage')}</span><b id="v4927">—</b></div><div class="v492-stat"><span>${T('Aktívni 30 dní','Active 30d','Aktiv 30 Tage')}</span><b id="v49230">—</b></div><div class="v492-stat"><span>${T('Tréningy 30 dní','Workouts 30d','Trainings 30 Tage')}</span><b id="v492Workouts">—</b></div><div class="v492-stat"><span>${T('Záznamy jedla 30 dní','Food logs 30d','Essenseinträge 30 Tage')}</span><b id="v492Food">—</b></div></div><div class="v492-panels"><div class="v492-panel"><b>${T('Rast a aktivita – 30 dní','Growth & activity – 30 days','Wachstum & Aktivität – 30 Tage')}</b><div id="v492Chart" class="v492-chart"></div></div><div class="v492-panel"><b>${T('Platformy','Platforms','Plattformen')}</b><div id="v492Platforms" class="v492-chips"></div><b class="v492-subhead">${T('Verzie aplikácie','App versions','App-Versionen')}</b><div id="v492Versions" class="v492-chips"></div></div></div><div class="v492-actions"><button id="v492Refresh" class="btn-blue" type="button">↻ ${T('Obnoviť','Refresh','Aktualisieren')}</button><span id="v492AdminStatus" class="v492-status"></span></div><div id="v492Users" class="v492-users"></div><div class="v492-note">🔒 ${T('Admin štatistiky používajú iba metadáta účtu a súhrnné počty. Nezobrazujú obsah jedál, tréningov, hmotnosť, fotky ani zdravotné údaje. Technická aktivita a platforma sa začínajú zaznamenávať od verzie 4.92 a používateľ ich môže v nastaveniach vypnúť.','Admin statistics use account metadata and aggregate counts only. They do not show food/workout content, weight, photos or health data. Technical activity and platform tracking starts with version 4.92 and can be disabled by the user in settings.','Admin-Statistiken verwenden nur Kontometadaten und aggregierte Zähler. Inhalte von Ernährung/Training, Gewicht, Fotos oder Gesundheitsdaten werden nicht angezeigt. Technische Aktivität und Plattform werden ab Version 4.92 erfasst und können vom Nutzer deaktiviert werden.')}</div>`;
+   const d=[...g.children].find(x=>/💾\s*Dáta|💾\s*Data|💾\s*Daten/.test(x.textContent||''));g.insertBefore(c,d||null);$('v492Refresh').onclick=()=>load(true);return c;
  }
-
- function ensureCard(){
-   if(!confirmedAdmin||$('v491Admin'))return $('v491Admin');
-   const grid=document.querySelector('#settings .grid');if(!grid)return null;
-   const card=document.createElement('div');card.id='v491Admin';card.className='card full';
-   card.innerHTML=`<div class="v491-head"><div><h3>🛡️ ${T('Admin Dashboard','Admin Dashboard','Admin-Dashboard')}</h3><div class="sub">${T('Používatelia a stav účtov Fit Diary','Fit Diary users and account status','Fit-Diary-Nutzer und Kontostatus')}</div></div><span class="v491-owner">OWNER</span></div><div class="v491-stats"><div class="v491-stat"><span>${T('Registrovaní','Registered','Registriert')}</span><b id="v491Registered">—</b></div><div class="v491-stat"><span>${T('Prihlásení 24 h','Signed in 24h','Login 24h')}</span><b id="v49124h">—</b></div><div class="v491-stat"><span>${T('Prihlásení 7 dní','Signed in 7d','Login 7 Tage')}</span><b id="v4917d">—</b></div><div class="v491-stat"><span>${T('Prihlásení 30 dní','Signed in 30d','Login 30 Tage')}</span><b id="v49130d">—</b></div></div><div class="v491-actions"><button id="v491Refresh" class="btn-blue" type="button">↻ ${T('Obnoviť','Refresh','Aktualisieren')}</button><span id="v491AdminStatus" class="v491-status"></span></div><div id="v491Users" class="v491-users"></div><div class="v491-note">🔒 ${T('Panel zobrazuje iba údaje účtu: e-mail, registráciu, posledné prihlásenie a poslednú synchronizáciu cloudových dát. Nezobrazuje heslá, jedlo, tréningy, hmotnosť ani zdravotné údaje.','This panel shows account metadata only: email, registration, last sign-in and last cloud-data sync. It does not show passwords, food, workouts, weight or health data.','Dieses Panel zeigt nur Kontometadaten: E-Mail, Registrierung, letzten Login und letzte Cloud-Synchronisierung. Es zeigt keine Passwörter, Ernährung, Trainings-, Gewichts- oder Gesundheitsdaten.')}</div>`;
-   const dataCard=[...grid.children].find(x=>/💾\s*Dáta|💾\s*Data|💾\s*Daten/.test(x.textContent||''));
-   grid.insertBefore(card,dataCard||null);
-   $('v491Refresh').onclick=()=>load(true);
-   return card;
+ function chart(g){const box=$('v492Chart');if(!box)return;const a=Array.isArray(g)?g:[];if(!a.length){box.textContent='—';return}const W=620,H=180,P=24,max=Math.max(1,...a.map(x=>Math.max(Number(x.registered||0),Number(x.activeUsers||0))));const pts=k=>a.map((x,i)=>`${P+i*(W-2*P)/Math.max(1,a.length-1)},${H-P-(Number(x[k]||0)/max)*(H-2*P)}`).join(' ');box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="30 day admin chart"><line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" class="v492-axis"/><polyline points="${pts('registered')}" class="v492-line v492-line-reg"/><polyline points="${pts('activeUsers')}" class="v492-line v492-line-act"/></svg><div class="v492-legend"><span><i class="reg"></i>${T('Registrovaní spolu','Registered total','Registriert gesamt')}</span><span><i class="act"></i>${T('Aktívni za deň','Daily active','Täglich aktiv')}</span><span>${fmt(a[0].date,true)} → ${fmt(a[a.length-1].date,true)}</span></div>`}
+ function chips(id,obj){const e=$(id);if(!e)return;const rows=Object.entries(obj||{}).sort((a,b)=>Number(b[1])-Number(a[1]));e.innerHTML=rows.length?rows.map(([k,v])=>`<span>${esc(k)} <b>${num(v)}</b></span>`).join(''):`<span>${T('Zatiaľ bez dát','No data yet','Noch keine Daten')}</span>`}
+ function render(d){cache=d;if(!d)return;confirmed=true;card();menu();const s=d.stats||{};$('v492Registered').textContent=num(s.registered);$('v49224').textContent=num(s.active24h);$('v4927').textContent=num(s.active7d);$('v49230').textContent=num(s.active30d);$('v492Workouts').textContent=num(s.workouts30d);$('v492Food').textContent=num(s.foodEntries30d);chart(d.growth);chips('v492Platforms',d.platforms);chips('v492Versions',d.versions);
+   const me=(typeof currentUser!=='undefined'&&currentUser?.id)||'',rows=Array.isArray(d.users)?d.users:[],box=$('v492Users');box.innerHTML=rows.length?rows.map(u=>`<div class="v492-user"><div class="v492-user-top"><div><div class="v492-email">${esc(u.email||'—')}</div><div class="v492-name">${esc(u.displayName||T('Bez mena','No name','Kein Name'))}</div></div>${u.id===me?`<span class="v492-you">${T('TY','YOU','DU')}</span>`:''}</div><div class="v492-tech"><span>${esc((u.platform&&u.platform!=='unknown'?u.platform:'—'))}</span><span>${esc((u.installMode&&u.installMode!=='unknown'?u.installMode:'—'))}</span><span>${esc((u.appVersion&&u.appVersion!=='unknown'?'v'+u.appVersion:'—'))}</span></div><div class="v492-user-meta"><div><span>${T('Posledná aktivita','Last activity','Letzte Aktivität')}</span><b>${esc(fmt(u.lastAppActivityAt))}</b></div><div><span>${T('Aktívne dni 30d','Active days 30d','Aktive Tage 30d')}</span><b>${num(u.activeDays30)}</b></div><div><span>${T('Tréningy','Workouts','Trainings')}</span><b>${num(u.workouts30d)} / 30d · ${num(u.workoutsTotal)} ${T('spolu','total','gesamt')}</b></div><div><span>${T('Záznamy jedla','Food logs','Essenseinträge')}</span><b>${num(u.foodEntries30d)} / 30d · ${num(u.foodEntriesTotal)} ${T('spolu','total','gesamt')}</b></div><div><span>${T('Registrácia','Registered','Registriert')}</span><b>${esc(fmt(u.createdAt))}</b></div><div><span>${T('Posledné prihlásenie','Last sign-in','Letzter Login')}</span><b>${esc(fmt(u.lastSignInAt))}</b></div><div><span>${T('Posledná synchronizácia','Last sync','Letzte Synchronisierung')}</span><b>${esc(fmt(u.lastSyncAt))}</b></div></div></div>`).join(''):`<div class="v492-empty">${T('Žiadni používatelia.','No users.','Keine Nutzer.')}</div>`;status(T('Aktualizované','Updated','Aktualisiert')+': '+fmt(d.generatedAt));
  }
-
- function render(d){
-   dataCache=d;if(!d)return;
-   ensureCard();ensureMenuButton();
-   const s=d.stats||{};
-   if($('v491Registered'))$('v491Registered').textContent=Number(s.registered||0).toLocaleString();
-   if($('v49124h'))$('v49124h').textContent=Number(s.signedIn24h||0).toLocaleString();
-   if($('v4917d'))$('v4917d').textContent=Number(s.signedIn7d||0).toLocaleString();
-   if($('v49130d'))$('v49130d').textContent=Number(s.signedIn30d||0).toLocaleString();
-   const box=$('v491Users');if(!box)return;
-   const me=(typeof currentUser!=='undefined'&&currentUser?.id)||'';
-   const rows=Array.isArray(d.users)?d.users:[];
-   box.innerHTML=rows.length?rows.map(u=>`<div class="v491-user"><div class="v491-user-top"><div><div class="v491-user-email">${esc(u.email||'—')}</div><div class="v491-user-name">${esc(u.displayName||T('Bez mena','No name','Kein Name'))}</div></div>${u.id===me?`<span class="v491-user-badge">${T('TY','YOU','DU')}</span>`:''}</div><div class="v491-user-meta"><div><span>${T('Registrácia','Registered','Registriert')}</span><b>${esc(fmt(u.createdAt))}</b></div><div><span>${T('Posledné prihlásenie','Last sign-in','Letzter Login')}</span><b>${esc(fmt(u.lastSignInAt))}</b></div><div><span>${T('Posledná synchronizácia dát','Last data sync','Letzte Datensynchronisierung')}</span><b>${esc(fmt(u.lastSyncAt))}</b></div></div></div>`).join(''):`<div class="v491-empty">${T('Žiadni používatelia.','No users.','Keine Nutzer.')}</div>`;
-   setStatus(T('Aktualizované','Updated','Aktualisiert')+': '+fmt(d.generatedAt));
- }
-
- async function load(force=false){
-   if(loading)return;if(dataCache&&!force){render(dataCache);return}
-   loading=true;setStatus(T('Načítavam…','Loading…','Lade…'));
-   try{
-     const d=await callApi();
-     if(!d){confirmedAdmin=false;$('v491Admin')?.remove();$('v491AdminMenuBtn')?.remove();return}
-     confirmedAdmin=true;render(d);
-   }catch(err){if(confirmedAdmin){ensureCard();setStatus(T('Admin údaje sa nepodarilo načítať.','Could not load admin data.','Admin-Daten konnten nicht geladen werden.')+' '+String(err?.message||err),true)}}
-   finally{loading=false}
- }
-
- async function bootstrap(){
-   if(typeof currentUser==='undefined'||!currentUser)return;
-   await load(false);
- }
-
- try{
-   if(typeof showApp==='function'){
-     const oldShowApp=showApp;
-     showApp=function(){const r=oldShowApp.apply(this,arguments);setTimeout(bootstrap,350);return r};
-   }
- }catch(_){}
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&confirmedAdmin)setTimeout(()=>load(true),400)});
- setTimeout(bootstrap,900);
- window.FDAdminV491={refresh:()=>load(true)};
+ async function load(force=false){if(loading)return;if(cache&&!force){render(cache);return}loading=true;status(T('Načítavam…','Loading…','Lade…'));try{const d=await api();if(!d){confirmed=false;$('v492Admin')?.remove();$('v492AdminMenuBtn')?.remove();return}render(d)}catch(e){if(confirmed){card();status(T('Admin údaje sa nepodarilo načítať.','Could not load admin data.','Admin-Daten konnten nicht geladen werden.')+' '+String(e?.message||e),true)}}finally{loading=false}}
+ async function boot(){if(typeof currentUser==='undefined'||!currentUser)return;await load(false)}
+ try{if(typeof showApp==='function'){const old=showApp;showApp=function(){const r=old.apply(this,arguments);setTimeout(boot,500);return r}}}catch(_){}
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&confirmed)setTimeout(()=>load(true),500)});setTimeout(boot,1400);window.FDAdminV492={refresh:()=>load(true)};
 })();
+
 </script>
 
 </body>
