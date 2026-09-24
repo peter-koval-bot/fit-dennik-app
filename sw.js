@@ -1,4 +1,4 @@
-const CACHE='fit-diary-v4-88-native-smart-energy';
+const CACHE='fit-diary-v4-89-camera-barcode';
 const ASSETS=[
   './',
   './index.html',

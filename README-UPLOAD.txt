@@ -1,29 +1,21 @@
-FIT DIARY v4.88 — NATÍVNE SMART KALÓRIE
+FIT DIARY v4.89 — CAMERA BARCODE + MEDIA ACCESS
 
-Nahraj do ROOTu repozitára peter-koval-bot/fit-dennik-app iba tieto 2 súbory:
+Na GitHub v koreni repozitára nahraď iba tieto 2 súbory:
+1) index.html
+2) sw.js
 
-1) index.html  — NAHRAĎ existujúci index.html
-2) sw.js       — NAHRAĎ existujúci sw.js
+Nemeň:
+- splash.html
+- manifest.webmanifest
+- ikony a logo
 
-Nemeň splash.html ani manifest.webmanifest.
-Súbor fit-diary-calorie-ai.js môže zostať v repozitári; v4.88 ho už nenačítava a nepoužíva.
+Čo pribudlo:
+- V Jedlo → Pridať je pri čiarovom kóde tlačidlo „📷 Skenovať“.
+- Skener používa zadnú kameru a po načítaní EAN/UPC automaticky vyhľadá produkt cez Open Food Facts.
+- Ak prehliadač podporuje natívny BarcodeDetector, použije sa bez ďalšej knižnice.
+- Inak sa pri otvorení skenera načíta bezplatná open-source ZXing knižnica z CDN. Ak nie je internet, stále funguje ručné zadanie EAN/UPC.
+- V Ciele a nastavenia pribudla karta „Kamera a fotky“.
+- Kamera: tlačidlo vyžiada/otestuje prístup a stream hneď zastaví.
+- Fotky: iPhone/web nemá trvalé oprávnenie k celej fotoknižnici; tlačidlo otvorí systémový výber konkrétnej fotky a overí, že prístup funguje.
 
-Čo sa zmenilo:
-- žiadne extra SMART tlačidlo a žiadna druhá databáza údajov
-- výpočty používajú existujúci profil zo Supabase (pohlavie, vek, výška, aktivita, cieľ)
-- používajú už zapísané jedlá, kroky, silové tréningy, kardio a hmotnosť
-- BMR: Mifflin–St Jeor
-- silový tréning: odhad podľa času + počtu sérií/hustoty tréningu s realistickým rozsahom
-- kardio: čistý výdaj nad pokojový metabolizmus; ručne zadané kcal sa rešpektujú
-- kroky: odhad podľa výšky, hmotnosti a počtu krokov; beh/chôdza z kardia sa nepočíta dvakrát
-- adaptívny Smart maintenance/TDEE sa po dostatku dát kalibruje z reálneho príjmu a trendu hmotnosti
-- nový výpočet je priamo na Domove a v detailoch histórie
-- čiarový kód v Jedle používa bezplatnú databázu Open Food Facts
-- doterajšie dáta, účet, cloud a fotky sa nemenia
-
-Po nahratí:
-- Fit Diary úplne zavri a otvor znova.
-- Pri prvom štarte môže iPhone ešte použiť starý service worker; ak treba, zavri a otvor appku ešte raz.
-
-Poznámka k presnosti:
-Kalórie spálené tréningom a denný energetický výdaj sú vždy odhady. V4.88 preto zobrazuje rozsah pri silovom tréningu a pri adaptívnom TDEE aj stav kalibrácie.
+Existujúce účty, jedlá, tréningy, merania, progres a cloud dáta sa nemenia.
