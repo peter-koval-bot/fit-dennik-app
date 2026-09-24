@@ -1,4 +1,4 @@
-const CACHE='fit-diary-v4-89-camera-barcode';
+const CACHE='fit-diary-v4-90-native-health';
 const ASSETS=[
   './',
   './index.html',
@@ -10,7 +10,8 @@ const ASSETS=[
   './icon-maskable-512.png',
   './apple-touch-icon.png',
   './favicon-32.png',
-  './fit-diary-logo.png'
+  './fit-diary-logo.png',
+  './privacy-health.html'
 ];
 
 self.addEventListener('install',e=>e.waitUntil(
